@@ -1,18 +1,26 @@
-# TerraLogic
+# TerraLogic brings a new level of realism to tillage and field work in Farming Simulator 25.
 
-TerraLogic is a Farming Simulator 25 gameplay mod by **The Mod Workshop**. It
-replaces hard implement speed limits with a field-work simulation in which
-speed influences work quality, implement wear, draft and harvest results.
+Instead of relying on artificial speed limits, TerraLogic evaluates the actual quality of your field work. Driving too fast can reduce work quality, increase wear, and ultimately affect your harvest yield. At the same time, draft forces, soil conditions, and stone impacts are simulated more realistically, making machine selection and working speed far more important.
+
+The quality of every operation is stored directly on the worked soil. This allows different areas of the same field to have different quality values, which can individually influence the final harvest.
 
 ## Main features
 
-- Persistent, area-based quality for soil preparation, sowing, fertilizing,
-  liming, weed control and supported grass work.
-- Yield effects based on the quality stored where the crop is harvested.
-- Speed- and soil-dependent wear, draft and stone impacts.
-- A compact speed/quality HUD and detailed developer diagnostics.
-- Optional physical sowing dropouts.
-- Precision Farming, More Realistic and multiplayer integration.
+Features:
+- Removes the speed limit from most implements and replaces it with a realistic quality and wear system.
+- Working speed directly affects the quality of field operations.
+- Work quality is stored on the affected soil area in 4x4 meter sized chunks, allowing different parts of the same field to have different quality levels.
+- Soil work quality directly influences the final harvest yield.
+- More realistic implement damage caused by both visible and simulated underground stones, as well as speed and soil dependand abrasion.
+- Vanilla surface stones can still be enabled or disabled independently.
+- Reworked draft forces based on soil type and working conditions when using Precision Farming.
+- Dynamic HUD showing the optimal speed range for balancing work quality, wear, and efficiency.
+- Physical seeding dropouts at excessive working speeds, creating realistically unseeded areas (can be disabled for improved performance).
+- Poorly plowed soil gradually recovers as crops grow.
+- Server-controlled gameplay settings in multiplayer while HUD settings remain client-specific.
+- Integration with Precision Farming and More Realistic. When using More Realistic, the preferred draft model can be selected in the mod settings.
+- Compatible with Advanced Damage System, Realistic Harvesting, Moisture System, CoursePlay, AutoDrive, and many other mods.
+- Multiplayer is tested and supported.
 
 Combines and ordinary crop harvesters are intentionally excluded from the
 implement simulation to avoid conflicts with dedicated harvesting mods.
@@ -38,4 +46,4 @@ containing repository folder; `modDesc.xml` must be at the root of the mod ZIP.
 
 Copyright © 2026 The Mod Workshop. All rights reserved. This repository is
 source-available for inspection; it is **not** an open-source license. See
-[`LICENSE`](LICENSE) and [`SOURCE-NOTICE.md`](SOURCE-NOTICE.md).
+[`LICENSE`](LICENSE).
