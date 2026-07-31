@@ -1,0 +1,7 @@
+# Local build products and editor files
+*.zip
+*.log
+.idea/
+.vscode/
+Thumbs.db
+desktop.ini

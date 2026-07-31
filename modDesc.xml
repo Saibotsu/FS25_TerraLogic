@@ -1,0 +1,217 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<modDesc descVersion="110">
+    <author>The Mod Workshop</author>
+    <version>1.0.0.0</version>
+
+    <iconFilename>icon_terraLogic.dds</iconFilename>
+
+    <title>
+        <en>TerraLogic</en>
+    </title>
+
+    <description>
+        <en><![CDATA[TerraLogic brings a new level of realism to tillage and field work in Farming Simulator 25.
+
+Instead of relying on artificial speed limits, TerraLogic evaluates the actual quality of your field work. Driving too fast can reduce work quality, increase wear, and ultimately affect your harvest yield. At the same time, draft forces, soil conditions, and stone impacts are simulated more realistically, making machine selection and working speed far more important.
+
+The quality of every operation is stored directly on the worked soil. This allows different areas of the same field to have different quality values, which can individually influence the final harvest.
+
+Features:
+- Removes the speed limit from most implements and replaces it with a realistic quality and wear system.
+- Working speed directly affects the quality of field operations.
+- Work quality is stored on the affected soil area, allowing different parts of the same field to have different quality levels.
+- Soil work quality directly influences the final harvest yield.
+- More realistic implement damage caused by both visible and simulated underground stones, as well as speed and soil dependand abrasion.
+- Vanilla surface stones can still be enabled or disabled independently.
+- Reworked draft forces based on soil type and working conditions when using Precision Farming.
+- Dynamic HUD showing the optimal speed range for balancing work quality, wear, and efficiency.
+- Physical seeding dropouts at excessive working speeds, creating realistically unseeded areas (can be disabled for improved performance).
+- Poorly plowed soil gradually recovers as crops grow.
+- Server-controlled gameplay settings in multiplayer while HUD settings remain client-specific.
+- Integration with Precision Farming and More Realistic. When using More Realistic, the preferred draft model can be selected in the mod settings.
+- Compatible with Advanced Damage System, Realistic Harvesting, Moisture System, CoursePlay, AutoDrive, and many other mods.
+- Multiplayer is tested and supported.
+
+Combines and ordinary crop harvesters are intentionally excluded to avoid conflicts with dedicated harvesting mods like Realistic Harvesting. Windrowers, tedders and belt rakes currently retain their standard game behaviour due to engine limitations.]]></en>
+        <de><![CDATA[TerraLogic bringt mehr Realismus in die Bodenbearbeitung von Farming Simulator 25.
+
+Anstatt Geräte durch eine feste Geschwindigkeitsbegrenzung künstlich einzuschränken, bewertet TerraLogic die tatsächlich geleistete Feldarbeit. Zu hohe Arbeitsgeschwindigkeiten können die Arbeitsqualität verschlechtern, den Verschleiß erhöhen und langfristig den Ertrag beeinflussen. Gleichzeitig werden Zugkräfte, Bodeneigenschaften und Steine realistischer simuliert, wodurch die Wahl der richtigen Maschine und Arbeitsgeschwindigkeit deutlich wichtiger wird.
+
+Die Qualität jeder Bearbeitung wird direkt auf der bearbeiteten Bodenfläche gespeichert. Dadurch können unterschiedliche Bereiche desselben Feldes unterschiedliche Qualitätswerte besitzen und sich individuell auf den späteren Ertrag auswirken.
+
+Features:
+- Entfernt die Geschwindigkeitsbegrenzung der meisten Anbaugeräte und ersetzt sie durch ein realistischeres Qualitäts- und Verschleißsystem.
+- Arbeitsgeschwindigkeit beeinflusst die Qualität der Feldarbeit.
+- Die Arbeitsqualität wird flächenbasiert gespeichert, sodass innerhalb eines Feldes unterschiedliche Qualitätszonen entstehen können.
+- Die Qualität der Bodenbearbeitung wirkt sich direkt auf den späteren Ertrag aus. (Auch kompatibel mit Precision Farming)
+- Deutlich realistischeres Schadenssystem für Anbaugeräte durch sichtbare sowie simulierte unterirdische Steine, sowie Bodenabhängige Abrasion.
+- Sichtbare Vanilla-Steine können weiterhin unabhängig aktiviert oder deaktiviert werden.
+- Überarbeitete Zugkräfte für Anbaugeräte. Bei verwendung von Precision Farming auch abhängig von der Bodenart.
+- Dynamisches HUD mit optimalem Geschwindigkeitsbereich zwischen Arbeitsqualität, Verschleiß und Effizienz.
+- Physikalische Saatstellen-Aussetzer bei überhöhter Arbeitsgeschwindigkeit mit sichtbar ungesäten Bereichen. (optional deaktivierbar. Weitere Geräte folgen.).
+- Schlecht gepflügter Boden regeneriert sich im Laufe des Pflanzenwachstums teilweise wieder.
+- Servergesteuerte Gameplay-Einstellungen im Multiplayer, während HUD-Einstellungen weiterhin pro Spieler gespeichert werden.
+- Integration von Precision Farming und More Realistic. Bei Verwendung von More Realistic kann das gewünschte Zugkraftmodell direkt in den Mod-Einstellungen ausgewählt werden.
+- Kompatibel mit Advanced Damage System, Realistic Harvesting, Moisture System, CoursePlay, AutoDrive und vielen weiteren Mods.
+- Multiplayer wurde getestet und wird unterstützt.
+
+Mähdrescher und gewöhnliche Feldfrucht-Ernter sind bewusst ausgeschlossen, um Konflikte mit spezialisierten Ernte-Mods wie Realistic Harvesting zu vermeiden. Schwader und Zetter behalten derzeit ihr Standardverhalten.]]></de>
+    </description>
+
+    <l10n>
+        <text name="terraLogic_workQualityTitle">
+            <en>WORK QUALITY</en>
+            <de>ARBEITSQUALITÄT</de>
+        </text>
+        <text name="terraLogic_workQualityPlow">
+            <en>Plowing quality</en>
+            <de>Pflugqualität</de>
+        </text>
+        <text name="terraLogic_workQualitySoil">
+            <en>Soil preparation quality</en>
+            <de>Bodenbearbeitungsqualität</de>
+        </text>
+        <text name="terraLogic_workQualityCultivate">
+            <en>Cultivating quality</en>
+            <de>Grubberqualität</de>
+        </text>
+        <text name="terraLogic_workQualitySeed">
+            <en>Seeding quality</en>
+            <de>Saatqualität</de>
+        </text>
+        <text name="terraLogic_workQualityFertilizer">
+            <en>Fertilizing quality</en>
+            <de>Düngequalität</de>
+        </text>
+        <text name="terraLogic_workQualityLime">
+            <en>Liming quality</en>
+            <de>Kalkungsqualität</de>
+        </text>
+        <text name="terraLogic_workQualityHerbicide">
+            <en>Weed control quality</en>
+            <de>Unkrautbekämpfungsqualität</de>
+        </text>
+        <text name="terraLogic_workQualityRoller">
+            <en>Rolling quality</en>
+            <de>Walzqualität</de>
+        </text>
+        <text name="terraLogic_workQualityMulch">
+            <en>Mulching quality</en>
+            <de>Mulchqualität</de>
+        </text>
+        <text name="terraLogic_workQualityMower">
+            <en>Mowing quality</en>
+            <de>M&#228;hqualit&#228;t</de>
+        </text>
+        <text name="terraLogic_workQualityYieldFactor">
+            <en>TerraLogic yield factor (after PF/Vanilla)</en>
+            <de>TerraLogic-Ertragsfaktor (nach PF/Vanilla)</de>
+        </text>
+        <text name="terraLogic_workQualityRemainingVanilla">
+            <en>Remaining yield from Vanilla</en>
+            <de>Verbleibender Ertrag von Vanilla</de>
+        </text>
+        <text name="terraLogic_workQualityRemainingPF">
+            <en>Remaining yield from Precision Farming</en>
+            <de>Verbleibender Ertrag von Precision Farming</de>
+        </text>
+        <text name="terraLogic_speedHudQuality">
+            <en>Work quality: %d %%</en>
+            <de>Arbeitsqualit&#228;t: %d %%</de>
+        </text>
+        <text name="terraLogic_speedHudActiveImplements">
+            <en>%d tools</en>
+            <de>%d Ger&#228;te</de>
+        </text>
+        <text name="terraLogic_settingSection">
+            <en>TERRALOGIC</en>
+            <de>TERRALOGIC</de>
+        </text>
+        <text name="terraLogic_settingDraftTitle">
+            <en>Draft model</en>
+            <de>Zugkraftmodell</de>
+        </text>
+        <text name="terraLogic_settingDraftTooltip">
+            <en>Selects which mod calculates implement draft. In multiplayer, only server admins can change this setting.</en>
+            <de>Legt fest, welcher Mod den Ger&#228;tezugwiderstand berechnet. Im Multiplayer kann dies nur ein Server-Admin &#228;ndern.</de>
+        </text>
+        <text name="terraLogic_settingDraftTerraLogic">
+            <en>TerraLogic</en>
+            <de>TerraLogic</de>
+        </text>
+        <text name="terraLogic_settingDraftMR">
+            <en>More Realistic</en>
+            <de>More Realistic</de>
+        </text>
+        <text name="terraLogic_settingPhysicalDropoutsTitle">
+            <en>Physical work dropouts</en>
+            <de>Physikalische Arbeitsaussetzer</de>
+        </text>
+        <text name="terraLogic_settingPhysicalDropoutsTooltip">
+            <en>Allows overspeed to leave real untreated or unworked spots. Quality and yield penalties remain active when disabled. In multiplayer, only server admins can change this setting.</en>
+            <de>Erlaubt bei zu hoher Geschwindigkeit echte unbehandelte oder unbearbeitete Stellen. Qualit&#228;ts- und Ertragsnachteile bleiben beim Deaktivieren aktiv. Im Multiplayer kann dies nur ein Server-Admin &#228;ndern.</de>
+        </text>
+        <text name="terraLogic_settingVisibleStonesTitle">
+            <en>Visible-stone damage</en>
+            <de>Schaden durch sichtbare Steine</de>
+        </text>
+        <text name="terraLogic_settingVisibleStonesTooltip">
+            <en>Vanilla uses only the base-game device classes. TerraLogic also adds visible-stone damage to overlooked ground tools without doubling Vanilla damage. This setting does not affect stones hidden below the surface. In multiplayer, only server admins can change it.</en>
+            <de>Vanilla verwendet nur die Ger&#228;teklassen des Grundspiels. TerraLogic erg&#228;nzt sichtbaren Steinschaden auch bei nicht ber&#252;cksichtigten Bodenger&#228;ten, ohne Vanilla-Schaden zu verdoppeln. Diese Einstellung beeinflusst keine Steine unter der Bodenoberfl&#228;che. Im Multiplayer kann sie nur ein Server-Admin &#228;ndern.</de>
+        </text>
+        <text name="terraLogic_settingVisibleStonesVanilla">
+            <en>Vanilla</en>
+            <de>Vanilla</de>
+        </text>
+        <text name="terraLogic_settingVisibleStonesTerraLogic">
+            <en>TerraLogic extended</en>
+            <de>TerraLogic erweitert</de>
+        </text>
+        <text name="terraLogic_settingQualityTextTitle">
+            <en>Show quality and number of detected implements</en>
+            <de>Qualit&#228;t und Anzahl erkannter Ger&#228;te anzeigen</de>
+        </text>
+        <text name="terraLogic_settingQualityTextTooltip">
+            <en>Shows live work quality and, when multiple implements are active, their number above the speed bar.</en>
+            <de>Zeigt die aktuelle Arbeitsqualit&#228;t und bei mehreren aktiven Ger&#228;ten deren Anzahl oberhalb des Geschwindigkeitsbalkens.</de>
+        </text>
+        <text name="terraLogic_settingHudModeTitle">
+            <en>Speed display</en>
+            <de>Geschwindigkeitsanzeige</de>
+        </text>
+        <text name="terraLogic_settingHudModeTooltip">
+            <en>Dynamic hides the display in the optimal range and shows it after cruise-control changes.</en>
+            <de>Dynamisch blendet die Anzeige nach drei Sekunden im optimalen Bereich aus und nach Tempomat&#228;nderungen wieder ein.</de>
+        </text>
+        <text name="terraLogic_settingHudDynamic">
+            <en>Dynamic</en>
+            <de>Dynamisch</de>
+        </text>
+        <text name="terraLogic_settingHudAlways">
+            <en>Always on</en>
+            <de>Immer an</de>
+        </text>
+        <text name="terraLogic_settingHudOff">
+            <en>Off</en>
+            <de>Aus</de>
+        </text>
+        <text name="terraLogic_settingOn">
+            <en>On</en>
+            <de>An</de>
+        </text>
+        <text name="terraLogic_settingOff">
+            <en>Off</en>
+            <de>Aus</de>
+        </text>
+    </l10n>
+
+    <multiplayer supported="true" />
+
+    <extraSourceFiles>
+        <sourceFile filename="scripts/TerraLogicSettings.lua" />
+        <sourceFile filename="scripts/TerraLogicImplementProfiles.lua" />
+        <sourceFile filename="scripts/TerraLogicDropoutManager.lua" />
+        <sourceFile filename="scripts/TerraLogicQualityManager.lua" />
+        <sourceFile filename="scripts/TerraLogicMain.lua" />
+    </extraSourceFiles>
+</modDesc>
