@@ -4457,6 +4457,54 @@ function TerraLogic:updateOverSpeedImplementClass()
         TerraLogic.resolveWearSafeSpeed(spec.ratedSpeed, implementClass)
 end
 
+-- Foldable rollers do not have a conventional lowered state. Compare their
+-- synchronized fold animation time directly with the fold limits of the actual
+-- ROLLER WorkAreas. WorkArea:getIsWorkAreaActive() is not sufficient here:
+-- some rollers report ground contact while still folded for transport. Every
+-- other implement keeps TerraLogic's established detection unchanged.
+function TerraLogic:getIsOverSpeedWorkAreaInWorkPosition()
+    if self.spec_roller == nil or self.spec_foldable == nil then
+        return true
+    end
+
+    local workAreaSpec = self.spec_workArea
+    if workAreaSpec == nil or workAreaSpec.workAreas == nil then
+        return true
+    end
+
+    local foldTime = self.getFoldAnimTime ~= nil
+        and tonumber(self:getFoldAnimTime())
+        or tonumber(self.spec_foldable.foldAnimTime)
+    if foldTime == nil then return true end
+
+    local hasRollerWorkArea = false
+    for _, workArea in ipairs(workAreaSpec.workAreas) do
+        local isRollerArea = workArea.functionName == "processRollerArea"
+            or (WorkAreaType ~= nil and WorkAreaType.ROLLER ~= nil
+                and workArea.type == WorkAreaType.ROLLER)
+        if isRollerArea then
+            hasRollerWorkArea = true
+            local minimum = tonumber(workArea.foldMinLimit) or 0
+            local maximum = tonumber(workArea.foldMaxLimit) or 1
+            local isInsideWorkRange
+            if workArea.foldLimitedOuterRange == true then
+                -- Same boundary semantics as GIANTS' Foldable specialization.
+                isInsideWorkRange = foldTime <= minimum or foldTime > maximum
+            else
+                isInsideWorkRange = foldTime >= minimum and foldTime <= maximum
+            end
+            if isInsideWorkRange then
+                return true
+            end
+        end
+    end
+
+    -- Preserve compatibility with unusual mod rollers that expose no standard
+    -- roller WorkArea at all. Recognized roller areas, however, must have at
+    -- least one area inside its configured fold range.
+    return not hasRollerWorkArea
+end
+
 function TerraLogic:getIsOverSpeedWorkAreaProcessing()
     local spec = self.spec_terraLogic
     if spec == nil or not spec.isGroundTool then
@@ -4474,6 +4522,9 @@ function TerraLogic:getIsOverSpeedWorkAreaProcessing()
     if self.spec_workArea == nil
         or self.spec_workArea.workAreas == nil
         or #self.spec_workArea.workAreas == 0 then
+        return false
+    end
+    if not TerraLogic.getIsOverSpeedWorkAreaInWorkPosition(self) then
         return false
     end
     return true
@@ -4512,6 +4563,10 @@ function TerraLogic:getIsOverSpeedGroundContactActive()
         and self.getIsTurnedOn ~= nil
         and not self:getIsTurnedOn() then
         spec.workDetectionSource = "surface tool switched off"
+        return false
+    end
+    if not TerraLogic.getIsOverSpeedWorkAreaInWorkPosition(self) then
+        spec.workDetectionSource = "work areas outside fold range"
         return false
     end
     if not self:getIsOverSpeedWorkAreaProcessing() then

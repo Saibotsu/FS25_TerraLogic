@@ -1359,10 +1359,16 @@ local function getIsSpeedHudImplementReady(implement)
             and spec.isMowerTool == true then
             lowered = implement.getIsLowered == nil or implement:getIsLowered() == true
         end
+        -- Call the internal helper directly. It is intentionally not registered
+        -- as a vehicle function, so duplicate specialization registration by a
+        -- third-party vehicle type cannot bypass the folded-roller guard.
+        local inWorkPosition = TerraLogic == nil
+            or TerraLogic.getIsOverSpeedWorkAreaInWorkPosition == nil
+            or TerraLogic.getIsOverSpeedWorkAreaInWorkPosition(implement) == true
         if spec.isMowerTool == true and implement.getIsTurnedOn ~= nil then
-            return lowered and implement:getIsTurnedOn() == true
+            return lowered and inWorkPosition and implement:getIsTurnedOn() == true
         end
-        return lowered
+        return lowered and inWorkPosition
     end
     if spec.isApplicationTool == true then
         return implement.getIsOverSpeedApplicationActive ~= nil
