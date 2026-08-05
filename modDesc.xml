@@ -14,10 +14,11 @@
 
 Instead of preventing you from driving faster, TerraLogic lets you decide how much risk you want to take. Working too fast increases wear, reduces work quality and can lower your final harvest yield. Different soil types, realistic draft forces and simulated stone impacts make implement selection and working speed more important than ever.
 
+Mechanical consequences represent the visible impact of overspeed, while work quality simulates the invisible long-term effects on the soil itself. Every field operation leaves its mark, influencing future crop growth and ultimately your harvest.
+
 The quality of every field operation is stored directly on the soil, allowing different parts of the same field to develop different quality levels and ultimately produce different yields.
 
 Features:
-- Removes the working speed limit from most implements.
 - Replaces artificial speed limits with realistic consequences instead of invisible restrictions.
 - Working speed directly influences implement wear, work quality and final harvest yield.
 - Work Quality is stored directly on the soil and affects future crop yield.
@@ -25,7 +26,7 @@ Features:
 - More realistic implement damage from both visible and simulated underground stones.
 - Dynamic HUD showing the recommended speed range for balancing efficiency, wear and work quality.
 
-Physical consequences of overspeed:
+Mechanical consequences of overspeed:
 - Seeders: Reduced seeding quality and randomly missed seed rows.
 - Mowers: Grass is cut less cleanly and small patches may remain standing.
 - Tedders & Windrowers: Increasing amounts of crop are left on the ground.
@@ -34,6 +35,7 @@ Physical consequences of overspeed:
 
 Additional Features:
 - Poorly plowed soil gradually recovers over multiple seasons.
+- Poorly seeded grass regains density, normalizing the yield over time.
 - Physical dropouts can be disabled for improved performance.
 - Multiplayer fully supported with server-controlled gameplay settings.
 - Integration with Precision Farming and More Realistic (selectable draft model).
@@ -46,10 +48,11 @@ Notes:
 
 Anstatt Geräte durch ein unsichtbares Tempolimit einzuschränken, überlässt TerraLogic die Entscheidung dem Spieler. Zu hohe Arbeitsgeschwindigkeiten erhöhen den Verschleiß, verschlechtern die Arbeitsqualität und können den späteren Ertrag reduzieren. Gleichzeitig sorgen realistischere Zugkräfte, unterschiedliche Bodenarten und simulierte Steine dafür, dass Maschinenwahl und Arbeitsgeschwindigkeit deutlich wichtiger werden.
 
+Mechanische Konsequenzen stellen die sichtbaren Folgen von überhöhter Arbeitsgeschwindigkeit dar, während die Arbeitsqualität die unsichtbaren langfristigen Auswirkungen auf den Boden simuliert. Jeder Arbeitsgang hinterlässt Spuren, die sich später auf Pflanzenwachstum und Ertrag auswirken können.
+
 Die Qualität jeder Feldbearbeitung wird direkt auf dem Boden gespeichert. Dadurch können unterschiedliche Bereiche desselben Feldes unterschiedliche Qualitätswerte besitzen und sich individuell auf den späteren Ertrag auswirken.
 
 Features:
-- Entfernt die Arbeitsgeschwindigkeitsbegrenzung der meisten Anbaugeräte.
 - Ersetzt starre Geschwindigkeitslimits durch realistische Konsequenzen.
 - Arbeitsgeschwindigkeit beeinflusst Verschleiß, Arbeitsqualität und den späteren Ertrag.
 - Arbeitsqualität wird direkt auf der bearbeiteten Bodenfläche gespeichert.
@@ -66,7 +69,8 @@ Physikalische Folgen von Overspeed:
 
 Weitere Features:
 - Schlecht gepflügter Boden regeneriert sich im Laufe mehrerer Vegetationsperioden langsam wieder.
-- Physikalische Dropouts können optional deaktiviert werden.
+- Schlecht gesätes Gras wächst mit der Zeit dichter und bringt wieder normalen Ertrag.
+- Mechanische Konsequenzen können optional deaktiviert werden.
 - Multiplayer vollständig unterstützt, Gameplay-Einstellungen werden serverseitig synchronisiert.
 - Integration mit Precision Farming und More Realistic (umschaltbares Zugkraftmodell).
 - Kompatibel mit Advanced Damage System, Realistic Harvesting, Moisture System, Courseplay, AutoDrive und vielen weiteren Mods.
