@@ -10,75 +10,64 @@
     </title>
 
     <description>
-        <en><![CDATA[TerraLogic replaces Farming Simulator's artificial implement speed limits with realistic gameplay mechanics.
+        <en><![CDATA[TerraLogic makes field work in Farming Simulator 25 more realistic by replacing many fixed working-speed limits with actual consequences.
 
-Instead of preventing you from driving faster, TerraLogic lets you decide how much risk you want to take. Working too fast increases wear, reduces work quality and can lower your final harvest yield. Different soil types, realistic draft forces and simulated stone impacts make implement selection and working speed more important than ever.
+You can drive faster than the speed shown in the shop, but doing so is not free. Poor work can increase wear, require more power, reduce crop growth and harvest yield, or leave visible mistakes behind. A small amount of overspeed may save time, while pushing a machine far beyond its intended speed may cost more money than it saves.
 
-Mechanical consequences represent the visible impact of overspeed, while work quality simulates the invisible long-term effects on the soil itself. Every field operation leaves its mark, influencing future crop growth and ultimately your harvest.
+TerraLogic combines two different consequence systems. Mechanical consequences represent mistakes you can see directly on the field, while work quality simulates the invisible long-term effects of poor field work. Together they make vehicle power, implement choice and working speed much more important.
 
-The quality of every field operation is stored directly on the soil, allowing different parts of the same field to develop different quality levels and ultimately produce different yields.
+Main Features:
+- Replaces artificial speed limits with realistic mechanical and agronomic consequences.
+- Stores Work Quality separately across the field, allowing different areas to produce different harvest results.
+- Working speed directly influences wear, work quality and final harvest yield.
+- Realistic draft forces, soil-dependent abrasion and underground stone impacts.
+- Dynamic HUD showing the recommended working-speed range.
 
-Features:
-- Replaces artificial speed limits with realistic consequences instead of invisible restrictions.
-- Working speed directly influences implement wear, work quality and final harvest yield.
-- Work Quality is stored directly on the soil and affects future crop yield.
-- Simulates realistic draft forces and soil-dependent abrasion (Precision Farming supported).
-- More realistic implement damage from both visible and simulated underground stones.
-- Dynamic HUD showing the recommended speed range for balancing efficiency, wear and work quality.
-
-Mechanical consequences of overspeed:
-- Seeders: Reduced seeding quality and randomly missed seed rows.
-- Mowers: Grass is cut less cleanly and small patches may remain standing.
+Mechanical Consequences:
+- Seeders: Reduced seeding quality and missed seed patches.
+- Mowers: Small patches of grass may remain standing.
 - Tedders & Windrowers: Increasing amounts of crop are left on the ground.
-- Fertilizer Spreaders & Sprayers: Reduced application quality, uneven distribution and local untreated areas.
-- Mechanical Weeders & Hoes: Weeds may survive and extreme overspeed can even damage crops or the seedbed.
-- Stone pickers: Increasing amount of stones are left on the ground.
+- Fertilizer Spreaders & Sprayers: Uneven application and untreated areas.
+- Mechanical Weeders & Hoes: Weeds may survive and extreme overspeed can damage crops or disturb the seedbed.
+- Stone pickers: Increasing amounts of stones left on the ground.
 
 Additional Features:
-- Poorly plowed soil gradually recovers over multiple seasons.
-- Poorly seeded grass regains density, normalizing the yield over time.
-- Physical dropouts can be disabled for improved performance.
-- Multiplayer fully supported with server-controlled gameplay settings.
-- Integration with Precision Farming and More Realistic (selectable draft model).
-- Compatible with Advanced Damage System, Realistic Harvesting, Moisture System, Courseplay, AutoDrive and many other mods.
+- Poor plowing quality gradually recovers while crops grow.
+- Poorly seeded grass starts growing denser over time, increasing yield to normal levels.
+- Supports Precision Farming, including realistic draft and application behaviour.
+- Compatible with More Realistic, Advanced Damage System, Realistic Harvesting, Moisture System, Courseplay, AutoDrive and many other gameplay mods.
+- Multiplayer tested and fully supported.
 
+Combines and standard crop harvesters are intentionally excluded to avoid conflicts with dedicated harvesting mods.]]></en>
+        <de><![CDATA[TerraLogic macht die Feldarbeit im Farming Simulator 25 realistischer, indem starre Geschwindigkeitsbegrenzungen durch echte Konsequenzen ersetzt werden.
 
-Notes:
-- Combines and standard crop harvesters are intentionally excluded to avoid conflicts with dedicated harvesting mods such as Realistic Harvesting.]]></en>
-        <de><![CDATA[TerraLogic ersetzt die künstlichen Geschwindigkeitsbegrenzungen des Farming Simulator durch realistische Spielmechaniken.
+Du kannst schneller fahren, als die im Shop angegebene Arbeitsgeschwindigkeit – allerdings nicht ohne Folgen. Schlechte Feldarbeit erhöht den Verschleiß, erfordert mehr Zugkraft, kann Pflanzenwachstum und Ertrag verringern, oder sichtbare Bearbeitungsfehler hinterlassen. Geringe Geschwindigkeitsüberschreitungen können Zeit sparen, während extreme Geschwindigkeiten meist mehr Probleme verursachen, als sie lösen.
 
-Anstatt Geräte durch ein unsichtbares Tempolimit einzuschränken, überlässt TerraLogic die Entscheidung dem Spieler. Zu hohe Arbeitsgeschwindigkeiten erhöhen den Verschleiß, verschlechtern die Arbeitsqualität und können den späteren Ertrag reduzieren. Gleichzeitig sorgen realistischere Zugkräfte, unterschiedliche Bodenarten und simulierte Steine dafür, dass Maschinenwahl und Arbeitsgeschwindigkeit deutlich wichtiger werden.
+TerraLogic kombiniert zwei unterschiedliche Konsequenzsysteme. Mechanische Folgen bilden sichtbare Fehler auf dem Feld ab, während die Arbeitsqualität die unsichtbaren, langfristigen Auswirkungen schlechter Feldarbeit simuliert. Dadurch werden Motorleistung, Gerätewahl und Arbeitsgeschwindigkeit deutlich wichtiger.
 
-Mechanische Konsequenzen stellen die sichtbaren Folgen von überhöhter Arbeitsgeschwindigkeit dar, während die Arbeitsqualität die unsichtbaren langfristigen Auswirkungen auf den Boden simuliert. Jeder Arbeitsgang hinterlässt Spuren, die sich später auf Pflanzenwachstum und Ertrag auswirken können.
-
-Die Qualität jeder Feldbearbeitung wird direkt auf dem Boden gespeichert. Dadurch können unterschiedliche Bereiche desselben Feldes unterschiedliche Qualitätswerte besitzen und sich individuell auf den späteren Ertrag auswirken.
-
-Features:
-- Ersetzt starre Geschwindigkeitslimits durch realistische Konsequenzen.
+Hauptfeatures:
+- Ersetzt starre Tempolimits durch realistische mechanische und agronomische Konsequenzen.
+- Speichert die Work Quality flächenbasiert, sodass unterschiedliche Bereiche eines Feldes unterschiedliche Erträge liefern können.
 - Arbeitsgeschwindigkeit beeinflusst Verschleiß, Arbeitsqualität und den späteren Ertrag.
-- Arbeitsqualität wird direkt auf der bearbeiteten Bodenfläche gespeichert.
-- Realistische Zugkräfte und bodenabhängige Abrasion (mit Precision Farming).
-- Deutlich realistischere Schäden durch sichtbare und simulierte unterirdische Steine.
-- Dynamisches HUD mit optimalem Geschwindigkeitsbereich zwischen Effizienz, Verschleiß und Arbeitsqualität.
+- Realistische Zugkräfte, bodenabhängige Abrasion und simulierte unterirdische Steine.
+- Dynamisches HUD mit empfohlenem Arbeitsgeschwindigkeitsbereich.
 
-Physikalische Folgen von Overspeed:
-- Sämaschinen: Schlechtere Saatqualität und vereinzelt ungesäte Bereiche.
-- Mähwerke: Gras wird zunehmend unsauber gemäht und einzelne Grasbüschel bleiben stehen.
-- Wender & Schwader: Zunehmend mehr Erntegut bleibt auf dem Feld liegen.
+Mechanische Folgen:
+- Sämaschinen: Schlechtere Saatqualität und ungesäte Bereiche.
+- Mähwerke: Einzelne Grasbüschel bleiben stehen.
+- Wender & Schwader: Zunehmend mehr Erntegut bleibt liegen.
 - Düngerstreuer & Spritzen: Ungleichmäßige Ausbringung und unbehandelte Bereiche.
-- Hacken & Striegel: Unkraut wird unzuverlässiger entfernt; bei extremen Geschwindigkeiten können sogar Pflanzen oder das Saatbett beschädigt werden.
-- Steinsammler: Steine werden zunehmend unzuverlässig aufgesammelt.
+- Hacken & Striegel: Unkraut wird unzuverlässiger entfernt; bei extremen Geschwindigkeiten können Pflanzen und Saatbett beschädigt werden.
+- Steinsammler: Zunehmend unzuverlässiger aufgesammelte Steine.
 
 Weitere Features:
-- Schlecht gepflügter Boden regeneriert sich im Laufe mehrerer Vegetationsperioden langsam wieder.
-- Schlecht gesätes Gras wächst mit der Zeit dichter und bringt wieder normalen Ertrag.
-- Mechanische Konsequenzen können optional deaktiviert werden.
-- Multiplayer vollständig unterstützt, Gameplay-Einstellungen werden serverseitig synchronisiert.
-- Integration mit Precision Farming und More Realistic (umschaltbares Zugkraftmodell).
-- Kompatibel mit Advanced Damage System, Realistic Harvesting, Moisture System, Courseplay, AutoDrive und vielen weiteren Mods.
+- Schlecht gepflügter Boden regeneriert sich während des Pflanzenwachstums langsam.
+- Schlecht gesätes Gras wächst mit der Zeit dichter und bringt wieder den ursprünglichen Ertrag beim Mähen.
+- Unterstützung für Precision Farming mit realistischen Zugkräften und Ausbringungsverhalten.
+- Kompatibel mit More Realistic, Advanced Damage System, Realistic Harvesting, Moisture System, Courseplay, AutoDrive und vielen weiteren Gameplay-Mods.
+- Multiplayer getestet und vollständig unterstützt.
 
-Hinweise:
-- Mähdrescher und gewöhnliche Feldfrucht-Ernter sind bewusst ausgeschlossen, um Konflikte mit spezialisierten Ernte-Mods wie Realistic Harvesting zu vermeiden.]]></de>
+Mähdrescher und gewöhnliche Feldfrucht-Ernter bleiben bewusst unverändert, um Konflikte mit spezialisierten Ernte-Mods zu vermeiden.]]></de>
     </description>
 
     <l10n>
