@@ -6,13 +6,13 @@
     Unauthorized copying, modification, or redistribution is prohibited
     except where expressly permitted by the copyright owner.
 
-    Source fingerprint: TMW-TL-MAIN-1.200211
+    Source fingerprint: TMW-TL-MAIN-1.200217
 ]]
 
 TerraLogicMain = {}
 OverSpeedDamageMain = TerraLogicMain
 -- Numeric source signature only; it is deliberately excluded from gameplay math.
-TerraLogicMain.SOURCE_FINGERPRINT = 1.200211
+TerraLogicMain.SOURCE_FINGERPRINT = 1.200217
 
 local MOD_NAME = g_currentModName
 local MOD_DIR = g_currentModDirectory
@@ -51,6 +51,9 @@ TerraLogicMain.wearPolicy = "normalize"
 TerraLogicMain.draftEnabled = true
 TerraLogicMain.randomImpactsEnabled = true
 TerraLogicMain.stoneImpactsEnabled = true
+-- Runtime-only diagnostic switch. Physical mower dropouts remain active so
+-- their conserved grass volume can be compared without the live speed loss.
+TerraLogicMain.mowerQualityEnabled = false
 TerraLogicMain.BALANCE_DEFAULTS = {
     wear = 1,
     draft = 1,
@@ -184,6 +187,9 @@ end
 function TerraLogicMain:loadMap(mapNode, mapFile)
     TerraLogicSettings:load()
     TerraLogicQualityManager:load()
+    -- Physical mowing gaps are the default and sole live overspeed penalty.
+    -- The console command remains available for explicit comparison tests.
+    self.mowerQualityEnabled = false
     local commands = {
         {"tlDebug", "TerraLogic debug toggle/view: tlDebug [view|on|off]", "consoleCommandDebug"},
         {"tlView", "Open TerraLogic debug view: tlView <overview|wear|economy|draft|impacts|quality|balancing|workquality|technical>", "consoleCommandDebugView"},
@@ -199,6 +205,7 @@ function TerraLogicMain:loadMap(mapNode, mapFile)
         {"tlDraft", "Enable/disable additional draft: tlDraft [on|off]", "consoleCommandDraft"},
         {"tlImpacts", "Enable/disable random impacts: tlImpacts [on|off]", "consoleCommandRandomImpacts"},
         {"tlStones", "Enable/disable stone-map damage: tlStones [on|off]", "consoleCommandStoneImpacts"},
+        {"tlMowerQuality", g_i18n:getText("terraLogic_consoleMowerQualityHelp"), "consoleCommandMowerQuality"},
         {"tlMultiplier", "Runtime balance multiplier: tlMultiplier <name> <value|reset>", "consoleCommandMultiplier"},
         {"tlBalanceReset", "Reset temporary TerraLogic balance settings", "consoleCommandBalanceReset"},
         {"tlPrintBalance", "Print TerraLogic balance settings to log", "consoleCommandPrintBalance"},
@@ -251,7 +258,7 @@ function TerraLogicMain:deleteMap()
     for _, name in ipairs({
             "tlDebug", "tlView", "tlViews", "tlDebugClose", "tlSetDamage",
             "tlPF", "tlPFInspect", "tlEnable", "tlWearPolicy", "tlAbrasion",
-            "tlResistance", "tlDraft", "tlImpacts", "tlStones", "tlMultiplier",
+            "tlResistance", "tlDraft", "tlImpacts", "tlStones", "tlMowerQuality", "tlMultiplier",
             "tlBalanceReset", "tlPrintBalance", "tlLog", "tlDraftModel",
             "tlTestStart", "tlTestStop", "tlTestStatus", "tlTestCancel"
         }) do
@@ -830,6 +837,26 @@ function TerraLogicMain:consoleCommandStoneImpacts(value)
     return setRuntimeToggle(self, "stoneImpactsEnabled", value, "real stone impacts", "TerraLogic usage: tlStones [on|off]")
 end
 
+-- Disables only the live mower overspeed yield curve. Surface-island
+-- dropouts and stored agronomic field quality deliberately stay active.
+function TerraLogicMain:consoleCommandMowerQuality(value)
+    if g_currentMission ~= nil and not g_currentMission:getIsServer() then
+        return g_i18n:getText("terraLogic_consoleServerOnly")
+    end
+    if value ~= nil and value ~= "" and parseEnabled(value) == nil then
+        return g_i18n:getText("terraLogic_consoleMowerQualityUsage")
+    end
+    if value ~= nil and value ~= "" then
+        self.mowerQualityEnabled = parseEnabled(value)
+        self.debugNextRefresh = 0
+    end
+    local stateKey = self.mowerQualityEnabled
+        and "terraLogic_settingOn" or "terraLogic_settingOff"
+    return string.format(
+        g_i18n:getText("terraLogic_consoleMowerQualityStatus"),
+        g_i18n:getText(stateKey))
+end
+
 function TerraLogicMain:getBalanceMultiplier(name)
     local value = self.balanceMultipliers ~= nil and self.balanceMultipliers[name] or nil
     return tonumber(value) or 1
@@ -882,6 +909,7 @@ function TerraLogicMain:consoleCommandBalanceReset()
     self.draftEnabled = true
     self.randomImpactsEnabled = true
     self.stoneImpactsEnabled = true
+    self.mowerQualityEnabled = false
     self.abrasionOverride = 0
     self.resistanceOverride = 0
     self.wearPolicy = "normalize"
@@ -892,9 +920,10 @@ end
 function TerraLogicMain:consoleCommandPrintBalance()
     Logging.info("[FS25_TerraLogic] ===== RUNTIME BALANCE START =====")
     Logging.info(
-        "[FS25_TerraLogic] toggles mod=%s draft=%s randomImpacts=%s realStones=%s PF=%s wearPolicy=%s",
+        "[FS25_TerraLogic] toggles mod=%s draft=%s randomImpacts=%s realStones=%s mowerQuality=%s PF=%s wearPolicy=%s",
         tostring(self.enabled), tostring(self.draftEnabled),
         tostring(self.randomImpactsEnabled), tostring(self.stoneImpactsEnabled),
+        tostring(self.mowerQualityEnabled),
         tostring(self.precisionFarmingMode), tostring(self.wearPolicy)
     )
     for _, name in ipairs({
@@ -1349,14 +1378,14 @@ end
 local function getIsSpeedHudImplementReady(implement)
     local spec = implement ~= nil and implement.spec_terraLogic or nil
     if spec == nil then return false end
-    if spec.isGroundTool == true then
+    if spec.isGroundTool == true or spec.isSurfaceForageTool == true then
         -- For ploughs and other ground tools, "active" means attached and
         -- lowered into working position. Terrain pixels do not need to change
         -- at this instant, so the HUD also remains useful while stationary.
         local lowered = implement.getIsImplementChainLowered ~= nil
             and implement:getIsImplementChainLowered(true) == true
         if implement.getIsImplementChainLowered == nil
-            and spec.isMowerTool == true then
+            and spec.isSurfaceForageTool == true then
             lowered = implement.getIsLowered == nil or implement:getIsLowered() == true
         end
         -- Call the internal helper directly. It is intentionally not registered
@@ -1365,7 +1394,9 @@ local function getIsSpeedHudImplementReady(implement)
         local inWorkPosition = TerraLogic == nil
             or TerraLogic.getIsOverSpeedWorkAreaInWorkPosition == nil
             or TerraLogic.getIsOverSpeedWorkAreaInWorkPosition(implement) == true
-        if spec.isMowerTool == true and implement.getIsTurnedOn ~= nil then
+        if (spec.isSurfaceForageTool == true
+                or implement.spec_stonePicker ~= nil)
+            and implement.getIsTurnedOn ~= nil then
             return lowered and inWorkPosition and implement:getIsTurnedOn() == true
         end
         return lowered and inWorkPosition
@@ -1453,11 +1484,16 @@ function TerraLogicMain:getSpeedHudWorkQuality(implement, currentSpeed)
     if spec == nil or TerraLogicQualityManager == nil then return nil end
     local component = nil
     if implement.spec_mower ~= nil then
+        if self.mowerQualityEnabled == false then return nil end
         component = "mower"
     elseif implement.spec_sowingMachine ~= nil then
         component = "seed"
     elseif implement.spec_sprayer ~= nil then
-        component = spec.applicationQualityComponent or "fertilizer"
+        component = TerraLogic ~= nil
+            and TerraLogic.getApplicationComponentForVehicle ~= nil
+            and TerraLogic.getApplicationComponentForVehicle(implement)
+            or spec.applicationQualityComponent or "fertilizer"
+        if component == "herbicide" then return nil end
     elseif implement.spec_plow ~= nil then
         component = "soilPlow"
     elseif implement.spec_cultivator ~= nil or implement.spec_subsoiler ~= nil
@@ -1470,7 +1506,7 @@ function TerraLogicMain:getSpeedHudWorkQuality(implement, currentSpeed)
     elseif implement.spec_mulcher ~= nil then
         component = "mulch"
     elseif implement.spec_weeder ~= nil then
-        component = "herbicide"
+        return nil
     end
     if component == nil then return nil end
     -- The speed HUD describes execution quality, not PF's transient remaining
@@ -1614,6 +1650,14 @@ function TerraLogicMain:drawSpeedHud()
         or tonumber(spec.optimalSpeed) or shopSpeed
     if shopSpeed <= 0 then return end
     local currentSpeed = math.abs(vehicle:getLastSpeed(true) or 0)
+    local qualityTextEnabled = TerraLogicSettings == nil
+        or TerraLogicSettings.showQualityText ~= false
+    local quality = qualityTextEnabled
+        and self:getSpeedHudWorkQuality(implement, currentSpeed) or nil
+    local showImplementCount = qualityTextEnabled
+        and (activeImplementCount or 0) > 1
+    local showSupplementalRow = renderText ~= nil
+        and (quality ~= nil or showImplementCount)
 
     if self.speedHudImplement ~= implement then
         self.speedHudImplement = implement
@@ -1658,19 +1702,17 @@ function TerraLogicMain:drawSpeedHud()
     -- an existing HUDDisplay when available, including the user's UI scale.
     local centreX = 0.5
     local width, height = getSpeedHudScaledPixels(225, 6)
-    local showQualityText = TerraLogicSettings == nil
-        or TerraLogicSettings.showQualityText ~= false
-    local paddingBottomPixels = showQualityText and 8 or 6
+    local paddingBottomPixels = showSupplementalRow and 8 or 6
     local paddingX, paddingBottom = getSpeedHudScaledPixels(
         14, paddingBottomPixels)
     local qualityTextPixels = math.max(
         getSpeedHudDefaultTextPixels() - 2, 10)
     local _, textHeight = getSpeedHudScaledPixels(0,
-        showQualityText and qualityTextPixels or 0)
+        showSupplementalRow and qualityTextPixels or 0)
     local _, textGap = getSpeedHudScaledPixels(0,
-        showQualityText and 7 or 0)
+        showSupplementalRow and 7 or 0)
     local _, paddingTop = getSpeedHudScaledPixels(0,
-        showQualityText and 4 or 8)
+        showSupplementalRow and 4 or 8)
     local boxWidth = width + paddingX * 2
     local boxHeight = paddingBottom + height + textGap + textHeight + paddingTop
     -- Raise the complete widget another seven pixels while retaining the same
@@ -1741,21 +1783,21 @@ function TerraLogicMain:drawSpeedHud()
             0.0016, height + 0.00748, 1, 1, 1, 1)
     end
 
-    local quality = showQualityText
-        and self:getSpeedHudWorkQuality(implement, currentSpeed) or nil
-    if quality ~= nil and renderText ~= nil then
-        local roundedQuality = math.floor(
-            math.clamp(quality, 0, 1) * 100 + 0.5)
-        local format = TerraLogicQualityManager:getText(
-            "terraLogic_speedHudQuality", "Work quality: %d %%")
-        local label = string.format(format, roundedQuality)
+    if showSupplementalRow and renderText ~= nil then
         local _, size = getSpeedHudScaledPixels(0, qualityTextPixels)
         setTextBold(false)
         setTextColor(1, 1, 1, 1)
         -- Fixed anchors keep changing percentages and tool counts stable.
-        setTextAlignment(RenderText.ALIGN_LEFT)
-        renderText(x, y + height + textGap, size, label)
-        if (activeImplementCount or 0) > 1 then
+        if quality ~= nil then
+            local roundedQuality = math.floor(
+                math.clamp(quality, 0, 1) * 100 + 0.5)
+            local format = TerraLogicQualityManager:getText(
+                "terraLogic_speedHudQuality", "Work quality: %d %%")
+            local label = string.format(format, roundedQuality)
+            setTextAlignment(RenderText.ALIGN_LEFT)
+            renderText(x, y + height + textGap, size, label)
+        end
+        if showImplementCount then
             local countFormat = TerraLogicQualityManager:getText(
                 "terraLogic_speedHudActiveImplements", "%d tools")
             local countLabel = string.format(
@@ -2143,13 +2185,17 @@ function TerraLogicMain:drawBalancingDebug()
         elseif implement.spec_plow ~= nil or implement.spec_cultivator ~= nil then
             activeGroups.soil = true
         elseif implement.spec_sprayer ~= nil then
-            activeGroups[spec.applicationQualityComponent or "fertilizer"] = true
+            local component = TerraLogic ~= nil
+                and TerraLogic.getApplicationComponentForVehicle ~= nil
+                and TerraLogic.getApplicationComponentForVehicle(implement)
+                or spec.applicationQualityComponent or "fertilizer"
+            if component ~= "herbicide" then
+                activeGroups[component] = true
+            end
         elseif implement.spec_roller ~= nil then
             activeGroups.roller = true
         elseif implement.spec_mulcher ~= nil then
             activeGroups.mulch = true
-        elseif implement.spec_weeder ~= nil then
-            activeGroups.herbicide = true
         elseif implement.spec_mower ~= nil then
             activeGroups.mower = true
         end
@@ -2650,17 +2696,20 @@ function TerraLogicMain.installSpecialization()
         local isWearable = specializations ~= nil and specializations.wearable ~= nil
         local isMotorized = specializations ~= nil and specializations.motorized ~= nil
         local isMower = specializations ~= nil and specializations.mower ~= nil
+        local isWindrower = specializations ~= nil
+            and specializations.windrower ~= nil
+        local isTedder = specializations ~= nil and specializations.tedder ~= nil
         local isHarvester = specializations ~= nil
             and (specializations.combine ~= nil or specializations.cutter ~= nil)
         local isAlreadyInstalled = specializations ~= nil and specializations[SPEC_NAME] ~= nil
 
-        -- Ordinary implements remain supported as before. The only motorized
-        -- allow-list entry is a true Mower vehicle; combines/cutters stay out so
+        -- Ordinary implements remain supported as before. Motorized forage
+        -- surface tools are explicitly allowed; combines/cutters stay out so
         -- TerraLogic does not collide with dedicated harvesting/yield mods.
         local supportedImplement = isAttachable and isWearable and not isMotorized
-        local supportedSelfPropelledMower = isMotorized and isWearable
-            and isMower and not isHarvester
-        if (supportedImplement or supportedSelfPropelledMower)
+        local supportedSelfPropelledForageTool = isMotorized and isWearable
+            and (isMower or isWindrower or isTedder) and not isHarvester
+        if (supportedImplement or supportedSelfPropelledForageTool)
             and not isAlreadyInstalled then
             vehicleType.specializationsByName[SPEC_NAME] = specialization
             table.insert(vehicleType.specializationNames, SPEC_NAME)

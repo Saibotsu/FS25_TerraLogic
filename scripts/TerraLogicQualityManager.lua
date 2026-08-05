@@ -6,13 +6,13 @@
     Unauthorized copying, modification, or redistribution is prohibited
     except where expressly permitted by the copyright owner.
 
-    Source fingerprint: TMW-TL-QUAL-1.200269
+    Source fingerprint: TMW-TL-QUAL-1.200274
 ]]
 
 TerraLogicQualityManager = {}
 OverSpeedQualityManager = TerraLogicQualityManager
 -- Numeric source signature only; it is deliberately excluded from gameplay math.
-TerraLogicQualityManager.SOURCE_FINGERPRINT = 1.200269
+TerraLogicQualityManager.SOURCE_FINGERPRINT = 1.200274
 
 TerraLogicQualityManager.CELL_SIZE = 4
 TerraLogicQualityManager.CHUNK_SIZE = 32
@@ -551,7 +551,8 @@ end
 -- Productive work may reduce the whole yield down to its category cap. Bonus
 -- work can only remove the positive contribution passed in `bonusOverride`.
 function TerraLogicQualityManager:getWorkQualityModel(
-        vehicle, currentSpeed, component, bonusOverride)
+        vehicle, currentSpeed, component, bonusOverride,
+        dropoutReductionAllowed)
     local definition = self.COMPONENTS[component]
         or self.GROUP_DEFINITIONS[component]
         or self.LIVE_COMPONENTS[component]
@@ -560,6 +561,26 @@ function TerraLogicQualityManager:getWorkQualityModel(
     local economy = self:getSpeedEconomy(vehicle, currentSpeed)
     local bonusDefinition = self.BONUS_GROUPS[group]
     local quality, penalty, areaFactor, shopAreaFactor
+    local vehicleSpec = vehicle ~= nil and vehicle.spec_terraLogic or nil
+    local isDirectDrillSoilPass = component == "soilCultivate"
+        and vehicleSpec ~= nil
+        and vehicleSpec.implementClassKey == "directDrill"
+    local hasMatchingPhysicalDropouts =
+        TerraLogicImplementProfiles.WORK_QUALITY_DROPOUT_COMPONENTS[
+            component
+        ] == true or isDirectDrillSoilPass
+    local dropoutOverspeedShare = 1
+    if economy.shopRatio > 1 and dropoutReductionAllowed ~= false
+        and TerraLogicSettings ~= nil
+        and TerraLogicSettings:getPhysicalDropoutsEnabled()
+        and hasMatchingPhysicalDropouts then
+        dropoutOverspeedShare = math.clamp(
+            tonumber(TerraLogicImplementProfiles
+                .WORK_QUALITY_DROPOUT_OVERSPEED_SHARE) or 0.30,
+            0,
+            1
+        )
+    end
 
     if bonusDefinition ~= nil then
         local bonus = math.max(tonumber(bonusOverride)
@@ -597,6 +618,16 @@ function TerraLogicQualityManager:getWorkQualityModel(
             quality = bonus > 0 and (totalNow - 1) / bonus or 1
         end
         quality = math.clamp(quality, 0, 1)
+        if dropoutOverspeedShare < 1 then
+            quality = math.clamp(
+                self.QUALITY_AT_SHOP_SPEED
+                    - (self.QUALITY_AT_SHOP_SPEED - quality)
+                        * dropoutOverspeedShare,
+                0,
+                1
+            )
+            totalNow = 1 + bonus * quality
+        end
         areaFactor = totalNow / math.max(1 + bonus, 0.0001)
         shopAreaFactor = totalAtShop / math.max(1 + bonus, 0.0001)
         penalty = math.clamp(1 - areaFactor, 0, 1)
@@ -608,12 +639,26 @@ function TerraLogicQualityManager:getWorkQualityModel(
             and definition.maxYieldPenalty or 0, 0, 1)
         quality, penalty, areaFactor, shopAreaFactor =
             self:applyProductiveEconomy(economy, cap)
+        if dropoutOverspeedShare < 1 then
+            areaFactor = math.clamp(
+                shopAreaFactor
+                    - (shopAreaFactor - areaFactor)
+                        * dropoutOverspeedShare,
+                1 - cap,
+                1
+            )
+            quality = cap > 0
+                and 1 - (1 - areaFactor) / cap or 1
+            quality = math.clamp(quality, 0, 1)
+            penalty = math.clamp(1 - areaFactor, 0, cap)
+        end
         economy.effectType = "wholeYield"
         economy.maximumPenalty = cap
         economy.penaltyFloorReached = areaFactor <= 1 - cap + 0.00001
     end
 
     economy.quality = quality
+    economy.dropoutWorkQualityOverspeedShare = dropoutOverspeedShare
     economy.yieldPenalty = penalty
     economy.areaFactor = areaFactor
     economy.shopAreaFactor = shopAreaFactor
@@ -1073,6 +1118,31 @@ function TerraLogicQualityManager:clearOverwrittenComponents(
     return changed
 end
 
+-- Invalidates crop-cycle components where an unintended mechanical pass has
+-- genuinely destroyed plants, without crediting that accident as a successful
+-- soil-quality operation. This deliberately reuses the normal contributor and
+-- partial-harvest lifecycle rules instead of editing quality layers directly.
+function TerraLogicQualityManager:invalidateSoilDamageWorkArea(
+        workArea, vehicle)
+    if g_currentMission == nil or not g_currentMission:getIsServer()
+        or workArea == nil then
+        return 0, false
+    end
+    local changed, acceptedCells = false, 0
+    for _, position in ipairs(self:getTouchedCells(workArea, false)) do
+        if self:isComponentAllowedAtCell(
+                "soilCultivate", position.ix, position.iz, vehicle) then
+            acceptedCells = acceptedCells + 1
+            changed = self:completePartialHarvestBeforeNewWork(position)
+                or changed
+            changed = self:clearOverwrittenComponents(
+                position, "soilCultivate") or changed
+        end
+    end
+    if changed then self.dirty = true end
+    return acceptedCells, changed
+end
+
 function TerraLogicQualityManager:beginStoredCellPrune()
     self.pruneChunkKeys = {}
     for chunkKey in pairs(self.chunks) do
@@ -1263,6 +1333,9 @@ function TerraLogicQualityManager:recordWorkArea(
         return 0, 0, false
     end
     local definition = self.COMPONENTS[component]
+    if definition.physicalDropoutsOnly == true then
+        return 0, 0, false
+    end
     local group = definition.group or component
     local vehicleSpec = vehicle ~= nil and vehicle.spec_terraLogic or nil
     if vehicleSpec ~= nil then
@@ -1390,7 +1463,8 @@ function TerraLogicQualityManager:getGroupedEntriesFromCell(cell)
     local grouped = {}
     for _, component in ipairs(self.COMPONENT_ORDER) do
         local definition = self.COMPONENTS[component]
-        if hasBit(cell.mask or 0, definition.bit) then
+        if hasBit(cell.mask or 0, definition.bit)
+            and definition.physicalDropoutsOnly ~= true then
             local group = definition.group or component
             local value = grouped[group]
             if value == nil then
@@ -2218,21 +2292,30 @@ if Mower ~= nil and Mower.processMowerArea ~= nil
             local mowerPenalty = 0
             local terraLogicSpec = self.spec_terraLogic
             if terraLogicSpec ~= nil and terraLogicSpec.implementClassKey == "mower" then
-                local speed = self.getLastSpeed ~= nil
-                    and math.abs(tonumber(self:getLastSpeed(true)) or 0) or 0
-                local mowerQuality, livePenalty, model =
-                    TerraLogicQualityManager:getWorkQualityModel(
-                        self, speed, "mower", nil)
-                mowerPenalty = math.clamp(tonumber(livePenalty) or 0, 0, 1)
-                terraLogicSpec.mowerQuality = mowerQuality
-                terraLogicSpec.mowerYieldPenalty = mowerPenalty
-                terraLogicSpec.mowerQualityModel = model
                 terraLogicSpec.liveWorkQualityGroups = terraLogicSpec.liveWorkQualityGroups or {}
-                terraLogicSpec.liveWorkQualityGroups.mower = {
-                    quality = mowerQuality,
-                    yieldPenalty = mowerPenalty,
-                    time = g_currentMission.time or 0
-                }
+                local mowerQualityEnabled = TerraLogicMain == nil
+                    or TerraLogicMain.mowerQualityEnabled ~= false
+                if mowerQualityEnabled then
+                    local speed = self.getLastSpeed ~= nil
+                        and math.abs(tonumber(self:getLastSpeed(true)) or 0) or 0
+                    local mowerQuality, livePenalty, model =
+                        TerraLogicQualityManager:getWorkQualityModel(
+                            self, speed, "mower", nil)
+                    mowerPenalty = math.clamp(tonumber(livePenalty) or 0, 0, 1)
+                    terraLogicSpec.mowerQuality = mowerQuality
+                    terraLogicSpec.mowerYieldPenalty = mowerPenalty
+                    terraLogicSpec.mowerQualityModel = model
+                    terraLogicSpec.liveWorkQualityGroups.mower = {
+                        quality = mowerQuality,
+                        yieldPenalty = mowerPenalty,
+                        time = g_currentMission.time or 0
+                    }
+                else
+                    terraLogicSpec.mowerQuality = nil
+                    terraLogicSpec.mowerYieldPenalty = 0
+                    terraLogicSpec.mowerQualityModel = nil
+                    terraLogicSpec.liveWorkQualityGroups.mower = nil
+                end
             end
 
             -- Stored agronomic losses and the current mowing loss are separate

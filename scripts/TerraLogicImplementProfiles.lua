@@ -6,7 +6,7 @@
     Unauthorized copying, modification, or redistribution is prohibited
     except where expressly permitted by the copyright owner.
 
-    Source fingerprint: TMW-TL-PROF-1.200143
+    Source fingerprint: TMW-TL-PROF-1.200147
 ]]
 
 -- Central implement balance table. All values which vary by implement class
@@ -14,7 +14,7 @@
 TerraLogicImplementProfiles = {}
 OverSpeedDamageImplementProfiles = TerraLogicImplementProfiles
 -- Numeric source signature only; it is deliberately excluded from gameplay math.
-TerraLogicImplementProfiles.SOURCE_FINGERPRINT = 1.200143
+TerraLogicImplementProfiles.SOURCE_FINGERPRINT = 1.200147
 
 -- Central real-world baseline table. Entries without a simulation profile are
 -- retained for future recognition work; they do not make an unsupported
@@ -26,6 +26,8 @@ TerraLogicImplementProfiles.REAL_SPEED_KPH = {
     shallowCultivator = 12,
     discHarrow = 12,
     powerHarrow = 7,
+    weeder = 12,
+    hoe = 15,
     rotaryHoe = 15,
     stonePicker = 8,
     potatoHarvester = 6,
@@ -71,6 +73,8 @@ TerraLogicImplementProfiles.ABRASION_FACTOR = {
     shallowCultivator = 0.75,
     discHarrow = 0.65,
     powerHarrow = 0.65,
+    weeder = 0.25,
+    hoe = 0.40,
     rotaryHoe = 0.40,
     stonePicker = 0.60,
     potatoHarvester = 0.55,
@@ -109,6 +113,48 @@ TerraLogicImplementProfiles.WORK_QUALITY_CATEGORIES = {
     lime       = {weight = 0.15,  maxPenalty = 0.131},
     herbicide  = {weight = 0.20,  maxPenalty = 0.167},
     roller     = {weight = 0.025, maxPenalty = 0.025}
+}
+
+-- Category B operations combine a visible physical miss with an invisible
+-- quality loss on the part that was actually processed. At/below shop speed
+-- the common 100 -> 95% curve remains unchanged. Above shop speed, enabled
+-- physical dropouts retain only this share of the additional Work Quality
+-- deterioration; disabling dropouts restores the complete quality curve.
+-- Every Category B material uses the same switch. Physical misses remain the
+-- visible effect; the quality ledger represents the invisible quality of the
+-- successfully treated part of the WorkArea.
+TerraLogicImplementProfiles.WORK_QUALITY_DROPOUT_COMPONENTS = {
+    seed = true,
+    fertilizer = true,
+    lime = true,
+    herbicide = true
+}
+-- Thirty percent makes roughly +1 km/h economically neutral for a typical
+-- 12 km/h seeder once its visible misses are included; +2 km/h is already a
+-- net loss. Category B therefore has a narrow tolerable margin without making
+-- high-speed work profitable. However, due to work areas overlapping each
+-- other and potentially reducing the expected dropout percentage, overspeed
+-- share is coorected to 0.45
+TerraLogicImplementProfiles.WORK_QUALITY_DROPOUT_OVERSPEED_SHARE = 0.45
+
+-- Every class in this list relies on physical misses as part of its unlimited-
+-- speed consequence. If the server disables physical dropouts, the original
+-- XML/shop speed limit is restored. Category B still uses its full quality
+-- curve if another mod or physics state nevertheless pushes it beyond that
+-- limit. Utility dropout tools remain covered even though they are outside the
+-- user's agronomic A/B/C quality groups.
+TerraLogicImplementProfiles.DROPOUT_DEPENDENT_SPEED_CLASSES = {
+    directDrill = true,
+    sowingMachine = true,
+    precisionPlanter = true,
+    liquidSprayer = true,
+    fertilizerSpreader = true,
+    mower = true,
+    windrower = true,
+    tedder = true,
+    stonePicker = true,
+    weeder = true,
+    hoe = true
 }
 
 -- Whole-harvest quality balance. `weight` controls how quickly bad work
@@ -189,7 +235,7 @@ TerraLogicImplementProfiles.PROFILES = {
         impacts = {depthFactor = 1.50, stoneProtection = true, mediumDamageFactor = 0.70},
         stones = {mode = "Deep generator", surface = 1.00, generated = 1.00, hidden = 0.45},
         dropoutProfile = nil,
-        impactDropoutProfile = "plowImpact"
+        impactDropoutProfile = nil
     },
     subsoiler = {
         name = "Subsoiler",
@@ -289,7 +335,7 @@ TerraLogicImplementProfiles.PROFILES = {
         yield = YIELD_QUALITY.roller,
         impacts = {depthFactor = 0.15, stoneProtection = false, mediumDamageFactor = 1.00},
         stones = {mode = "Surface roller", surface = 0.25, generated = 0.00, hidden = 0.90},
-        dropoutProfile = "roller"
+        dropoutProfile = nil
     },
     mulcher = {
         name = "Mulcher",
@@ -311,7 +357,27 @@ TerraLogicImplementProfiles.PROFILES = {
         -- they cut above the soil and must remain separate from harvesters.
         impacts = {depthFactor = 0.00, stoneProtection = false, mediumDamageFactor = 1.00},
         stones = nil,
-        dropoutProfile = nil
+        dropoutProfile = "mowerPatch"
+    },
+    windrower = {
+        name = "Windrower",
+        work = {optimalSpeedKph = REAL_SPEED.windrower, depthCm = 0, groundContactTool = false},
+        draft = {enabled = false, overspeedScale = 0.00},
+        wear = {model = "surface", abrasionFactor = ABRASION.windrower},
+        yield = YIELD_QUALITY.windrower,
+        impacts = {depthFactor = 0.00, stoneProtection = false, mediumDamageFactor = 1.00},
+        stones = nil,
+        dropoutProfile = "windrowerPatch"
+    },
+    tedder = {
+        name = "Tedder",
+        work = {optimalSpeedKph = REAL_SPEED.tedder, depthCm = 0, groundContactTool = false},
+        draft = {enabled = false, overspeedScale = 0.00},
+        wear = {model = "surface", abrasionFactor = ABRASION.tedder},
+        yield = YIELD_QUALITY.tedder,
+        impacts = {depthFactor = 0.00, stoneProtection = false, mediumDamageFactor = 1.00},
+        stones = nil,
+        dropoutProfile = "tedderPatch"
     },
     stonePicker = {
         name = "Stone Picker",
@@ -321,17 +387,27 @@ TerraLogicImplementProfiles.PROFILES = {
         yield = {weight = 0.00, maxPenalty = 0.00},
         impacts = {depthFactor = 0.30, stoneProtection = false, mediumDamageFactor = 1.00},
         stones = {mode = "Stone picker", surface = 0.10, generated = 0.00, hidden = 0.00},
-        dropoutProfile = nil
+        dropoutProfile = "stonePickerPatch"
     },
     weeder = {
         name = "Mechanical Weeder",
-        work = {optimalSpeedKph = REAL_SPEED.rotaryHoe, depthCm = 3, groundContactTool = true},
-        draft = {enabled = true, overspeedScale = 1.00},
-        wear = {abrasionFactor = ABRASION.rotaryHoe},
+        work = {optimalSpeedKph = REAL_SPEED.weeder, depthCm = 2, groundContactTool = true},
+        draft = {enabled = true, overspeedScale = 0.15},
+        wear = {abrasionFactor = ABRASION.weeder},
         yield = YIELD_QUALITY.herbicideSprayer,
-        impacts = {depthFactor = 0.20, stoneProtection = true, mediumDamageFactor = 0.85},
-        stones = {mode = "Shallow weeder", surface = 0.25, generated = 0.00, hidden = 0.90},
-        dropoutProfile = nil
+        impacts = {depthFactor = 0.10, stoneProtection = true, mediumDamageFactor = 0.35},
+        stones = {mode = "Shallow weeder", surface = 0.20, generated = 0.00, hidden = 0.25},
+        dropoutProfile = "weederPatch"
+    },
+    hoe = {
+        name = "Mechanical Hoe",
+        work = {optimalSpeedKph = REAL_SPEED.hoe, depthCm = 5, groundContactTool = true},
+        draft = {enabled = true, overspeedScale = 0.30},
+        wear = {abrasionFactor = ABRASION.hoe},
+        yield = YIELD_QUALITY.herbicideSprayer,
+        impacts = {depthFactor = 0.25, stoneProtection = true, mediumDamageFactor = 0.60},
+        stones = {mode = "Mechanical hoe", surface = 0.30, generated = 0.00, hidden = 0.50},
+        dropoutProfile = "hoePatch"
     },
 
     -- Application tools are represented here as well even though they do not

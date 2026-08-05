@@ -6,7 +6,7 @@
     Unauthorized copying, modification, or redistribution is prohibited
     except where expressly permitted by the copyright owner.
 
-    Source fingerprint: TMW-TL-DROP-1.200097
+    Source fingerprint: TMW-TL-DROP-1.200113
 ]]
 
 -- Encapsulated work-quality/dropout model. Game-specific density-map writes
@@ -15,7 +15,7 @@
 TerraLogicDropoutManager = {}
 OverSpeedDamageDropoutManager = TerraLogicDropoutManager
 -- Numeric source signature only; it is deliberately excluded from gameplay math.
-TerraLogicDropoutManager.SOURCE_FINGERPRINT = 1.200097
+TerraLogicDropoutManager.SOURCE_FINGERPRINT = 1.200113
 
 TerraLogicDropoutManager.PROFILES = {
     seed = {
@@ -78,7 +78,9 @@ TerraLogicDropoutManager.PROFILES = {
         maximumPatternLanes = 16
     },
     roller = {
-        enabled = true,
+        -- Category A: rolling uses Work Quality only. Keep the dormant profile
+        -- for save/debug compatibility, but never execute physical rollback.
+        enabled = false,
         patternType = "rollerRollback",
         failureAtOnePointFiveRated = 0.01,
         overspeedExponent = 2.00,
@@ -87,6 +89,352 @@ TerraLogicDropoutManager.PROFILES = {
         patternLengthM = 3.00,
         maximumPatternLanes = 16,
         freshRawState = 1
+    },
+
+    -- World-stable circular surface patches. These profiles are consumed by
+    -- one shared WorkArea adapter: the skipped part never reaches Vanilla, so
+    -- mowers create neither cut fruit nor liters there, forage tools leave the
+    -- original windrow material untouched, and stone pickers never remove or
+    -- credit stones inside a failed island. The sparse candidate lattice needs
+    -- only a few hash checks per lateral lane and no density-map scan.
+    mowerPatch = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        activationMarginKph = 0.00,
+        onsetFailureFractionPerKph = 0.009,
+        maximumFailureFraction = 0.28,
+        failureCurveStrength = 4.50,
+        patternLaneWidthM = 0.60,
+        maximumPatternLanes = 32,
+        islandSpacingM = 3.50,
+        minimumIslandRadiusM = 0.75,
+        maximumIslandRadiusM = 1.35,
+        -- Smaller circles preserve the same target failure area by activating
+        -- more lattice candidates, producing more numerous grass islands.
+        islandRadiusOffsetM = 0.15,
+        patternSalt = 27109
+    },
+    windrowerPatch = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        activationMarginKph = 0.00,
+        onsetFailureFractionPerKph = 0.014,
+        maximumFailureFraction = 0.24,
+        failureCurveStrength = 4.50,
+        -- Preserve the calibrated mild-overspeed curve, then add a smooth
+        -- shoulder so extreme travel speeds can leave substantially more
+        -- material outside the finished swath.
+        extremeSpeedBoostStartRatio = 1.35,
+        extremeSpeedMaximumFailureFraction = 0.90,
+        timeSavingFailureStartKph = 2.00,
+        timeSavingFailureBlendKph = 0.50,
+        timeSavingFailureMultiplier = 1.25,
+        patternLaneWidthM = 0.70,
+        maximumPatternLanes = 32,
+        islandSpacingM = 3.75,
+        minimumIslandRadiusM = 0.80,
+        maximumIslandRadiusM = 1.40,
+        -- Windrow pickup uses a radius around each WorkArea line. Widen the
+        -- world-stable island so neighbouring/overlapping lines cannot erase
+        -- a small dropout immediately after it was selected.
+        islandRadiusOffsetM = 1.15,
+        patternSalt = 37217
+    },
+    tedderPatch = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        activationMarginKph = 0.00,
+        onsetFailureFractionPerKph = 0.020,
+        maximumFailureFraction = 0.34,
+        failureCurveStrength = 5.00,
+        extremeSpeedBoostStartRatio = 1.35,
+        extremeSpeedMaximumFailureFraction = 0.90,
+        timeSavingFailureStartKph = 2.00,
+        timeSavingFailureBlendKph = 0.50,
+        timeSavingFailureMultiplier = 1.25,
+        patternLaneWidthM = 0.75,
+        maximumPatternLanes = 32,
+        islandSpacingM = 4.00,
+        minimumIslandRadiusM = 0.85,
+        maximumIslandRadiusM = 1.45,
+        islandRadiusOffsetM = 1.10,
+        patternSalt = 47339
+    },
+    stonePickerPatch = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        activationMarginKph = 0.00,
+        onsetFailureFractionPerKph = 0.016,
+        maximumFailureFraction = 0.36,
+        failureCurveStrength = 5.00,
+        extremeSpeedBoostStartRatio = 1.35,
+        extremeSpeedMaximumFailureFraction = 0.90,
+        timeSavingFailureStartKph = 2.00,
+        timeSavingFailureBlendKph = 0.50,
+        timeSavingFailureMultiplier = 1.25,
+        patternLaneWidthM = 0.55,
+        maximumPatternLanes = 32,
+        islandSpacingM = 3.25,
+        minimumIslandRadiusM = 0.65,
+        maximumIslandRadiusM = 1.20,
+        islandRadiusOffsetM = 0.55,
+        patternSalt = 57467
+    },
+    fertilizerPatch = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        activationMarginKph = 0.00,
+        onsetFailureFractionPerKph = 0.008,
+        maximumFailureFraction = 0.32,
+        failureCurveStrength = 4.50,
+        extremeSpeedBoostStartRatio = 1.35,
+        extremeSpeedMaximumFailureFraction = 0.80,
+        timeSavingFailureStartKph = 2.00,
+        timeSavingFailureBlendKph = 0.75,
+        timeSavingFailureMultiplier = 1.15,
+        patternLaneWidthM = 0.65,
+        maximumPatternLanes = 32,
+        islandSpacingM = 3.50,
+        minimumIslandRadiusM = 0.75,
+        maximumIslandRadiusM = 1.35,
+        islandRadiusOffsetM = 0.20,
+        patternSalt = 67579
+    },
+    limePatch = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        activationMarginKph = 0.00,
+        onsetFailureFractionPerKph = 0.009,
+        maximumFailureFraction = 0.34,
+        failureCurveStrength = 4.50,
+        extremeSpeedBoostStartRatio = 1.35,
+        extremeSpeedMaximumFailureFraction = 0.80,
+        timeSavingFailureStartKph = 2.00,
+        timeSavingFailureBlendKph = 0.75,
+        timeSavingFailureMultiplier = 1.15,
+        patternLaneWidthM = 0.65,
+        maximumPatternLanes = 32,
+        islandSpacingM = 3.50,
+        minimumIslandRadiusM = 0.80,
+        maximumIslandRadiusM = 1.40,
+        islandRadiusOffsetM = 0.20,
+        patternSalt = 77687
+    },
+    -- Liquid application keeps compact round misses, but uses a stronger
+    -- activation rate than a spinner spreader. Separate profiles prevent a
+    -- field-sprayer balance change from altering the spreader's geometry.
+    liquidFertilizerPatch = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        activationMarginKph = 0.00,
+        onsetFailureFractionPerKph = 0.008,
+        maximumFailureFraction = 0.28,
+        failureCurveStrength = 4.50,
+        extremeSpeedBoostStartRatio = 1.35,
+        extremeSpeedMaximumFailureFraction = 0.50,
+        beyondDoubleMaximumFailureFraction = 0.90,
+        beyondDoubleFullSpeedRatio = 4.00,
+        timeSavingFailureStartKph = 2.00,
+        timeSavingFailureBlendKph = 0.75,
+        timeSavingFailureMultiplier = 1.10,
+        failureFractionMultiplier = 1.00,
+        expandRadiusForTargetCoverage = true,
+        maximumCoverageRadiusScale = 2.40,
+        patternLaneWidthM = 0.65,
+        maximumPatternLanes = 32,
+        islandSpacingM = 3.50,
+        minimumIslandRadiusM = 0.75,
+        maximumIslandRadiusM = 1.35,
+        islandRadiusOffsetM = 0.20,
+        patternSalt = 68449
+    },
+    liquidLimePatch = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        activationMarginKph = 0.00,
+        onsetFailureFractionPerKph = 0.009,
+        maximumFailureFraction = 0.30,
+        failureCurveStrength = 4.50,
+        extremeSpeedBoostStartRatio = 1.35,
+        extremeSpeedMaximumFailureFraction = 0.50,
+        beyondDoubleMaximumFailureFraction = 0.90,
+        beyondDoubleFullSpeedRatio = 4.00,
+        timeSavingFailureStartKph = 2.00,
+        timeSavingFailureBlendKph = 0.75,
+        timeSavingFailureMultiplier = 1.10,
+        failureFractionMultiplier = 1.00,
+        expandRadiusForTargetCoverage = true,
+        maximumCoverageRadiusScale = 2.40,
+        patternLaneWidthM = 0.65,
+        maximumPatternLanes = 32,
+        islandSpacingM = 3.50,
+        minimumIslandRadiusM = 0.80,
+        maximumIslandRadiusM = 1.40,
+        islandRadiusOffsetM = 0.20,
+        patternSalt = 78583
+    },
+    -- Spinner spreaders have a deep, cone-shaped WorkArea whose consecutive
+    -- writes overlap heavily. A bounded longitudinal grid breaks full-depth
+    -- lane misses into irregular cells instead of drawing diagonal stripes.
+    fertilizerSpreaderPatch = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        activationMarginKph = 0.00,
+        onsetFailureFractionPerKph = 0.008,
+        maximumFailureFraction = 0.32,
+        failureCurveStrength = 4.50,
+        extremeSpeedBoostStartRatio = 1.35,
+        extremeSpeedMaximumFailureFraction = 0.80,
+        timeSavingFailureStartKph = 2.00,
+        timeSavingFailureBlendKph = 0.75,
+        timeSavingFailureMultiplier = 1.15,
+        patternLaneWidthM = 0.65,
+        maximumPatternLanes = 32,
+        islandSpacingM = 3.75,
+        minimumIslandRadiusM = 0.70,
+        maximumIslandRadiusM = 1.35,
+        islandRadiusOffsetM = 0.25,
+        minimumLongitudinalRadiusMultiplier = 1.25,
+        maximumLongitudinalRadiusMultiplier = 2.00,
+        useLongitudinalPatternGrid = true,
+        patternRowLengthM = 3.00,
+        maximumPatternRows = 8,
+        patternSalt = 69539
+    },
+    limeSpreaderPatch = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        activationMarginKph = 0.00,
+        onsetFailureFractionPerKph = 0.009,
+        maximumFailureFraction = 0.34,
+        failureCurveStrength = 4.50,
+        extremeSpeedBoostStartRatio = 1.35,
+        extremeSpeedMaximumFailureFraction = 0.80,
+        timeSavingFailureStartKph = 2.00,
+        timeSavingFailureBlendKph = 0.75,
+        timeSavingFailureMultiplier = 1.15,
+        patternLaneWidthM = 0.65,
+        maximumPatternLanes = 32,
+        islandSpacingM = 3.75,
+        minimumIslandRadiusM = 0.75,
+        maximumIslandRadiusM = 1.40,
+        islandRadiusOffsetM = 0.25,
+        minimumLongitudinalRadiusMultiplier = 1.25,
+        maximumLongitudinalRadiusMultiplier = 2.00,
+        useLongitudinalPatternGrid = true,
+        patternRowLengthM = 3.00,
+        maximumPatternRows = 8,
+        patternSalt = 79657
+    },
+    herbicidePatch = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        activationMarginKph = 0.00,
+        onsetFailureFractionPerKph = 0.010,
+        maximumFailureFraction = 0.32,
+        failureCurveStrength = 5.00,
+        extremeSpeedBoostStartRatio = 1.25,
+        extremeSpeedMaximumFailureFraction = 0.50,
+        beyondDoubleMaximumFailureFraction = 0.90,
+        beyondDoubleFullSpeedRatio = 4.00,
+        timeSavingFailureStartKph = 2.00,
+        timeSavingFailureBlendKph = 0.75,
+        timeSavingFailureMultiplier = 1.25,
+        failureFractionMultiplier = 1.00,
+        expandRadiusForTargetCoverage = true,
+        maximumCoverageRadiusScale = 2.40,
+        patternLaneWidthM = 0.40,
+        maximumPatternLanes = 32,
+        islandSpacingM = 2.25,
+        minimumIslandRadiusM = 0.45,
+        maximumIslandRadiusM = 0.85,
+        islandRadiusOffsetM = 0.35,
+        patternSalt = 87793
+    },
+    weederPatch = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        activationMarginKph = 0.00,
+        onsetFailureFractionPerKph = 0.028,
+        maximumFailureFraction = 0.52,
+        failureCurveStrength = 6.00,
+        extremeSpeedBoostStartRatio = 1.25,
+        extremeSpeedMaximumFailureFraction = 0.95,
+        timeSavingFailureStartKph = 2.00,
+        timeSavingFailureBlendKph = 0.75,
+        timeSavingFailureMultiplier = 1.40,
+        failureFractionMultiplier = 2.50,
+        -- Several small weeders use overlapping narrow WorkAreas. Sample them
+        -- more finely and use coherent world-space islands so a neighbouring
+        -- WorkArea cannot immediately erase almost every skipped patch.
+        patternLaneWidthM = 0.30,
+        maximumPatternLanes = 40,
+        islandSpacingM = 2.75,
+        minimumIslandRadiusM = 0.80,
+        maximumIslandRadiusM = 1.35,
+        islandRadiusOffsetM = 0.55,
+        patternSalt = 97919
+    },
+    hoePatch = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        activationMarginKph = 0.00,
+        onsetFailureFractionPerKph = 0.028,
+        maximumFailureFraction = 0.52,
+        failureCurveStrength = 6.00,
+        extremeSpeedBoostStartRatio = 1.25,
+        extremeSpeedMaximumFailureFraction = 0.95,
+        timeSavingFailureStartKph = 2.00,
+        timeSavingFailureBlendKph = 0.75,
+        timeSavingFailureMultiplier = 1.40,
+        failureFractionMultiplier = 2.25,
+        patternLaneWidthM = 0.50,
+        maximumPatternLanes = 32,
+        islandSpacingM = 2.50,
+        minimumIslandRadiusM = 0.50,
+        maximumIslandRadiusM = 0.95,
+        islandRadiusOffsetM = 0.45,
+        patternSalt = 108037
+    },
+    -- A second, much later failure stage for mechanical weed control. These
+    -- profiles do not describe missed weeds: selected islands are cultivated
+    -- and therefore destroy the standing crop. Weeders and hoes deliberately
+    -- share the same destructive balance; Vanilla still decides which weed
+    -- growth stages each implement can remove.
+    weederCropDamage = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        failureStartOverspeedKph = 8.00,
+        onsetFailureFractionPerKph = 0.003,
+        maximumFailureFraction = 0.14,
+        failureCurveStrength = 3.50,
+        extremeSpeedBoostStartRatio = 1.35,
+        extremeSpeedMaximumFailureFraction = 0.35,
+        failureFractionMultiplier = 0.80,
+        patternLaneWidthM = 0.40,
+        maximumPatternLanes = 32,
+        islandSpacingM = 4.50,
+        minimumIslandRadiusM = 0.40,
+        maximumIslandRadiusM = 0.75,
+        islandRadiusOffsetM = 0.05,
+        patternSalt = 118147
+    },
+    hoeCropDamage = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        failureStartOverspeedKph = 8.00,
+        onsetFailureFractionPerKph = 0.003,
+        maximumFailureFraction = 0.14,
+        failureCurveStrength = 3.50,
+        extremeSpeedBoostStartRatio = 1.35,
+        extremeSpeedMaximumFailureFraction = 0.35,
+        patternLaneWidthM = 0.40,
+        maximumPatternLanes = 32,
+        islandSpacingM = 4.50,
+        minimumIslandRadiusM = 0.40,
+        maximumIslandRadiusM = 0.75,
+        islandRadiusOffsetM = 0.05,
+        patternSalt = 128257
     },
 
     -- Event-driven mechanical work gaps. Unlike seed/application quality,
@@ -246,6 +594,330 @@ TerraLogicDropoutManager.PROFILES = {
 -- Returns one immutable-by-convention profile shared by all matching tools.
 function TerraLogicDropoutManager:getProfile(profileName)
     return self.PROFILES[profileName]
+end
+
+-- Physical surface failures start only above the XML/shop speed. The same
+-- normalized exponential-squared curve used by true plow failures gives a
+-- gentle onset and a finite cap at twice shop speed.
+function TerraLogicDropoutManager:getSurfacePatchFailureFraction(
+        profileName, currentSpeed, ratedSpeed)
+    local cfg = self:getProfile(profileName)
+    local current = math.max(tonumber(currentSpeed) or 0, 0)
+    local rated = math.max(tonumber(ratedSpeed) or 0, 0)
+    local activationMargin = math.max(
+        tonumber(cfg ~= nil and cfg.activationMarginKph) or 0, 0
+    )
+    local delayedStart = cfg ~= nil
+        and tonumber(cfg.failureStartOverspeedKph) or nil
+    local curveStartOverspeed = delayedStart ~= nil
+        and math.max(delayedStart, activationMargin) or 0
+    if cfg == nil or cfg.enabled ~= true or rated <= 0
+        or current <= rated + math.max(
+            activationMargin, curveStartOverspeed
+        ) then
+        return 0
+    end
+
+    local maximumFraction = math.clamp(
+        tonumber(cfg.maximumFailureFraction) or 0,
+        0,
+        0.95
+    )
+    local strength = math.max(
+        tonumber(cfg.failureCurveStrength) or 3,
+        0.01
+    )
+    -- Existing profiles keep their exact curve. Optional delayed profiles
+    -- begin a fresh zero-based curve only after their severe-overspeed gate,
+    -- preventing a discontinuous damage jump at activation.
+    local activeOverspeed = math.max(
+        current - rated - curveStartOverspeed, 0
+    )
+    local excess = math.clamp(activeOverspeed / rated, 0, 1)
+    local normalized = (1 - math.exp(-strength * excess * excess))
+        / math.max(1 - math.exp(-strength), 0.0001)
+    -- The main squared curve is intentionally gentle but mathematically near
+    -- zero immediately above shop speed. A tiny per-km/h toe makes the first
+    -- islands possible without turning a 0.1 km/h overshoot into a visible
+    -- carpet of failures; every profile owns its small calibrated onset rate.
+    local onsetFraction = activeOverspeed
+        * math.max(tonumber(cfg.onsetFailureFractionPerKph) or 0, 0)
+    local failureFraction = math.max(
+        maximumFraction * normalized,
+        onsetFraction
+    )
+
+    -- Optional high-speed shoulder. Profiles that omit it retain the exact
+    -- legacy curve. The smoothstep blend has zero slope at both ends, so it
+    -- cannot introduce a visible discontinuity at the configured threshold.
+    local extremeMaximum = math.clamp(
+        tonumber(cfg.extremeSpeedMaximumFailureFraction)
+            or maximumFraction,
+        maximumFraction,
+        0.95
+    )
+    if extremeMaximum > maximumFraction then
+        local boostStartRatio = math.clamp(
+            tonumber(cfg.extremeSpeedBoostStartRatio) or 2,
+            1,
+            1.99
+        )
+        local boostStartExcess = boostStartRatio - 1
+        local boostProgress = math.clamp(
+            (excess - boostStartExcess)
+                / math.max(1 - boostStartExcess, 0.01),
+            0,
+            1
+        )
+        local smoothBoost = boostProgress * boostProgress
+            * (3 - 2 * boostProgress)
+        failureFraction = failureFraction
+            + (extremeMaximum - maximumFraction) * smoothBoost
+    end
+
+    -- Optional economic floor for utility work. A small absolute overspeed
+    -- grace remains worthwhile; after the configured blend, the skipped share
+    -- slightly exceeds the theoretical time saving versus shop speed. This
+    -- keeps extreme speed from increasing completed hectares per hour.
+    local timeSavingStart = tonumber(cfg.timeSavingFailureStartKph)
+    if timeSavingStart ~= nil then
+        local overspeedKph = math.max(current - rated, 0)
+        local blendKph = math.max(
+            tonumber(cfg.timeSavingFailureBlendKph) or 1,
+            0.01
+        )
+        local economicProgress = math.clamp(
+            (overspeedKph - math.max(timeSavingStart, 0)) / blendKph,
+            0,
+            1
+        )
+        local smoothEconomicProgress = economicProgress * economicProgress
+            * (3 - 2 * economicProgress)
+        local timeSavingFraction = 1 - rated / math.max(current, rated)
+        local economicFloor = timeSavingFraction
+            * math.max(tonumber(cfg.timeSavingFailureMultiplier) or 1, 0)
+            * smoothEconomicProgress
+        failureFraction = math.max(failureFraction, economicFloor)
+    end
+
+    failureFraction = failureFraction * math.max(
+        tonumber(cfg.failureFractionMultiplier) or 1,
+        0
+    )
+
+    -- The normal curve is calibrated up to twice shop speed. Sprayers can
+    -- exceed that range by a very large margin once their hard limit is
+    -- removed, so selected profiles receive a second smooth shoulder instead
+    -- of remaining capped forever. This keeps 2.0x at the explicit 50% target
+    -- while allowing roughly 90% misses near 4.0x shop speed.
+    local finalMaximum = extremeMaximum
+    local beyondDoubleMaximum = math.clamp(
+        tonumber(cfg.beyondDoubleMaximumFailureFraction)
+            or extremeMaximum,
+        extremeMaximum,
+        0.95
+    )
+    if beyondDoubleMaximum > extremeMaximum and current > rated * 2 then
+        local fullRatio = math.max(
+            tonumber(cfg.beyondDoubleFullSpeedRatio) or 4,
+            2.01
+        )
+        local progress = math.clamp(
+            (current / rated - 2) / (fullRatio - 2),
+            0,
+            1
+        )
+        local smoothProgress = progress * progress * (3 - 2 * progress)
+        failureFraction = math.max(
+            failureFraction,
+            extremeMaximum
+                + (beyondDoubleMaximum - extremeMaximum) * smoothProgress
+        )
+        finalMaximum = beyondDoubleMaximum
+    end
+    return math.clamp(failureFraction, 0, finalMaximum)
+end
+
+-- Tests one point against a sparse, jittered lattice of island candidates.
+-- Ordinary profiles remain circular. A spinner-spreader profile may stretch
+-- each candidate along the WorkArea depth axis so overlapping cone-shaped
+-- writes do not immediately repair every interior miss.
+function TerraLogicDropoutManager:getIsSurfacePatchFailed(
+        profileName, x, z, failureFraction,
+        longitudinalDirectionX, longitudinalDirectionZ)
+    local cfg = self:getProfile(profileName)
+    local fraction = math.clamp(tonumber(failureFraction) or 0, 0, 0.95)
+    if cfg == nil or cfg.patternType ~= "surfaceIslands" or fraction <= 0 then
+        return false
+    end
+
+    local spacing = math.max(tonumber(cfg.islandSpacingM) or 3.5, 1)
+    local minimumRadius = math.max(
+        tonumber(cfg.minimumIslandRadiusM) or 0.75,
+        0.25
+    )
+    local maximumRadius = math.max(
+        tonumber(cfg.maximumIslandRadiusM) or minimumRadius,
+        minimumRadius
+    )
+    local radiusOffset = math.max(
+        tonumber(cfg.islandRadiusOffsetM) or 0,
+        0
+    )
+    local effectiveMinimumRadius = minimumRadius + radiusOffset
+    local effectiveMaximumRadius = maximumRadius + radiusOffset
+    local minimumLongitudinalMultiplier = math.max(
+        tonumber(cfg.minimumLongitudinalRadiusMultiplier) or 1,
+        1
+    )
+    local maximumLongitudinalMultiplier = math.max(
+        tonumber(cfg.maximumLongitudinalRadiusMultiplier)
+            or minimumLongitudinalMultiplier,
+        minimumLongitudinalMultiplier
+    )
+    local meanLongitudinalMultiplier =
+        (minimumLongitudinalMultiplier
+            + maximumLongitudinalMultiplier) * 0.5
+    local meanRadiusSquared = (
+        effectiveMinimumRadius * effectiveMinimumRadius
+        + effectiveMinimumRadius * effectiveMaximumRadius
+        + effectiveMaximumRadius * effectiveMaximumRadius
+    ) / 3
+    local fullLatticeCoverage = math.clamp(
+        math.pi * meanRadiusSquared * meanLongitudinalMultiplier
+            / (spacing * spacing),
+        0.01,
+        0.95
+    )
+    local coverageDemand = fraction
+    if cfg.expandRadiusForTargetCoverage == true then
+        -- For sparse circles, area fractions above the base lattice coverage
+        -- used to saturate: activating every candidate could still leave only
+        -- a lightly speckled field. Calibrate the island union against its
+        -- deterministic jittered lattice. Above saturation,
+        -- grow the same round islands instead of drawing stripes. The small
+        -- fourth-power correction compensates only near complete coverage;
+        -- using a Poisson-union approximation here overestimated a requested
+        -- 50% miss fraction because this lattice has exactly one candidate per
+        -- cell rather than randomly stacked candidate centres.
+        if coverageDemand > fullLatticeCoverage then
+            local saturationProgress = math.clamp(
+                (coverageDemand - fullLatticeCoverage)
+                    / math.max(1 - fullLatticeCoverage, 0.01),
+                0,
+                1
+            )
+            local radiusScale = math.min(
+                math.sqrt(coverageDemand / fullLatticeCoverage)
+                    * (1 + 0.25 * saturationProgress ^ 4),
+                math.max(
+                    tonumber(cfg.maximumCoverageRadiusScale) or 2.40,
+                    1
+                )
+            )
+            effectiveMinimumRadius = effectiveMinimumRadius * radiusScale
+            effectiveMaximumRadius = effectiveMaximumRadius * radiusScale
+        end
+    end
+    local activationChance = math.clamp(
+        coverageDemand / fullLatticeCoverage,
+        0,
+        1
+    )
+    local pointX, pointZ = tonumber(x) or 0, tonumber(z) or 0
+    local baseCellX = math.floor(pointX / spacing)
+    local baseCellZ = math.floor(pointZ / spacing)
+    local salt = tonumber(cfg.patternSalt) or 0
+    local directionX = tonumber(longitudinalDirectionX) or 0
+    local directionZ = tonumber(longitudinalDirectionZ) or 0
+    local directionLength = math.sqrt(
+        directionX * directionX + directionZ * directionZ)
+    if directionLength > 0.001 then
+        directionX = directionX / directionLength
+        directionZ = directionZ / directionLength
+    else
+        directionX, directionZ = 0, 0
+    end
+    local maximumExtent = effectiveMaximumRadius
+        * maximumLongitudinalMultiplier
+    local searchCells = math.max(
+        math.ceil(maximumExtent / spacing + 0.25),
+        1
+    )
+
+    for offsetZ = -searchCells, searchCells do
+        for offsetX = -searchCells, searchCells do
+            local cellX = baseCellX + offsetX
+            local cellZ = baseCellZ + offsetZ
+            local active = self:getPatternValue(
+                cellX, cellZ, 0, salt + 101, 1
+            ) < activationChance
+            if active then
+                local jitterX = self:getPatternValue(
+                    cellX, cellZ, 0, salt + 211, 1
+                ) - 0.5
+                local jitterZ = self:getPatternValue(
+                    cellX, cellZ, 0, salt + 307, 1
+                ) - 0.5
+                local radiusRoll = self:getPatternValue(
+                    cellX, cellZ, 0, salt + 401, 1
+                )
+                local radius = effectiveMinimumRadius
+                    + (effectiveMaximumRadius - effectiveMinimumRadius)
+                        * radiusRoll
+                local longitudinalRoll = self:getPatternValue(
+                    cellX, cellZ, 0, salt + 503, 1
+                )
+                local longitudinalMultiplier =
+                    minimumLongitudinalMultiplier
+                    + (maximumLongitudinalMultiplier
+                        - minimumLongitudinalMultiplier)
+                        * longitudinalRoll
+                local centerX = (cellX + 0.5 + jitterX * 0.45) * spacing
+                local centerZ = (cellZ + 0.5 + jitterZ * 0.45) * spacing
+                local dx, dz = pointX - centerX, pointZ - centerZ
+                local isInside
+                if directionLength > 0.001
+                    and longitudinalMultiplier > 1.0001 then
+                    local longitudinal = dx * directionX + dz * directionZ
+                    local lateral = -dx * directionZ + dz * directionX
+                    local longitudinalRadius = radius
+                        * longitudinalMultiplier
+                    isInside = longitudinal * longitudinal
+                            / (longitudinalRadius * longitudinalRadius)
+                        + lateral * lateral / (radius * radius) <= 1
+                else
+                    isInside = dx * dx + dz * dz <= radius * radius
+                end
+                if isInside then
+                    return true
+                end
+            end
+        end
+    end
+    return false
+end
+
+function TerraLogicDropoutManager:getSurfacePatchFailedLanes(
+        profileName, lanes, failureFraction,
+        longitudinalDirectionX, longitudinalDirectionZ)
+    local failedIndexes = {}
+    local failedCount = 0
+    for laneIndex, lane in ipairs(lanes or {}) do
+        -- width/height are absolute points. Their average is the center of
+        -- the selected parallelogram lane.
+        local sampleX = ((tonumber(lane.widthX) or 0)
+            + (tonumber(lane.heightX) or 0)) * 0.5
+        local sampleZ = ((tonumber(lane.widthZ) or 0)
+            + (tonumber(lane.heightZ) or 0)) * 0.5
+        if self:getIsSurfacePatchFailed(
+                profileName, sampleX, sampleZ, failureFraction,
+                longitudinalDirectionX, longitudinalDirectionZ) then
+            failedIndexes[laneIndex] = true
+            failedCount = failedCount + 1
+        end
+    end
+    return failedIndexes, failedCount
 end
 
 -- Resolves the two-stage plow-quality curve without touching the wear model:

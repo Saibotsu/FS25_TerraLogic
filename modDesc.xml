@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
-<modDesc descVersion="110">
+<modDesc descVersion="111">
     <author>The Mod Workshop</author>
     <version>1.0.0.0</version>
 
@@ -10,52 +10,69 @@
     </title>
 
     <description>
-        <en><![CDATA[TerraLogic brings a new level of realism to tillage and field work in Farming Simulator 25.
+        <en><![CDATA[TerraLogic replaces Farming Simulator's artificial implement speed limits with realistic gameplay mechanics.
 
-Instead of relying on artificial speed limits, TerraLogic evaluates the actual quality of your field work. Driving too fast can reduce work quality, increase wear, and ultimately affect your harvest yield. At the same time, draft forces, soil conditions, and stone impacts are simulated more realistically, making machine selection and working speed far more important.
+Instead of preventing you from driving faster, TerraLogic lets you decide how much risk you want to take. Working too fast increases wear, reduces work quality and can lower your final harvest yield. Different soil types, realistic draft forces and simulated stone impacts make implement selection and working speed more important than ever.
 
-The quality of every operation is stored directly on the worked soil. This allows different areas of the same field to have different quality values, which can individually influence the final harvest.
-
-Features:
-- Removes the speed limit from most implements and replaces it with a realistic quality and wear system.
-- Working speed directly affects the quality of field operations.
-- Work quality is stored on the affected soil area, allowing different parts of the same field to have different quality levels.
-- Soil work quality directly influences the final harvest yield.
-- More realistic implement damage caused by both visible and simulated underground stones, as well as speed and soil dependand abrasion.
-- Vanilla surface stones can still be enabled or disabled independently.
-- Reworked draft forces based on soil type and working conditions when using Precision Farming.
-- Dynamic HUD showing the optimal speed range for balancing work quality, wear, and efficiency.
-- Physical seeding dropouts at excessive working speeds, creating realistically unseeded areas (can be disabled for improved performance).
-- Poorly plowed soil gradually recovers as crops grow.
-- Server-controlled gameplay settings in multiplayer while HUD settings remain client-specific.
-- Integration with Precision Farming and More Realistic. When using More Realistic, the preferred draft model can be selected in the mod settings.
-- Compatible with Advanced Damage System, Realistic Harvesting, Moisture System, CoursePlay, AutoDrive, and many other mods.
-- Multiplayer is tested and supported.
-
-Combines and ordinary crop harvesters are intentionally excluded to avoid conflicts with dedicated harvesting mods like Realistic Harvesting. Windrowers, tedders and belt rakes currently retain their standard game behaviour due to engine limitations.]]></en>
-        <de><![CDATA[TerraLogic bringt mehr Realismus in die Bodenbearbeitung von Farming Simulator 25.
-
-Anstatt Geräte durch eine feste Geschwindigkeitsbegrenzung künstlich einzuschränken, bewertet TerraLogic die tatsächlich geleistete Feldarbeit. Zu hohe Arbeitsgeschwindigkeiten können die Arbeitsqualität verschlechtern, den Verschleiß erhöhen und langfristig den Ertrag beeinflussen. Gleichzeitig werden Zugkräfte, Bodeneigenschaften und Steine realistischer simuliert, wodurch die Wahl der richtigen Maschine und Arbeitsgeschwindigkeit deutlich wichtiger wird.
-
-Die Qualität jeder Bearbeitung wird direkt auf der bearbeiteten Bodenfläche gespeichert. Dadurch können unterschiedliche Bereiche desselben Feldes unterschiedliche Qualitätswerte besitzen und sich individuell auf den späteren Ertrag auswirken.
+The quality of every field operation is stored directly on the soil, allowing different parts of the same field to develop different quality levels and ultimately produce different yields.
 
 Features:
-- Entfernt die Geschwindigkeitsbegrenzung der meisten Anbaugeräte und ersetzt sie durch ein realistischeres Qualitäts- und Verschleißsystem.
-- Arbeitsgeschwindigkeit beeinflusst die Qualität der Feldarbeit.
-- Die Arbeitsqualität wird flächenbasiert gespeichert, sodass innerhalb eines Feldes unterschiedliche Qualitätszonen entstehen können.
-- Die Qualität der Bodenbearbeitung wirkt sich direkt auf den späteren Ertrag aus. (Auch kompatibel mit Precision Farming)
-- Deutlich realistischeres Schadenssystem für Anbaugeräte durch sichtbare sowie simulierte unterirdische Steine, sowie Bodenabhängige Abrasion.
-- Sichtbare Vanilla-Steine können weiterhin unabhängig aktiviert oder deaktiviert werden.
-- Überarbeitete Zugkräfte für Anbaugeräte. Bei verwendung von Precision Farming auch abhängig von der Bodenart.
-- Dynamisches HUD mit optimalem Geschwindigkeitsbereich zwischen Arbeitsqualität, Verschleiß und Effizienz.
-- Physikalische Saatstellen-Aussetzer bei überhöhter Arbeitsgeschwindigkeit mit sichtbar ungesäten Bereichen. (optional deaktivierbar. Weitere Geräte folgen.).
-- Schlecht gepflügter Boden regeneriert sich im Laufe des Pflanzenwachstums teilweise wieder.
-- Servergesteuerte Gameplay-Einstellungen im Multiplayer, während HUD-Einstellungen weiterhin pro Spieler gespeichert werden.
-- Integration von Precision Farming und More Realistic. Bei Verwendung von More Realistic kann das gewünschte Zugkraftmodell direkt in den Mod-Einstellungen ausgewählt werden.
-- Kompatibel mit Advanced Damage System, Realistic Harvesting, Moisture System, CoursePlay, AutoDrive und vielen weiteren Mods.
-- Multiplayer wurde getestet und wird unterstützt.
+- Removes the working speed limit from most implements.
+- Replaces artificial speed limits with realistic consequences instead of invisible restrictions.
+- Working speed directly influences implement wear, work quality and final harvest yield.
+- Work Quality is stored directly on the soil and affects future crop yield.
+- Simulates realistic draft forces and soil-dependent abrasion (Precision Farming supported).
+- More realistic implement damage from both visible and simulated underground stones.
+- Dynamic HUD showing the recommended speed range for balancing efficiency, wear and work quality.
 
-Mähdrescher und gewöhnliche Feldfrucht-Ernter sind bewusst ausgeschlossen, um Konflikte mit spezialisierten Ernte-Mods wie Realistic Harvesting zu vermeiden. Schwader und Zetter behalten derzeit ihr Standardverhalten.]]></de>
+Physical consequences of overspeed:
+- Seeders: Reduced seeding quality and randomly missed seed rows.
+- Mowers: Grass is cut less cleanly and small patches may remain standing.
+- Tedders & Windrowers: Increasing amounts of crop are left on the ground.
+- Fertilizer Spreaders & Sprayers: Reduced application quality, uneven distribution and local untreated areas.
+- Mechanical Weeders & Hoes: Weeds may survive and extreme overspeed can even damage crops or the seedbed.
+
+Additional Features:
+- Poorly plowed soil gradually recovers over multiple seasons.
+- Physical dropouts can be disabled for improved performance.
+- Multiplayer fully supported with server-controlled gameplay settings.
+- Integration with Precision Farming and More Realistic (selectable draft model).
+- Compatible with Advanced Damage System, Realistic Harvesting, Moisture System, Courseplay, AutoDrive and many other mods.
+
+
+Notes:
+- Combines and standard crop harvesters are intentionally excluded to avoid conflicts with dedicated harvesting mods such as Realistic Harvesting.]]></en>
+        <de><![CDATA[TerraLogic ersetzt die künstlichen Geschwindigkeitsbegrenzungen des Farming Simulator durch realistische Spielmechaniken.
+
+Anstatt Geräte durch ein unsichtbares Tempolimit einzuschränken, überlässt TerraLogic die Entscheidung dem Spieler. Zu hohe Arbeitsgeschwindigkeiten erhöhen den Verschleiß, verschlechtern die Arbeitsqualität und können den späteren Ertrag reduzieren. Gleichzeitig sorgen realistischere Zugkräfte, unterschiedliche Bodenarten und simulierte Steine dafür, dass Maschinenwahl und Arbeitsgeschwindigkeit deutlich wichtiger werden.
+
+Die Qualität jeder Feldbearbeitung wird direkt auf dem Boden gespeichert. Dadurch können unterschiedliche Bereiche desselben Feldes unterschiedliche Qualitätswerte besitzen und sich individuell auf den späteren Ertrag auswirken.
+
+Features:
+- Entfernt die Arbeitsgeschwindigkeitsbegrenzung der meisten Anbaugeräte.
+- Ersetzt starre Geschwindigkeitslimits durch realistische Konsequenzen.
+- Arbeitsgeschwindigkeit beeinflusst Verschleiß, Arbeitsqualität und den späteren Ertrag.
+- Arbeitsqualität wird direkt auf der bearbeiteten Bodenfläche gespeichert.
+- Realistische Zugkräfte und bodenabhängige Abrasion (mit Precision Farming).
+- Deutlich realistischere Schäden durch sichtbare und simulierte unterirdische Steine.
+- Dynamisches HUD mit optimalem Geschwindigkeitsbereich zwischen Effizienz, Verschleiß und Arbeitsqualität.
+
+Physikalische Folgen von Overspeed:
+- Sämaschinen: Schlechtere Saatqualität und vereinzelt ungesäte Bereiche.
+- Mähwerke: Gras wird zunehmend unsauber gemäht und einzelne Grasbüschel bleiben stehen.
+- Wender & Schwader: Zunehmend mehr Erntegut bleibt auf dem Feld liegen.
+- Düngerstreuer & Spritzen: Ungleichmäßige Ausbringung und unbehandelte Bereiche.
+- Hacken & Striegel: Unkraut wird unzuverlässiger entfernt; bei extremen Geschwindigkeiten können sogar Pflanzen oder das Saatbett beschädigt werden.
+
+Weitere Features:
+- Schlecht gepflügter Boden regeneriert sich im Laufe mehrerer Vegetationsperioden langsam wieder.
+- Physikalische Dropouts können optional deaktiviert werden.
+- Multiplayer vollständig unterstützt, Gameplay-Einstellungen werden serverseitig synchronisiert.
+- Integration mit Precision Farming und More Realistic (umschaltbares Zugkraftmodell).
+- Kompatibel mit Advanced Damage System, Realistic Harvesting, Moisture System, Courseplay, AutoDrive und vielen weiteren Mods.
+
+Hinweise:
+- Mähdrescher und gewöhnliche Feldfrucht-Ernter sind bewusst ausgeschlossen, um Konflikte mit spezialisierten Ernte-Mods wie Realistic Harvesting zu vermeiden.]]></de>
     </description>
 
     <l10n>
@@ -148,8 +165,8 @@ Mähdrescher und gewöhnliche Feldfrucht-Ernter sind bewusst ausgeschlossen, um 
             <de>Physikalische Arbeitsaussetzer</de>
         </text>
         <text name="terraLogic_settingPhysicalDropoutsTooltip">
-            <en>Allows overspeed to leave real untreated or unworked spots. Quality and yield penalties remain active when disabled. In multiplayer, only server admins can change this setting.</en>
-            <de>Erlaubt bei zu hoher Geschwindigkeit echte unbehandelte oder unbearbeitete Stellen. Qualit&#228;ts- und Ertragsnachteile bleiben beim Deaktivieren aktiv. Im Multiplayer kann dies nur ein Server-Admin &#228;ndern.</de>
+            <en>Allows overspeed to leave real untreated or unworked spots. When disabled, affected implements keep their shop speed limit and full Work Quality remains active where applicable. In multiplayer, only server admins can change this setting.</en>
+            <de>Erlaubt bei zu hoher Geschwindigkeit echte unbehandelte oder unbearbeitete Stellen. Beim Deaktivieren behalten betroffene Ger&#228;te ihr Shop-Speedlimit; die volle Arbeitsqualit&#228;tswertung bleibt, sofern vorhanden, aktiv. Im Multiplayer kann dies nur ein Server-Admin &#228;ndern.</de>
         </text>
         <text name="terraLogic_settingVisibleStonesTitle">
             <en>Visible-stone damage</en>
@@ -198,6 +215,22 @@ Mähdrescher und gewöhnliche Feldfrucht-Ernter sind bewusst ausgeschlossen, um 
         <text name="terraLogic_settingOn">
             <en>On</en>
             <de>An</de>
+        </text>
+        <text name="terraLogic_consoleMowerQualityStatus">
+            <en>TerraLogic mower work quality: %s (physical dropouts remain active)</en>
+            <de>TerraLogic Mähwerk-Arbeitsqualität: %s (physische Dropouts bleiben aktiv)</de>
+        </text>
+        <text name="terraLogic_consoleMowerQualityHelp">
+            <en>Mower work quality: tlMowerQuality [on|off]</en>
+            <de>Mähwerk-Arbeitsqualität: tlMowerQuality [on|off]</de>
+        </text>
+        <text name="terraLogic_consoleMowerQualityUsage">
+            <en>TerraLogic usage: tlMowerQuality [on|off]</en>
+            <de>TerraLogic Verwendung: tlMowerQuality [on|off]</de>
+        </text>
+        <text name="terraLogic_consoleServerOnly">
+            <en>TerraLogic: this command must be executed on the server or host</en>
+            <de>TerraLogic: Dieser Befehl muss auf dem Server oder Host ausgeführt werden</de>
         </text>
         <text name="terraLogic_settingOff">
             <en>Off</en>

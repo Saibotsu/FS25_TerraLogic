@@ -6,13 +6,13 @@
     Unauthorized copying, modification, or redistribution is prohibited
     except where expressly permitted by the copyright owner.
 
-    Source fingerprint: TMW-TL-CORE-1.200048
+    Source fingerprint: TMW-TL-CORE-1.200060
 ]]
 
 TerraLogic = {}
 OverSpeedDamage = TerraLogic
 -- Numeric source signature only; it is deliberately excluded from gameplay math.
-TerraLogic.SOURCE_FINGERPRINT = 1.200048
+TerraLogic.SOURCE_FINGERPRINT = 1.200060
 
 -- The two modules are loaded by modDesc before this specialization. Keep these
 -- aliases for older debug/console code, but never define per-class values here.
@@ -116,7 +116,32 @@ TerraLogic.VANILLA_VISIBLE_STONE_CLASSES = {
     precisionPlanter = true,
     weeder = true,
     mulcher = true,
-    mower = true
+    mower = true,
+    hoe = true
+}
+
+-- Explicit runtime audit of classes whose real processing path writes work
+-- quality. A profile row alone must never unlock working speed: documented
+-- future classes and zero-yield utilities may not have the matching hook yet.
+-- Surface forage tools are deliberately absent and use their physical-dropout
+-- gate in getSpeedLimit, so disabling that option restores their shop limit.
+TerraLogic.SPEED_UNLOCK_CONSEQUENCE_CLASSES = {
+    plow = true,
+    subsoiler = true,
+    cultivator = true,
+    shallowCultivator = true,
+    discHarrow = true,
+    powerHarrow = true,
+    spader = true,
+    directDrill = true,
+    sowingMachine = true,
+    precisionPlanter = true,
+    roller = true,
+    mulcher = true,
+    weeder = true,
+    hoe = true,
+    liquidSprayer = true,
+    fertilizerSpreader = true
 }
 
 -- When Vanilla stones are active, actual stone-map contacts replace part of
@@ -307,13 +332,17 @@ end
 
 -- Specialization registration ---------------------------------------------
 
--- Limits TerraLogic to supported wearable implements and mowers.
+-- Limits TerraLogic to supported wearable implements and forage surface tools.
 function TerraLogic.prerequisitesPresent(specializations)
     local wearable = SpecializationUtil.hasSpecialization(Wearable, specializations)
     local attachable = SpecializationUtil.hasSpecialization(Attachable, specializations)
     local mower = Mower ~= nil
         and SpecializationUtil.hasSpecialization(Mower, specializations)
-    return wearable and (attachable or mower)
+    local windrower = Windrower ~= nil
+        and SpecializationUtil.hasSpecialization(Windrower, specializations)
+    local tedder = Tedder ~= nil
+        and SpecializationUtil.hasSpecialization(Tedder, specializations)
+    return wearable and (attachable or mower or windrower or tedder)
 end
 
 function TerraLogic.registerEventListeners(vehicleType)
@@ -355,6 +384,7 @@ function TerraLogic.registerFunctions(vehicleType)
     SpecializationUtil.registerFunction(vehicleType, "getOverSpeedStoneAreaState", TerraLogic.getOverSpeedStoneAreaState)
     SpecializationUtil.registerFunction(vehicleType, "processOverSpeedStoneArea", TerraLogic.processOverSpeedStoneArea)
     SpecializationUtil.registerFunction(vehicleType, "processImpactDropoutArea", TerraLogic.processImpactDropoutArea)
+    SpecializationUtil.registerFunction(vehicleType, "processSurfacePatchDropoutArea", TerraLogic.processSurfacePatchDropoutArea)
     SpecializationUtil.registerFunction(vehicleType, "updateOverSpeedPlowEffects", TerraLogic.updateOverSpeedPlowEffects)
     SpecializationUtil.registerFunction(vehicleType, "getOverSpeedSeedQuality", TerraLogic.getOverSpeedSeedQuality)
     SpecializationUtil.registerFunction(vehicleType, "prepareOverSpeedSeedQualityArea", TerraLogic.prepareOverSpeedSeedQualityArea)
@@ -522,6 +552,15 @@ function TerraLogic.registerOverwrittenFunctions(vehicleType)
     if StonePicker ~= nil and SpecializationUtil.hasSpecialization(StonePicker, vehicleType.specializations) then
         SpecializationUtil.registerOverwrittenFunction(vehicleType, "processStonePickerArea", TerraLogic.processStonePickerArea)
     end
+    if Mower ~= nil and SpecializationUtil.hasSpecialization(Mower, vehicleType.specializations) then
+        SpecializationUtil.registerOverwrittenFunction(vehicleType, "processMowerArea", TerraLogic.processMowerArea)
+    end
+    if Windrower ~= nil and SpecializationUtil.hasSpecialization(Windrower, vehicleType.specializations) then
+        SpecializationUtil.registerOverwrittenFunction(vehicleType, "processWindrowerArea", TerraLogic.processWindrowerArea)
+    end
+    if Tedder ~= nil and SpecializationUtil.hasSpecialization(Tedder, vehicleType.specializations) then
+        SpecializationUtil.registerOverwrittenFunction(vehicleType, "processTedderArea", TerraLogic.processTedderArea)
+    end
 end
 
 -- Initializes per-vehicle runtime state without writing savegame data.
@@ -574,6 +613,8 @@ function TerraLogic:onLoad(savegame)
         shopToClassSpeedFactor = shopToClassSpeedFactor,
         safeSpeedFallback = safeSpeedFallback,
         isMowerTool = self.spec_mower ~= nil,
+        isSurfaceForageTool = self.spec_mower ~= nil
+            or self.spec_windrower ~= nil or self.spec_tedder ~= nil,
         dropoutProfile = implementClass ~= nil and implementClass.dropoutProfile or nil,
         impactDropoutProfile = implementClass ~= nil
             and implementClass.impactDropoutProfile or nil,
@@ -955,22 +996,22 @@ function TerraLogic:processOverSpeedStoneArea(superFunc, workArea, dt)
         end
     end
 
-    local realArea, area = superFunc(self, workArea, dt)
+    local realArea, area, processedAreas = superFunc(self, workArea, dt)
 
     if before == nil then
-        return realArea, area
+        return realArea, area, processedAreas
     end
 
     local after = self:getOverSpeedStoneAreaState(workArea)
     if after == nil then
-        return realArea, area
+        return realArea, area, processedAreas
     end
 
     local profile = self:getOverSpeedStoneToolProfile()
     local speed = math.abs(self:getLastSpeed(true) or 0)
     local rated = tonumber(spec.ratedSpeed) or 0
     if profile == nil or speed <= 0.5 or rated <= 0 then
-        return realArea, area
+        return realArea, area, processedAreas
     end
 
     local speedEnergy = (speed / rated) ^ 2
@@ -1051,7 +1092,7 @@ function TerraLogic:processOverSpeedStoneArea(superFunc, workArea, dt)
         spec.lastStoneEventGameTime = now
     end
 
-    return realArea, area
+    return realArea, area, processedAreas
 end
 
 -- Runs Vanilla cultivation first, then records quality only for changed ground.
@@ -1170,6 +1211,39 @@ end
 
 local function getPatternLane(geometry, laneIndex)
     return getPatternLaneRange(geometry, laneIndex, laneIndex)
+end
+
+local function getPatternGridCell(
+        geometry, firstLaneIndex, lastLaneIndex, rowIndex, rowCount)
+    local u0 = (firstLaneIndex - 1) / geometry.lanes
+    local u1 = (lastLaneIndex or firstLaneIndex) / geometry.lanes
+    local v0 = (rowIndex - 1) / rowCount
+    local v1 = rowIndex / rowCount
+    local startX = geometry.xs + geometry.widthX * u0
+        + geometry.heightX * v0
+    local startY = geometry.ys + geometry.widthY * u0
+        + geometry.heightY * v0
+    local startZ = geometry.zs + geometry.widthZ * u0
+        + geometry.heightZ * v0
+    local widthX = geometry.xs + geometry.widthX * u1
+        + geometry.heightX * v0
+    local widthY = geometry.ys + geometry.widthY * u1
+        + geometry.heightY * v0
+    local widthZ = geometry.zs + geometry.widthZ * u1
+        + geometry.heightZ * v0
+    local heightX = geometry.xs + geometry.widthX * u0
+        + geometry.heightX * v1
+    local heightY = geometry.ys + geometry.widthY * u0
+        + geometry.heightY * v1
+    local heightZ = geometry.zs + geometry.widthZ * u0
+        + geometry.heightZ * v1
+    return {
+        startX = startX, startY = startY, startZ = startZ,
+        widthX = widthX, widthY = widthY, widthZ = widthZ,
+        heightX = heightX, heightY = heightY, heightZ = heightZ,
+        centerX = (startX + widthX + heightX) / 3,
+        centerZ = (startZ + widthZ + heightZ) / 3
+    }
 end
 
 local function getPatternNormalizedRange(geometry, u0, u1)
@@ -1973,6 +2047,440 @@ local function copyWorkAreaWithPatternNodes(workArea, nodes)
     laneWorkArea.width = nodes.width
     laneWorkArea.height = nodes.height
     return laneWorkArea
+end
+
+-- Applies speed-driven, world-stable surface islands before Vanilla touches
+-- fruit or windrow density. Only successful lateral runs invoke the original
+-- specialization. Mutable WorkArea buffers are carried between those calls so
+-- mower, windrower, tedder, sprayer and weeder bookkeeping stays equivalent
+-- to one full pass; stone-picker accumulation already lives in its
+-- specialization-wide params. Deep spinner WorkAreas may opt into a bounded
+-- longitudinal grid so their misses form cells instead of diagonal lanes.
+function TerraLogic:processSurfacePatchDropoutArea(
+        superFunc, workArea, dt, profileName)
+    local spec = self.spec_terraLogic
+    local cfg = TerraLogicDropoutManager:getProfile(profileName)
+    local modEnabled = TerraLogicMain == nil
+        or TerraLogicMain.enabled ~= false
+    local function processWholeArea()
+        local realArea, totalArea = superFunc(self, workArea, dt)
+        return realArea, totalArea, {{
+            workArea = workArea,
+            realArea = tonumber(realArea) or 0,
+            totalArea = tonumber(totalArea) or 0
+        }}
+    end
+    if spec == nil or cfg == nil or cfg.enabled ~= true
+        or not self.isServer or not modEnabled
+        or not getArePhysicalDropoutsEnabled() then
+        return processWholeArea()
+    end
+
+    local speed = self.getLastSpeed ~= nil
+        and math.abs(tonumber(self:getLastSpeed(true)) or 0) or 0
+    local rated = math.max(tonumber(spec.ratedSpeed) or 0, 0)
+    local failureFraction =
+        TerraLogicDropoutManager:getSurfacePatchFailureFraction(
+            profileName, speed, rated
+        )
+    if failureFraction <= 0 then
+        spec.surfacePatchDropoutStatus = "below shop speed"
+        spec.surfacePatchDropoutFailedLanes = 0
+        return processWholeArea()
+    end
+
+    local geometry = getWorkAreaPatternGeometry(
+        workArea,
+        cfg.patternLaneWidthM or 0.75,
+        cfg.maximumPatternLanes or 32,
+        true
+    )
+    if geometry == nil then
+        spec.surfacePatchDropoutStatus = "invalid work area"
+        return processWholeArea()
+    end
+
+    -- Remove the lateral part of the triangular height vector to recover the
+    -- WorkArea's forward/depth axis. Spinner-spreader profiles use it to keep
+    -- elongated misses stable through their heavily overlapping deep throw.
+    local widthLength = math.sqrt(
+        geometry.widthX * geometry.widthX
+            + geometry.widthZ * geometry.widthZ)
+    local lateralX = geometry.widthX / math.max(widthLength, 0.001)
+    local lateralZ = geometry.widthZ / math.max(widthLength, 0.001)
+    local heightLateral = geometry.heightX * lateralX
+        + geometry.heightZ * lateralZ
+    local longitudinalX = geometry.heightX - lateralX * heightLateral
+    local longitudinalZ = geometry.heightZ - lateralZ * heightLateral
+    local longitudinalLength = math.sqrt(
+        longitudinalX * longitudinalX
+            + longitudinalZ * longitudinalZ)
+    local rowCount = 1
+    if cfg.useLongitudinalPatternGrid == true then
+        rowCount = math.clamp(
+            math.ceil(longitudinalLength
+                / math.max(tonumber(cfg.patternRowLengthM) or 3, 0.5)),
+            1,
+            math.max(tonumber(cfg.maximumPatternRows) or 8, 1)
+        )
+    end
+    if longitudinalLength <= 0.001 then
+        longitudinalX, longitudinalZ = -lateralZ, lateralX
+    else
+        longitudinalX = longitudinalX / longitudinalLength
+        longitudinalZ = longitudinalZ / longitudinalLength
+    end
+    local failedIndexesByRow, failedCount = {}, 0
+    for rowIndex = 1, rowCount do
+        local lanes = {}
+        for laneIndex = 1, geometry.lanes do
+            lanes[laneIndex] = rowCount > 1
+                and getPatternGridCell(
+                    geometry, laneIndex, laneIndex, rowIndex, rowCount)
+                or getPatternLane(geometry, laneIndex)
+        end
+        local failedIndexes, rowFailedCount =
+            TerraLogicDropoutManager:getSurfacePatchFailedLanes(
+                profileName, lanes, failureFraction,
+                longitudinalX, longitudinalZ
+            )
+        failedIndexesByRow[rowIndex] = failedIndexes
+        failedCount = failedCount + rowFailedCount
+    end
+    local totalCells = geometry.lanes * rowCount
+    spec.surfacePatchDropoutProfile = profileName
+    spec.surfacePatchDropoutTargetFraction = failureFraction
+    spec.surfacePatchDropoutFailedLanes = failedCount
+    spec.surfacePatchDropoutTotalLanes = totalCells
+    if failedCount == 0 then
+        spec.surfacePatchDropoutStatus = "no island in current pass"
+        return processWholeArea()
+    end
+
+    local realAreaSum, totalAreaSum = 0, 0
+    local pickupSum, pickedUpSum, droppedSum = 0, 0, 0
+    local processedRuns, processedAreas = 0, {}
+    local carryFields = {
+        "litersToDrop", "lastValidPickupFillType", "lastDropFillType",
+        "lineOffset", "lastLineOffset"
+    }
+
+    local function processSuccessfulRun(rowIndex, runStart, runEnd)
+        if runStart == nil then return end
+        local lane = rowCount > 1
+            and getPatternGridCell(
+                geometry, runStart, runEnd, rowIndex, rowCount)
+            or getPatternLaneRange(geometry, runStart, runEnd)
+        local nodes = getQualityPatternWorkArea(spec, self, lane)
+        local laneWorkArea = copyWorkAreaWithPatternNodes(workArea, nodes)
+        local realArea, totalArea = superFunc(self, laneWorkArea, dt)
+        processedAreas[#processedAreas + 1] = {
+            workArea = laneWorkArea,
+            lane = lane,
+            realArea = tonumber(realArea) or 0,
+            totalArea = tonumber(totalArea) or 0
+        }
+        realAreaSum = realAreaSum + (tonumber(realArea) or 0)
+        totalAreaSum = totalAreaSum + (tonumber(totalArea) or 0)
+        pickupSum = pickupSum
+            + (tonumber(laneWorkArea.lastPickupLiters) or 0)
+        pickedUpSum = pickedUpSum
+            + (tonumber(laneWorkArea.pickedUpLiters) or 0)
+        droppedSum = droppedSum
+            + (tonumber(laneWorkArea.lastDroppedLiters) or 0)
+        for _, fieldName in ipairs(carryFields) do
+            if laneWorkArea[fieldName] ~= nil then
+                workArea[fieldName] = laneWorkArea[fieldName]
+            end
+        end
+        -- Keep the most recent values while the next run executes; some
+        -- Vanilla branches use them to select the compatible windrow type.
+        workArea.lastPickupLiters = laneWorkArea.lastPickupLiters
+        workArea.lastDroppedLiters = laneWorkArea.lastDroppedLiters
+        processedRuns = processedRuns + 1
+    end
+
+    for rowIndex = 1, rowCount do
+        local failedIndexes = failedIndexesByRow[rowIndex]
+        local runStart = nil
+        for laneIndex = 1, geometry.lanes do
+            if failedIndexes[laneIndex] then
+                processSuccessfulRun(rowIndex, runStart, laneIndex - 1)
+                runStart = nil
+            else
+                runStart = runStart or laneIndex
+            end
+        end
+        processSuccessfulRun(rowIndex, runStart, geometry.lanes)
+    end
+
+    workArea.lastPickupLiters = pickupSum
+    workArea.pickedUpLiters = pickedUpSum
+    workArea.lastDroppedLiters = droppedSum
+    spec.surfacePatchDropoutStatus = string.format(
+        "islands skipped %d/%d cells in %d run(s)",
+        failedCount, totalCells, processedRuns
+    )
+    if spec.surfacePatchDropoutLogged ~= true then
+        spec.surfacePatchDropoutLogged = true
+        TerraLogicLogging.debug(
+            "[FS25_TerraLogic] Surface patch dropout active: vehicle=%s profile=%s target=%.3f failed=%d/%d runs=%d speed=%.2f shop=%.2f",
+            self.getName ~= nil and self:getName() or tostring(self.configFileName),
+            profileName,
+            failureFraction,
+            failedCount,
+            totalCells,
+            processedRuns,
+            speed,
+            rated
+        )
+    end
+    return realAreaSum, totalAreaSum, processedAreas
+end
+
+-- Executes an additional action only on the selected islands of a surface
+-- profile. Unlike processSurfacePatchDropoutArea, selected lanes are the
+-- affected result rather than the skipped result. This keeps destructive
+-- secondary failures independent from the primary work-dropout adapter.
+local function applySurfacePatchActionArea(
+        vehicle, workArea, profileName, actionFunc)
+    local spec = vehicle ~= nil and vehicle.spec_terraLogic or nil
+    local cfg = TerraLogicDropoutManager:getProfile(profileName)
+    local modEnabled = TerraLogicMain == nil
+        or TerraLogicMain.enabled ~= false
+    if spec == nil or cfg == nil or cfg.enabled ~= true
+        or not vehicle.isServer or not modEnabled
+        or not getArePhysicalDropoutsEnabled()
+        or actionFunc == nil then
+        return 0, 0
+    end
+
+    local speed = vehicle.getLastSpeed ~= nil
+        and math.abs(tonumber(vehicle:getLastSpeed(true)) or 0) or 0
+    local rated = math.max(tonumber(spec.ratedSpeed) or 0, 0)
+    local affectedFraction =
+        TerraLogicDropoutManager:getSurfacePatchFailureFraction(
+            profileName, speed, rated)
+    spec.surfaceDamageProfile = profileName
+    spec.surfaceDamageTargetFraction = affectedFraction
+    spec.surfaceDamageChangedPixels = 0
+    if affectedFraction <= 0 then
+        spec.surfaceDamageStatus = "below destructive overspeed"
+        spec.surfaceDamageIslandLanes = 0
+        return 0, 0
+    end
+
+    local geometry = getWorkAreaPatternGeometry(
+        workArea,
+        cfg.patternLaneWidthM or 0.40,
+        cfg.maximumPatternLanes or 32,
+        true
+    )
+    if geometry == nil then
+        spec.surfaceDamageStatus = "invalid work area"
+        return 0, 0
+    end
+    local lanes = {}
+    for laneIndex = 1, geometry.lanes do
+        lanes[laneIndex] = getPatternLane(geometry, laneIndex)
+    end
+    local affectedIndexes, affectedCount =
+        TerraLogicDropoutManager:getSurfacePatchFailedLanes(
+            profileName, lanes, affectedFraction)
+    spec.surfaceDamageIslandLanes = affectedCount
+    spec.surfaceDamageTotalLanes = geometry.lanes
+    if affectedCount == 0 then
+        spec.surfaceDamageStatus = "no destructive island in current pass"
+        return 0, 0
+    end
+
+    local changedPixels, actionRuns = 0, 0
+    local runStart = nil
+    local function processAffectedRun(runEnd)
+        if runStart == nil then return end
+        local lane = getPatternLaneRange(geometry, runStart, runEnd)
+        changedPixels = changedPixels
+            + math.max(tonumber(actionFunc(vehicle, lane, workArea)) or 0, 0)
+        actionRuns = actionRuns + 1
+        runStart = nil
+    end
+    for laneIndex = 1, geometry.lanes do
+        if affectedIndexes[laneIndex] then
+            runStart = runStart or laneIndex
+        else
+            processAffectedRun(laneIndex - 1)
+        end
+    end
+    processAffectedRun(geometry.lanes)
+    spec.surfaceDamageChangedPixels = changedPixels
+    spec.surfaceDamageStatus = string.format(
+        "crop damage %d/%d lanes in %d run(s)",
+        affectedCount, geometry.lanes, actionRuns)
+    if changedPixels > 0 and spec.surfaceDamageLogged ~= true then
+        spec.surfaceDamageLogged = true
+        TerraLogicLogging.debug(
+            "[FS25_TerraLogic] Destructive weed-tool dropout active: vehicle=%s profile=%s target=%.3f lanes=%d/%d changed=%d speed=%.2f shop=%.2f",
+            vehicle.getName ~= nil and vehicle:getName()
+                or tostring(vehicle.configFileName),
+            profileName,
+            affectedFraction,
+            affectedCount,
+            geometry.lanes,
+            changedPixels,
+            speed,
+            rated
+        )
+    end
+    return changedPixels, affectedCount
+end
+
+local function getSurfaceDamageGroundAngle(lane)
+    local mission = g_currentMission
+    if lane == nil or mission == nil or mission.fieldGroundSystem == nil
+        or FSDensityMapUtil == nil
+        or FSDensityMapUtil.convertToDensityMapAngle == nil then
+        return 0
+    end
+    local dx = lane.heightX - lane.startX
+    local dz = lane.heightZ - lane.startZ
+    if math.abs(dx) + math.abs(dz) < 0.0001 then
+        return 0
+    end
+    return FSDensityMapUtil.convertToDensityMapAngle(
+        MathUtil.getYRotationFromDirection(dx, dz),
+        mission.fieldGroundSystem:getGroundAngleMaxValue()
+    )
+end
+
+local function getSurfaceDamageFruitType(lane)
+    if lane == nil or FSDensityMapUtil == nil
+        or FSDensityMapUtil.getFruitTypeIndexAtWorldPos == nil then
+        return nil
+    end
+    -- Require an actual standing crop before changing the ground. Several
+    -- nearby samples make narrow row crops reliable without scanning every
+    -- fruit type or density pixel.
+    local points = {
+        {lane.centerX, lane.centerZ},
+        {(lane.startX + lane.widthX) * 0.5,
+            (lane.startZ + lane.widthZ) * 0.5},
+        {(lane.startX + lane.heightX) * 0.5,
+            (lane.startZ + lane.heightZ) * 0.5},
+        {(lane.widthX + lane.heightX) * 0.5,
+            (lane.widthZ + lane.heightZ) * 0.5}
+    }
+    for _, point in ipairs(points) do
+        local fruitTypeIndex = FSDensityMapUtil.getFruitTypeIndexAtWorldPos(
+            point[1], point[2])
+        if fruitTypeIndex ~= nil
+            and (FruitType == nil or FruitType.UNKNOWN == nil
+                or fruitTypeIndex ~= FruitType.UNKNOWN) then
+            return fruitTypeIndex
+        end
+    end
+    return nil
+end
+
+local function applyWeederCropDamage(vehicle, workArea, profileName)
+    return applySurfacePatchActionArea(
+        vehicle, workArea, profileName,
+        function(tool, lane, sourceWorkArea)
+            if getSurfaceDamageFruitType(lane) == nil then
+                return 0
+            end
+            local changed = FSDensityMapUtil.updateCultivatorArea(
+                lane.startX, lane.startZ,
+                lane.widthX, lane.widthZ,
+                lane.heightX, lane.heightZ,
+                false,
+                true,
+                getSurfaceDamageGroundAngle(lane),
+                nil,
+                false,
+                true
+            )
+            changed = math.max(tonumber(changed) or 0, 0)
+            if changed > 0 and TerraLogicQualityManager ~= nil
+                and TerraLogicQualityManager.invalidateSoilDamageWorkArea
+                    ~= nil then
+                local nodes = getQualityPatternWorkArea(
+                    tool.spec_terraLogic, tool, lane)
+                local damageWorkArea = copyWorkAreaWithPatternNodes(
+                    sourceWorkArea, nodes)
+                TerraLogicQualityManager:invalidateSoilDamageWorkArea(
+                    damageWorkArea, tool)
+            end
+            return changed
+        end
+    )
+end
+
+-- Converts processed surface-patch runs into per-geometry ledger writes while
+-- preserving the exact successful-area total reported by Vanilla/PF.
+local function getDropoutLedgerAreas(
+        processedAreas, fallbackWorkArea, successfulArea)
+    local entries = processedAreas
+    if entries == nil then
+        entries = {{workArea = fallbackWorkArea, realArea = 0, totalArea = 0}}
+    elseif #entries == 0 then
+        -- A physical dropout pass can legitimately reject every generated
+        -- run. Never turn that into a full-width quality-ledger stamp.
+        return entries
+    end
+    local targetArea = math.max(tonumber(successfulArea) or 0, 0)
+    local weightSum = 0
+    for _, entry in ipairs(entries) do
+        entry.terraLogicWeight = math.max(
+            tonumber(entry.realArea) or 0,
+            tonumber(entry.totalArea) or 0,
+            0
+        )
+        weightSum = weightSum + entry.terraLogicWeight
+    end
+    for _, entry in ipairs(entries) do
+        if targetArea <= 0 then
+            entry.terraLogicSuccessfulArea = 0
+        elseif weightSum > 0 then
+            entry.terraLogicSuccessfulArea = targetArea
+                * entry.terraLogicWeight / weightSum
+        else
+            entry.terraLogicSuccessfulArea = targetArea / #entries
+        end
+    end
+    return entries
+end
+
+local function getDropoutLedgerWorkArea(vehicle, entry)
+    if entry ~= nil and entry.lane ~= nil
+        and vehicle ~= nil and vehicle.spec_terraLogic ~= nil then
+        -- Surface runs reuse one lightweight node triplet during Vanilla
+        -- processing. Restore the saved geometry immediately before each
+        -- delayed quality-ledger write so every run stamps its own cells.
+        local nodes = getQualityPatternWorkArea(
+            vehicle.spec_terraLogic, vehicle, entry.lane)
+        entry.workArea.start = nodes.start
+        entry.workArea.width = nodes.width
+        entry.workArea.height = nodes.height
+    end
+    return entry ~= nil and entry.workArea or nil
+end
+
+function TerraLogic:processMowerArea(superFunc, workArea, dt)
+    return self:processSurfacePatchDropoutArea(
+        superFunc, workArea, dt, "mowerPatch"
+    )
+end
+
+function TerraLogic:processWindrowerArea(superFunc, workArea, dt)
+    return self:processSurfacePatchDropoutArea(
+        superFunc, workArea, dt, "windrowerPatch"
+    )
+end
+
+function TerraLogic:processTedderArea(superFunc, workArea, dt)
+    return self:processSurfacePatchDropoutArea(
+        superFunc, workArea, dt, "tedderPatch"
+    )
 end
 
 -- Mechanical impact failures use the same WorkArea segmentation as seed and
@@ -3183,6 +3691,8 @@ function TerraLogic:prepareOverSpeedSeedQualityArea(workArea)
     local sowingSpec = self.spec_sowingMachine
     local params = sowingSpec ~= nil and sowingSpec.workAreaParameters or nil
     local fruitTypeIndex = params ~= nil and params.seedsFruitType or nil
+    local isPerennialGrass = FruitType ~= nil and FruitType.GRASS ~= nil
+        and fruitTypeIndex == FruitType.GRASS
     local speed = math.abs(self:getLastSpeed(true) or 0)
     local thresholdQuality, damagePenalty, speedPenalty, health,
         thresholdSpeed, thresholdShift =
@@ -3192,7 +3702,8 @@ function TerraLogic:prepareOverSpeedSeedQualityArea(workArea)
     -- Physical missing-plant patterns remain the direct/visual part of that
     -- target loss and still begin only above advertised shop speed.
     local workQuality, yieldPenalty, workEconomy =
-        TerraLogicQualityManager:getWorkQualityModel(self, speed, "seed")
+        TerraLogicQualityManager:getWorkQualityModel(
+            self, speed, "seed", nil, not isPerennialGrass)
     local seedBalance = TerraLogic.getWorkQualityBalance(self, "seed")
     local physicalDropoutsEnabled = getArePhysicalDropoutsEnabled()
     local physicalDropoutPenalty = physicalDropoutsEnabled
@@ -3251,8 +3762,7 @@ function TerraLogic:prepareOverSpeedSeedQualityArea(workArea)
     -- density map and would therefore make a perennial grass defect permanent.
     -- Grass keeps the complete modeled seed penalty in the quality ledger and
     -- lets each later cut halve it; annual crops retain physical dropouts.
-    if FruitType ~= nil and FruitType.GRASS ~= nil
-        and fruitTypeIndex == FruitType.GRASS then
+    if isPerennialGrass then
         spec.seedQuality = 1
         spec.seedQualityStatus = "perennial grass quality ledger"
         spec.seedQualityPatternMode = "perennial recovery"
@@ -3496,15 +4006,35 @@ local function getPrecisionFarmingSprayerSpec(vehicle)
         return terraLogicSpec.pfSprayerSpec
     end
     terraLogicSpec.pfSprayerSpecResolved = true
+
+    -- Resolve the owning PF specialization first. PrecisionFarmingStatistic
+    -- also exposes nitrogenMap/pHMap and therefore must not be selected as an
+    -- ExtendedSprayer merely because its table key contains "precision".
+    local pfEnvironment = FS25_precisionFarming
+    local extendedSprayer = pfEnvironment ~= nil
+        and pfEnvironment.ExtendedSprayer or nil
+    local tableName = extendedSprayer ~= nil
+        and extendedSprayer.SPEC_TABLE_NAME or nil
+    if type(tableName) == "string"
+        and type(vehicle[tableName]) == "table" then
+        terraLogicSpec.pfSprayerSpec = vehicle[tableName]
+        terraLogicSpec.pfSprayerSpecSource = tableName
+        return terraLogicSpec.pfSprayerSpec
+    end
+
+    -- Compatibility fallback for a renamed PF environment: the automatic
+    -- rate field belongs to ExtendedSprayer, unlike the shared statistic spec.
     for key, value in pairs(vehicle) do
         if type(key) == "string" and type(value) == "table"
             and (value.nitrogenMap ~= nil or value.pHMap ~= nil)
-            and (string.find(string.lower(key), "precision", 1, true) ~= nil
-                or value.sprayAmountAutoMode ~= nil) then
+            and value.sprayAmountAutoMode ~= nil then
             terraLogicSpec.pfSprayerSpec = value
+            terraLogicSpec.pfSprayerSpecSource = key .. " (field fallback)"
             break
         end
     end
+    terraLogicSpec.pfSprayerSpecSource =
+        terraLogicSpec.pfSprayerSpecSource or "not found"
     return terraLogicSpec.pfSprayerSpec
 end
 
@@ -3568,6 +4098,31 @@ local function getApplicationComponent(fillTypeIndex, fillTypeDesc)
         or string.find(fillName, "lime", 1, true) ~= nil
     return isHerbicide and "herbicide"
         or (isLime and "lime" or "fertilizer")
+end
+
+-- Resolves the currently selected material independently from the machine
+-- category, allowing one sprayer to switch its HUD and quality behavior
+-- immediately between herbicide, liquid fertilizer and lime.
+function TerraLogic.getApplicationComponentForVehicle(vehicle)
+    if vehicle == nil or vehicle.spec_sprayer == nil then return nil end
+    local fillTypeIndex = getSprayerApplicationFillType(vehicle)
+    local fillTypeDesc = fillTypeIndex ~= nil and g_fillTypeManager ~= nil
+        and g_fillTypeManager:getFillTypeByIndex(fillTypeIndex) or nil
+    return getApplicationComponent(fillTypeIndex, fillTypeDesc)
+end
+
+local function getApplicationPhysicalDropoutProfile(vehicle, component)
+    if component == "herbicide" then return "herbicidePatch" end
+    local spec = vehicle ~= nil and vehicle.spec_terraLogic or nil
+    local isSpinnerSpreader = spec ~= nil
+        and (spec.implementClassKey == "fertilizerSpreader"
+            or spec.dropoutProfile == "fertilizerSpreader")
+    if isSpinnerSpreader then
+        return component == "lime"
+            and "limeSpreaderPatch" or "fertilizerSpreaderPatch"
+    end
+    return component == "lime"
+        and "liquidLimePatch" or "liquidFertilizerPatch"
 end
 
 local function wasApplicationQualityRecordedThisFrame(
@@ -3634,7 +4189,9 @@ local function getPrecisionFarmingApplicationBonus(vehicle, workArea, component)
         "PF local N/pH gain"
 end
 
--- Records fertilizer, lime or herbicide quality after a successful application.
+-- Applies physical fertilizer, lime or herbicide dropouts. All three Category
+-- B materials additionally persist the invisible quality of the successfully
+-- treated part; physical misses keep their separate visible Vanilla result.
 function TerraLogic:processSprayerArea(superFunc, workArea, dt)
     local spec = self.spec_terraLogic
     local profileName = spec.dropoutProfile == "fertilizerSpreader"
@@ -3666,6 +4223,9 @@ function TerraLogic:processSprayerArea(superFunc, workArea, dt)
         or (fillTypeIndex ~= nil and tostring(fillTypeIndex) or "unknown")
 
     local component = getApplicationComponent(fillTypeIndex, fillTypeDesc)
+    local physicalProfileName =
+        getApplicationPhysicalDropoutProfile(self, component)
+    spec.applicationPhysicalDropoutProfile = physicalProfileName
     local pfBonus, pfBonusSource = nil, "not applicable"
     if component == "fertilizer" or component == "lime" then
         pfBonus, pfBonusSource = getPrecisionFarmingApplicationBonus(
@@ -3677,7 +4237,9 @@ function TerraLogic:processSprayerArea(superFunc, workArea, dt)
             fillSource.getFillUnitFillLevel, fillSource, fillUnitIndex)
         if ok then fillLevelBefore = tonumber(level) end
     end
-    local realArea, totalArea = superFunc(self, workArea, dt)
+    local realArea, totalArea, processedAreas =
+        self:processSurfacePatchDropoutArea(
+            superFunc, workArea, dt, physicalProfileName)
 
     -- Work quality is a stable property of speed and implement class. PF's
     -- local remaining N/pH gain can legitimately fall to zero on an already
@@ -3704,6 +4266,8 @@ function TerraLogic:processSprayerArea(superFunc, workArea, dt)
     local aggregateVanillaFertilizer = component == "fertilizer"
         and not precisionFarmingActive
     local successfulArea = tonumber(realArea) or 0
+    local hasProcessedGeometry = processedAreas == nil
+        or #processedAreas > 0
     local paramsAfter = self.spec_sprayer ~= nil
         and self.spec_sprayer.workAreaParameters or params
     local usage = paramsAfter ~= nil and tonumber(paramsAfter.usage) or 0
@@ -3720,7 +4284,8 @@ function TerraLogic:processSprayerArea(superFunc, workArea, dt)
     -- usage or an observed fill-level decrease is still proof that this work
     -- area successfully applied material. No-consumption passes over an
     -- already treated area remain excluded.
-    if successfulArea <= 0 and (usage > 0 or consumedFill) then
+    if successfulArea <= 0 and hasProcessedGeometry
+        and (usage > 0 or consumedFill) then
         successfulArea = math.max(tonumber(totalArea) or 0, 1)
     end
     spec.applicationQualitySuccessfulArea = successfulArea
@@ -3730,18 +4295,24 @@ function TerraLogic:processSprayerArea(superFunc, workArea, dt)
         and wasApplicationQualityRecordedThisFrame(
             spec, workArea, component)
     if not duplicateRecord then
-        TerraLogicQualityManager:recordWorkArea(
-            workArea, component, workQuality, successfulArea,
-            balance.weight, balance.maxPenalty, self, modeledPenalty,
-            nil, aggregateVanillaFertilizer)
-        if successfulArea > 0 then
+        for _, entry in ipairs(getDropoutLedgerAreas(
+                processedAreas, workArea, successfulArea)) do
+            TerraLogicQualityManager:recordWorkArea(
+                getDropoutLedgerWorkArea(self, entry),
+                component, workQuality,
+                entry.terraLogicSuccessfulArea,
+                balance.weight, balance.maxPenalty, self, modeledPenalty,
+                nil, aggregateVanillaFertilizer)
+        end
+        if successfulArea > 0 and hasProcessedGeometry then
             markApplicationQualityRecorded(spec, workArea, component)
         end
     end
     spec.applicationQualityStatus = successfulArea <= 0
         and "no successful application"
         or (workQuality >= 0.9999 and "perfect" or "quality ledger")
-    spec.applicationQualityPatternMode = "quality ledger"
+    spec.applicationQualityPatternMode = getArePhysicalDropoutsEnabled()
+        and "surface islands + quality ledger" or "quality ledger"
     return realArea, totalArea
 end
 
@@ -4011,15 +4582,16 @@ function TerraLogic:processSowingMachineArea(superFunc, workArea, dt)
             end
         end
     end
-    -- The class-specific table penalty already controls the missing-plant
-    -- fraction. Keep raw work quality in the ledger for FIELD INFO while the
-    -- stored penalty remains marked as density-map-direct at harvest.
+    -- Physical gaps and invisible placement quality are separate Category B
+    -- effects. The shared quality model already slows only the above-shop
+    -- deterioration while dropouts are enabled, so store that complete
+    -- remaining quality penalty on successfully seeded cells. Missing cells
+    -- contain no crop and therefore cannot receive this harvest penalty.
     local seedBalance = TerraLogic.getWorkQualityBalance(self, "seed")
-    local physicalPenalty = math.clamp(
-        1 - (tonumber(terraLogicSpec.seedQuality) or 1), 0, 1)
-    local residualHarvestPenalty = math.max(
-        (tonumber(terraLogicSpec.seedYieldPenalty) or 0) - physicalPenalty,
-        0
+    local residualHarvestPenalty = math.clamp(
+        tonumber(terraLogicSpec.seedYieldPenalty) or 0,
+        0,
+        1
     )
     if self.spec_sowingMachine ~= nil
         and self.spec_sowingMachine.useDirectPlanting == true then
@@ -4236,19 +4808,58 @@ function TerraLogic:processMulcherArea(superFunc, workArea, dt)
     return realArea, totalArea
 end
 
+local function getIsShopMechanicalWeederCategory(category)
+    local normalized = string.lower(tostring(category or ""))
+    return normalized == "weeders"
+        or string.find(normalized, "weeder", 1, true) ~= nil
+end
+
 function TerraLogic:processWeederArea(superFunc, workArea, dt)
-    local realArea, totalArea = self:processOverSpeedStoneArea(superFunc, workArea, dt)
-    local quality, yieldPenalty = TerraLogicQualityManager:getWorkQualityModel(
-        self, math.abs(self:getLastSpeed(true) or 0), "herbicide")
-    local balance = TerraLogic.getWorkQualityBalance(self, "herbicide")
-    TerraLogicQualityManager:recordWorkArea(
-        workArea, "herbicide", quality, realArea,
-        balance.weight, balance.maxPenalty, self, yieldPenalty)
+    local terraLogicSpec = self.spec_terraLogic
+    local isShopMechanicalWeeder = getIsShopMechanicalWeederCategory(
+        terraLogicSpec ~= nil and terraLogicSpec.storeCategory or nil)
+    if self.spec_weeder ~= nil
+        and self.spec_weeder.isGrasslandWeeder == true
+        and not isShopMechanicalWeeder then
+        -- The Vanilla Puler/Aerostar/Super 7 weeders also set the misleading
+        -- grassland flag. Only bypass tools outside the actual Weeders shop
+        -- category; those regular mechanical weeders must keep TerraLogic.
+        return superFunc(self, workArea, dt)
+    end
+    local isHoe = self.spec_weeder ~= nil
+        and self.spec_weeder.isHoeWeeder == true
+    local profileName = isHoe and "hoePatch" or "weederPatch"
+    local cropDamageProfileName = isHoe
+        and "hoeCropDamage" or "weederCropDamage"
+    local function processDropoutArea(vehicle, area, deltaTime)
+        return vehicle:processSurfacePatchDropoutArea(
+            superFunc, area, deltaTime, profileName
+        )
+    end
+    local realArea, totalArea =
+        self:processOverSpeedStoneArea(
+            processDropoutArea, workArea, dt)
+    if terraLogicSpec ~= nil
+        and terraLogicSpec.liveWorkQualityGroups ~= nil then
+        terraLogicSpec.liveWorkQualityGroups.herbicide = nil
+    end
+    -- This secondary stage runs after normal weed removal. If an island is
+    -- genuinely cultivated, the quality manager invalidates seed/rolling and
+    -- any legacy weed-control state in the same fixed cells. It never records
+    -- accidental crop destruction as useful cultivation.
+    applyWeederCropDamage(self, workArea, cropDamageProfileName)
     return realArea, totalArea
 end
 
 function TerraLogic:processStonePickerArea(superFunc, workArea, dt)
-    return self:processOverSpeedStoneArea(superFunc, workArea, dt)
+    local function processDropoutArea(vehicle, area, deltaTime)
+        return vehicle:processSurfacePatchDropoutArea(
+            superFunc, area, deltaTime, "stonePickerPatch"
+        )
+    end
+    return self:processOverSpeedStoneArea(
+        processDropoutArea, workArea, dt
+    )
 end
 
 -- Implement recognition ----------------------------------------------------
@@ -4315,6 +4926,12 @@ function TerraLogic:getOverSpeedGroundToolType()
     if self.spec_mower ~= nil then
         return "mower", TerraLogic.IMPLEMENT_CLASSES.mower
     end
+    if self.spec_windrower ~= nil then
+        return "windrower", TerraLogic.IMPLEMENT_CLASSES.windrower
+    end
+    if self.spec_tedder ~= nil then
+        return "tedder", TerraLogic.IMPLEMENT_CLASSES.tedder
+    end
     if self.spec_plow ~= nil then
         return "plow", TerraLogic.IMPLEMENT_CLASSES.plow
     end
@@ -4358,6 +4975,14 @@ function TerraLogic:getOverSpeedGroundToolType()
         return "stonePicker", TerraLogic.IMPLEMENT_CLASSES.stonePicker
     end
     if self.spec_weeder ~= nil then
+        local category = getStoreCategory(self)
+        if self.spec_weeder.isGrasslandWeeder == true
+            and not getIsShopMechanicalWeederCategory(category) then
+            return nil, nil
+        end
+        if self.spec_weeder.isHoeWeeder == true then
+            return "hoe", TerraLogic.IMPLEMENT_CLASSES.hoe
+        end
         return "weeder", TerraLogic.IMPLEMENT_CLASSES.weeder
     end
     if self.spec_sprayer ~= nil then
@@ -4414,6 +5039,8 @@ function TerraLogic:updateOverSpeedImplementClass()
     end
     spec.implementClassKey = classKey
     spec.isMowerTool = self.spec_mower ~= nil
+    spec.isSurfaceForageTool = self.spec_mower ~= nil
+        or self.spec_windrower ~= nil or self.spec_tedder ~= nil
     spec.classificationSource = classificationSource
     spec.isGroundTool = implementClass ~= nil
         and implementClass.work ~= nil
@@ -4558,11 +5185,11 @@ function TerraLogic:getIsOverSpeedGroundContactActive()
     -- A powered surface tool such as a mulcher can remain lowered while its
     -- rotor is switched off. Rollers normally have no turn-on specialization
     -- and therefore continue through the lowered/contact path.
-    if spec.wearModel == "surface"
+    if (spec.wearModel == "surface" or self.spec_stonePicker ~= nil)
         and self.spec_turnOnVehicle ~= nil
         and self.getIsTurnedOn ~= nil
         and not self:getIsTurnedOn() then
-        spec.workDetectionSource = "surface tool switched off"
+        spec.workDetectionSource = "powered tool switched off"
         return false
     end
     if not TerraLogic.getIsOverSpeedWorkAreaInWorkPosition(self) then
@@ -5031,17 +5658,43 @@ function TerraLogic:getSpeedLimit(superFunc, onlyIfWorking)
     -- the current physics tick has settled. That intermittently returned the
     -- XML/shop speed even though the plow was already working in the ground.
     --
-    -- Returning infinity for an eligible MaxForce ground tool is safe: the
-    -- original doCheckSpeedLimit value still tells the towing vehicle whether
-    -- this implement is currently allowed to contribute a working limit at
-    -- all. Actual wear, draft and quality remain guarded by the stricter live
-    -- ground-contact check elsewhere.
+    -- Returning infinity for an eligible ground/application/surface-dropout
+    -- tool is safe: the original doCheckSpeedLimit value still tells the towing
+    -- vehicle whether this implement is currently allowed to contribute a
+    -- working limit at all. Actual wear, draft, quality and physical work stay
+    -- guarded by their stricter live checks elsewhere.
+    local surfaceDropoutProfile = spec ~= nil
+        and TerraLogicDropoutManager:getProfile(spec.dropoutProfile) or nil
+    local isSurfaceDropoutTool = spec ~= nil
+        and surfaceDropoutProfile ~= nil
+        and surfaceDropoutProfile.patternType == "surfaceIslands"
+    local surfaceDropoutEligible = isSurfaceDropoutTool
+        and getArePhysicalDropoutsEnabled()
+    local dropoutDependentSpeedClass = spec ~= nil
+        and TerraLogicImplementProfiles.DROPOUT_DEPENDENT_SPEED_CLASSES[
+            spec.implementClassKey
+        ] == true
+    local dropoutSpeedConsequenceAvailable = not dropoutDependentSpeedClass
+        or getArePhysicalDropoutsEnabled()
+    -- Unlock only classes with a verified processing hook. This prevents a
+    -- newly recognized, merely documented or zero-yield utility specialization
+    -- from inheriting unlimited speed because it exposes WorkArea/MaxForce.
+    local hasGameplayConsequence = spec ~= nil
+        and TerraLogic.SPEED_UNLOCK_CONSEQUENCE_CLASSES[
+            spec.implementClassKey
+        ] == true
     local groundToolEligible = spec ~= nil
         and spec.isGroundTool == true
         and self:getIsOverSpeedWorkAreaProcessing()
+        and not isSurfaceDropoutTool
+        and hasGameplayConsequence
+        and dropoutSpeedConsequenceAvailable
     local applicationActive = spec ~= nil
+        and hasGameplayConsequence
         and self:getIsOverSpeedApplicationActive()
-    if modEnabled and (groundToolEligible or applicationActive) then
+        and dropoutSpeedConsequenceAvailable
+    if modEnabled
+        and (groundToolEligible or surfaceDropoutEligible or applicationActive) then
         local rootVehicle = self.rootVehicle
             or (self.getRootVehicle ~= nil and self:getRootVehicle()) or self
         local automated = rootVehicle.getIsAIActive ~= nil
@@ -5060,8 +5713,13 @@ function TerraLogic:getSpeedLimit(superFunc, onlyIfWorking)
             return originalLimit, doCheckSpeedLimit
         end
         spec.speedLimitUnlockEligible = true
-        spec.speedLimitUnlockSource = groundToolEligible
-            and "ground tool + MaxForce" or "active application tool"
+        if surfaceDropoutEligible then
+            spec.speedLimitUnlockSource = "surface dropout tool"
+        elseif groundToolEligible then
+            spec.speedLimitUnlockSource = "ground tool + MaxForce"
+        else
+            spec.speedLimitUnlockSource = "active application tool"
+        end
         if spec.speedLimitUnlockLogged ~= true then
             spec.speedLimitUnlockLogged = true
             TerraLogicLogging.debug(
@@ -5076,7 +5734,17 @@ function TerraLogic:getSpeedLimit(superFunc, onlyIfWorking)
     end
     if spec ~= nil then
         spec.speedLimitUnlockEligible = false
-        spec.speedLimitUnlockSource = modEnabled and "not eligible" or "mod disabled"
+        if modEnabled and (isSurfaceDropoutTool
+                or dropoutDependentSpeedClass)
+            and not getArePhysicalDropoutsEnabled() then
+            spec.speedLimitUnlockSource = "physical dropouts disabled"
+        else
+            spec.speedLimitUnlockSource = modEnabled
+                and (spec.isGroundTool == true
+                    and not hasGameplayConsequence
+                    and "no quality/dropout consequence" or "not eligible")
+                or "mod disabled"
+        end
     end
     return originalLimit, doCheckSpeedLimit
 end
@@ -5821,8 +6489,15 @@ function TerraLogic:getOverSpeedDebugData()
         thresholdQuality, liveSeedDamagePenalty, liveSeedSpeedPenalty,
             liveSeedHealth, liveSeedThresholdSpeed, liveSeedThresholdShift =
                 self:getOverSpeedSeedQuality(speed)
+        local liveSeedParams = self.spec_sowingMachine.workAreaParameters
+        local liveSeedFruitType = liveSeedParams ~= nil
+            and liveSeedParams.seedsFruitType or nil
+        local liveSeedAllowsDropouts = not (FruitType ~= nil
+            and FruitType.GRASS ~= nil
+            and liveSeedFruitType == FruitType.GRASS)
         liveSeedWorkQuality, liveSeedYieldPenalty =
-            TerraLogicQualityManager:getWorkQualityModel(self, speed, "seed")
+            TerraLogicQualityManager:getWorkQualityModel(
+                self, speed, "seed", nil, liveSeedAllowsDropouts)
         local seedBalance = TerraLogic.getWorkQualityBalance(self, "seed")
         local physicalDropoutPenalty = getArePhysicalDropoutsEnabled()
             and TerraLogicQualityManager:calculateYieldPenalty(
