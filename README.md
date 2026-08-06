@@ -2,7 +2,7 @@
 
 TerraLogic makes field work in Farming Simulator 25 more realistic by replacing many fixed working-speed limits with actual consequences.
 
-You can still drive faster than the speed shown in the shop, but doing so is no longer free. Poor work can affect crop growth and harvest yield, increase wear, require more power, or leave visible mistakes behind. A small amount of overspeed may save some time, while pushing a machine far beyond its intended speed usually creates more work than it saves.
+You can drive faster than the speed shown in the shop, but doing so is not free. Poor work can affect crop growth and harvest yield, increase wear, require more power, or leave visible mistakes behind. A small amount of overspeed may save some time, while pushing a machine far beyond its intended speed usually creates more work than it saves.
 
 Quality is saved separately across the field. If you work carefully in one area and rush through another, both areas can produce different results later. This makes tractor power, implement size, soil conditions, machine condition, and working speed much more important.
 
@@ -15,7 +15,7 @@ Quality is saved separately across the field. If you work carefully in one area 
 - Implements wear faster when they are pushed too hard.
 - Stones can damage implements, including stones hidden below the surface.
 - Draft changes with the implement, working conditions, and soil type when Precision Farming is installed.
-- The HUD shows your current working speed, the recommended range, and work quality where available.
+- A new dynamic HUD shows your current working speed, the recommended range, and work quality where available.
 - Mowers, tedders, windrowers, stone pickers, sprayers, spreaders, weeders, and hoes are fully included.
 - Mower mistakes do not create extra grass. Grass left standing only produces material when it is properly mown later.
 - Weed sprayers can leave weeds standing when driven too fast.
@@ -27,7 +27,7 @@ Quality is saved separately across the field. If you work carefully in one area 
 - Designed to work alongside Advanced Damage System, Realistic Harvesting, Moisture System, CoursePlay, AutoDrive, and many other gameplay mods.
 - Multiplayer is supported and tested.
 
-Combines and regular crop harvesters are intentionally not changed. This avoids conflicts with mods that already handle harvesting losses and combine behavior.
+Combines and regular crop harvesters are intentionally not changed. This avoids conflicts with mods that already handle harvesting losses and combine behavior, such as Realistic Harvesting.
 
 ## Work quality and mechanical consequences
 
@@ -68,18 +68,18 @@ The faster you drive, the more noticeable these mistakes become. Slight overspee
 
 Some machines mainly affect the quality of the work:
 
-- plows;
-- cultivators;
-- rollers; and
-- mulchers.
+- Plows (including subsoilers 
+- Cultivators
+- Rollers
+- Mulchers
 
 Other machines can reduce work quality and also leave visible mistakes:
 
-- seeders;
-- direct drills;
-- planters;
-- fertilizer and herbicide sprayers; and
-- fertilizer and lime spreaders.
+- Seeders
+- Direct drills
+- Planters
+- Fertilizer and herbicide sprayers
+- Fertilizer and lime spreaders
 
 Mowers, tedders, and windrowers use visible mechanical consequences instead of a separate work-quality penalty.
 
@@ -87,7 +87,7 @@ Stone pickers, weeders, and hoes also rely mainly on visible mechanical conseque
 
 When both systems are used, they represent different problems. A missed area is visibly untreated, while a successfully worked area may still have poor quality. TerraLogic reduces the additional work-quality penalty while mechanical consequences are enabled so that the same mistake is not punished at full strength twice.
 
-If mechanical consequences are disabled in the settings, machines that rely on them receive their normal shop speed limit again. Machines with work quality continue to use the full quality system.
+If mechanical consequences are disabled in the settings, machines that rely solely on them receive their normal shop speed limit again. Machines with work quality continue to use the full quality system.
 
 ## Precision Farming
 
