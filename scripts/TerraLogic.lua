@@ -141,7 +141,10 @@ TerraLogic.SPEED_UNLOCK_CONSEQUENCE_CLASSES = {
     weeder = true,
     hoe = true,
     liquidSprayer = true,
-    fertilizerSpreader = true
+    fertilizerSpreader = true,
+    manureSpreader = true,
+    slurrySpreader = true,
+    slurryApplicator = true
 }
 
 -- When Vanilla stones are active, actual stone-map contacts replace part of
@@ -342,13 +345,32 @@ function TerraLogic.prerequisitesPresent(specializations)
         and SpecializationUtil.hasSpecialization(Windrower, specializations)
     local tedder = Tedder ~= nil
         and SpecializationUtil.hasSpecialization(Tedder, specializations)
-    return wearable and (attachable or mower or windrower or tedder)
+    local baler = Baler ~= nil
+        and SpecializationUtil.hasSpecialization(Baler, specializations)
+    local forageWagon = ForageWagon ~= nil
+        and SpecializationUtil.hasSpecialization(ForageWagon, specializations)
+    local function has(specialization)
+        return specialization ~= nil
+            and SpecializationUtil.hasSpecialization(
+                specialization, specializations)
+    end
+    local supportedAttachedTool = has(Plow) or has(Cultivator)
+        or has(SowingMachine) or has(Sprayer) or has(Roller)
+        or has(Mulcher) or has(Weeder) or has(StonePicker)
+        or mower or windrower or tedder or baler or forageWagon
+    return wearable
+        and ((attachable and supportedAttachedTool)
+            or mower or windrower or tedder or baler or forageWagon)
 end
 
 function TerraLogic.registerEventListeners(vehicleType)
     SpecializationUtil.registerEventListener(vehicleType, "onLoad", TerraLogic)
     SpecializationUtil.registerEventListener(vehicleType, "onDelete", TerraLogic)
     SpecializationUtil.registerEventListener(vehicleType, "onUpdateTick", TerraLogic)
+    SpecializationUtil.registerEventListener(vehicleType, "onReadStream", TerraLogic)
+    SpecializationUtil.registerEventListener(vehicleType, "onWriteStream", TerraLogic)
+    SpecializationUtil.registerEventListener(vehicleType, "onReadUpdateStream", TerraLogic)
+    SpecializationUtil.registerEventListener(vehicleType, "onWriteUpdateStream", TerraLogic)
     if WorkArea ~= nil
         and SpecializationUtil.hasSpecialization(
             WorkArea, vehicleType.specializations
@@ -561,6 +583,12 @@ function TerraLogic.registerOverwrittenFunctions(vehicleType)
     if Tedder ~= nil and SpecializationUtil.hasSpecialization(Tedder, vehicleType.specializations) then
         SpecializationUtil.registerOverwrittenFunction(vehicleType, "processTedderArea", TerraLogic.processTedderArea)
     end
+    if Baler ~= nil and SpecializationUtil.hasSpecialization(Baler, vehicleType.specializations) then
+        SpecializationUtil.registerOverwrittenFunction(vehicleType, "processBalerArea", TerraLogic.processBalerArea)
+    end
+    if ForageWagon ~= nil and SpecializationUtil.hasSpecialization(ForageWagon, vehicleType.specializations) then
+        SpecializationUtil.registerOverwrittenFunction(vehicleType, "processForageWagonArea", TerraLogic.processForageWagonArea)
+    end
 end
 
 -- Initializes per-vehicle runtime state without writing savegame data.
@@ -614,10 +642,17 @@ function TerraLogic:onLoad(savegame)
         safeSpeedFallback = safeSpeedFallback,
         isMowerTool = self.spec_mower ~= nil,
         isSurfaceForageTool = self.spec_mower ~= nil
-            or self.spec_windrower ~= nil or self.spec_tedder ~= nil,
+            or self.spec_windrower ~= nil or self.spec_tedder ~= nil
+            or self.spec_baler ~= nil or self.spec_forageWagon ~= nil,
         dropoutProfile = implementClass ~= nil and implementClass.dropoutProfile or nil,
         impactDropoutProfile = implementClass ~= nil
             and implementClass.impactDropoutProfile or nil,
+        actualWorkDirtyFlag = self:getNextDirtyFlag(),
+        actualWorkActive = false,
+        lastActualWorkTime = nil,
+        lastActualWorkProfile = nil,
+        qualityWorkActive = false,
+        lastQualityWorkTime = nil,
         soilUpdateTimer = 0,
         soilTypeIndex = 0,
         soilName = "Vanilla / unknown",
@@ -832,7 +867,9 @@ function TerraLogic:refreshOverSpeedWorkAreaProcessingFunctions()
         processRollerArea = self.spec_roller ~= nil,
         processMulcherArea = self.spec_mulcher ~= nil,
         processWeederArea = self.spec_weeder ~= nil,
-        processStonePickerArea = self.spec_stonePicker ~= nil
+        processStonePickerArea = self.spec_stonePicker ~= nil,
+        processBalerArea = self.spec_baler ~= nil,
+        processForageWagonArea = self.spec_forageWagon ~= nil
     }
     local rebound = 0
     for _, workArea in ipairs(workAreaSpec.workAreas) do
@@ -2052,18 +2089,35 @@ end
 -- Applies speed-driven, world-stable surface islands before Vanilla touches
 -- fruit or windrow density. Only successful lateral runs invoke the original
 -- specialization. Mutable WorkArea buffers are carried between those calls so
--- mower, windrower, tedder, sprayer and weeder bookkeeping stays equivalent
--- to one full pass; stone-picker accumulation already lives in its
--- specialization-wide params. Deep spinner WorkAreas may opt into a bounded
--- longitudinal grid so their misses form cells instead of diagonal lanes.
+-- mower, windrower, tedder, sprayer, weeder and pickup bookkeeping stays
+-- equivalent to one full pass; balers and loader wagons accumulate their
+-- collected volume in specialization-wide params. Deep spinner WorkAreas may
+-- opt into a bounded longitudinal grid so their misses form cells instead of
+-- diagonal lanes.
 function TerraLogic:processSurfacePatchDropoutArea(
         superFunc, workArea, dt, profileName)
     local spec = self.spec_terraLogic
     local cfg = TerraLogicDropoutManager:getProfile(profileName)
     local modEnabled = TerraLogicMain == nil
         or TerraLogicMain.enabled ~= false
+    local function markActualWork(realArea, pickedUpLiters)
+        local actualWorkAmount = cfg ~= nil
+            and cfg.actualWorkRequiresPickup == true
+            and (tonumber(pickedUpLiters) or 0)
+            or (tonumber(realArea) or 0)
+        if spec ~= nil and actualWorkAmount > 0 then
+            spec.lastActualWorkTime = g_currentMission ~= nil
+                and (g_currentMission.time or 0) or 0
+            spec.lastActualWorkProfile = profileName
+            if self.isServer and spec.actualWorkActive ~= true then
+                spec.actualWorkActive = true
+                self:raiseDirtyFlags(spec.actualWorkDirtyFlag)
+            end
+        end
+    end
     local function processWholeArea()
         local realArea, totalArea = superFunc(self, workArea, dt)
+        markActualWork(realArea, workArea.lastPickUpLiters)
         return realArea, totalArea, {{
             workArea = workArea,
             realArea = tonumber(realArea) or 0,
@@ -2158,7 +2212,8 @@ function TerraLogic:processSurfacePatchDropoutArea(
     end
 
     local realAreaSum, totalAreaSum = 0, 0
-    local pickupSum, pickedUpSum, droppedSum = 0, 0, 0
+    local pickupSum, pickUpSum, pickedUpSum, droppedSum = 0, 0, 0, 0
+    local pickupParticlesActive = false
     local processedRuns, processedAreas = 0, {}
     local carryFields = {
         "litersToDrop", "lastValidPickupFillType", "lastDropFillType",
@@ -2184,6 +2239,10 @@ function TerraLogic:processSurfacePatchDropoutArea(
         totalAreaSum = totalAreaSum + (tonumber(totalArea) or 0)
         pickupSum = pickupSum
             + (tonumber(laneWorkArea.lastPickupLiters) or 0)
+        pickUpSum = pickUpSum
+            + (tonumber(laneWorkArea.lastPickUpLiters) or 0)
+        pickupParticlesActive = pickupParticlesActive
+            or laneWorkArea.pickupParticlesActive == true
         pickedUpSum = pickedUpSum
             + (tonumber(laneWorkArea.pickedUpLiters) or 0)
         droppedSum = droppedSum
@@ -2215,6 +2274,8 @@ function TerraLogic:processSurfacePatchDropoutArea(
     end
 
     workArea.lastPickupLiters = pickupSum
+    workArea.lastPickUpLiters = pickUpSum
+    workArea.pickupParticlesActive = pickupParticlesActive
     workArea.pickedUpLiters = pickedUpSum
     workArea.lastDroppedLiters = droppedSum
     spec.surfacePatchDropoutStatus = string.format(
@@ -2235,6 +2296,7 @@ function TerraLogic:processSurfacePatchDropoutArea(
             rated
         )
     end
+    markActualWork(realAreaSum, pickUpSum)
     return realAreaSum, totalAreaSum, processedAreas
 end
 
@@ -2480,6 +2542,36 @@ end
 function TerraLogic:processTedderArea(superFunc, workArea, dt)
     return self:processSurfacePatchDropoutArea(
         superFunc, workArea, dt, "tedderPatch"
+    )
+end
+
+function TerraLogic:processBalerArea(superFunc, workArea, dt)
+    local lastFillEffectType = nil
+    local function processPickupArea(vehicle, area, deltaTime)
+        local pickedUpLiters, totalLiters = superFunc(vehicle, area, deltaTime)
+        local balerSpec = vehicle.spec_baler
+        if balerSpec ~= nil and FillType ~= nil
+            and balerSpec.fillEffectType ~= nil
+            and balerSpec.fillEffectType ~= FillType.UNKNOWN then
+            lastFillEffectType = balerSpec.fillEffectType
+        end
+        return pickedUpLiters, totalLiters
+    end
+    local pickedUpLiters, totalLiters = self:processSurfacePatchDropoutArea(
+        processPickupArea, workArea, dt, "balerPatch"
+    )
+    if lastFillEffectType ~= nil and self.spec_baler ~= nil then
+        self.spec_baler.fillEffectType = lastFillEffectType
+    end
+    -- FS25 returns picked and total pickup liters. Preserve both values after
+    -- segmentation; the specialization-wide accumulator remains Vanilla's
+    -- sole source for bale fill, so repeated cleanup passes cannot duplicate.
+    return pickedUpLiters, totalLiters
+end
+
+function TerraLogic:processForageWagonArea(superFunc, workArea, dt)
+    return self:processSurfacePatchDropoutArea(
+        superFunc, workArea, dt, "loaderWagonPatch"
     )
 end
 
@@ -4114,6 +4206,12 @@ end
 local function getApplicationPhysicalDropoutProfile(vehicle, component)
     if component == "herbicide" then return "herbicidePatch" end
     local spec = vehicle ~= nil and vehicle.spec_terraLogic or nil
+    if spec ~= nil and spec.implementClassKey == "manureSpreader" then
+        return "manureSpreaderPatch"
+    end
+    if spec ~= nil and spec.implementClassKey == "slurrySpreader" then
+        return "slurrySpreaderPatch"
+    end
     local isSpinnerSpreader = spec ~= nil
         and (spec.implementClassKey == "fertilizerSpreader"
             or spec.dropoutProfile == "fertilizerSpreader")
@@ -4194,6 +4292,18 @@ end
 -- treated part; physical misses keep their separate visible Vanilla result.
 function TerraLogic:processSprayerArea(superFunc, workArea, dt)
     local spec = self.spec_terraLogic
+    local classKey = spec ~= nil and spec.implementClassKey or nil
+    local supportedApplication = classKey == "liquidSprayer"
+        or classKey == "fertilizerSpreader"
+        or classKey == "manureSpreader"
+        or classKey == "slurrySpreader"
+        or classKey == "slurryApplicator"
+        -- Combination drills are classified by their sowing function, but may
+        -- legitimately execute their integrated fertilizer WorkArea here.
+        or self.spec_sowingMachine ~= nil
+    if not supportedApplication then
+        return superFunc(self, workArea, dt)
+    end
     local profileName = spec.dropoutProfile == "fertilizerSpreader"
         and "fertilizerSpreader" or "liquidSprayer"
     local cfg = TerraLogicDropoutManager:getProfile(profileName)
@@ -4331,6 +4441,41 @@ function TerraLogic:onDelete()
         end
     end
     spec.qualityPatternNodes = nil
+end
+
+function TerraLogic:onWriteStream(streamId, connection)
+    if not connection:getIsServer() then
+        streamWriteBool(streamId,
+            self.spec_terraLogic.actualWorkActive == true)
+        streamWriteBool(streamId,
+            self.spec_terraLogic.qualityWorkActive == true)
+    end
+end
+
+function TerraLogic:onReadStream(streamId, connection)
+    if connection:getIsServer() then
+        self.spec_terraLogic.actualWorkActive = streamReadBool(streamId)
+        self.spec_terraLogic.qualityWorkActive = streamReadBool(streamId)
+    end
+end
+
+function TerraLogic:onWriteUpdateStream(streamId, connection, dirtyMask)
+    if not connection:getIsServer() then
+        local spec = self.spec_terraLogic
+        local dirty = bitAND(dirtyMask, spec.actualWorkDirtyFlag) ~= 0
+        streamWriteBool(streamId, dirty)
+        if dirty then
+            streamWriteBool(streamId, spec.actualWorkActive == true)
+            streamWriteBool(streamId, spec.qualityWorkActive == true)
+        end
+    end
+end
+
+function TerraLogic:onReadUpdateStream(streamId, timestamp, connection)
+    if connection:getIsServer() and streamReadBool(streamId) then
+        self.spec_terraLogic.actualWorkActive = streamReadBool(streamId)
+        self.spec_terraLogic.qualityWorkActive = streamReadBool(streamId)
+    end
 end
 
 -- Handles sowing dropouts and all successful operations of combination drills.
@@ -4732,10 +4877,11 @@ function TerraLogic:processRollerArea(superFunc, workArea, dt)
                 (position.ix + 0.5) * TerraLogicQualityManager.CELL_SIZE,
                 (position.iz + 0.5) * TerraLogicQualityManager.CELL_SIZE)
             -- Natural meadow may be visually reset by a grass roller, but the
-            -- yield-relevant fertilizing effect is restricted to grass on a
-            -- real field. Only those cells may bypass the post-work surface
-            -- check after Vanilla changes their fruit state to cutRolled.
-            if surface == "grassField" then
+            -- yield-relevant effect is restricted to a real field. A recently
+            -- cut grass field can report the generic "field" surface between
+            -- remaining grass pixels; Vanilla's positive grassArea below is
+            -- still the final proof that grass rolling actually succeeded.
+            if surface == "grassField" or surface == "field" then
                 prevalidatedGrassCells[
                     tostring(position.ix) .. ":" .. tostring(position.iz)] = true
                 prevalidatedGrassCellCount = prevalidatedGrassCellCount + 1
@@ -4798,13 +4944,25 @@ function TerraLogic:processRollerArea(superFunc, workArea, dt)
 end
 
 function TerraLogic:processMulcherArea(superFunc, workArea, dt)
-    local realArea, totalArea = self:processOverSpeedStoneArea(
-        superFunc, workArea, dt)
+    local function processDropoutArea(vehicle, area, deltaTime)
+        return vehicle:processSurfacePatchDropoutArea(
+            superFunc, area, deltaTime, "mulcherPatch"
+        )
+    end
+    local realArea, totalArea, processedAreas = self:processOverSpeedStoneArea(
+        processDropoutArea, workArea, dt)
     local quality, yieldPenalty = TerraLogicQualityManager:getWorkQualityModel(
         self, math.abs(self:getLastSpeed(true) or 0), "mulch")
-    TerraLogicQualityManager:recordWorkArea(
-        workArea, "mulch", quality, realArea, 0.025, 0.025,
-        self, yieldPenalty)
+    local entries = processedAreas or {{
+        workArea = workArea,
+        realArea = tonumber(realArea) or 0
+    }}
+    for _, entry in ipairs(entries) do
+        TerraLogicQualityManager:recordWorkArea(
+            entry.workArea or workArea, "mulch", quality,
+            tonumber(entry.realArea) or 0, 0.025, 0.025,
+            self, yieldPenalty)
+    end
     return realArea, totalArea
 end
 
@@ -4932,6 +5090,18 @@ function TerraLogic:getOverSpeedGroundToolType()
     if self.spec_tedder ~= nil then
         return "tedder", TerraLogic.IMPLEMENT_CLASSES.tedder
     end
+    if self.spec_baler ~= nil then
+        return "baler", TerraLogic.IMPLEMENT_CLASSES.baler
+    end
+    if self.spec_forageWagon ~= nil then
+        local category = string.lower(tostring(getStoreCategory(self) or ""))
+        -- Only actual shop-category loader wagons are supported. Ordinary
+        -- trailers and pickup-capable auger/transfer wagons retain Vanilla.
+        if string.find(category, "loaderwagons", 1, true) ~= nil then
+            return "loaderWagon", TerraLogic.IMPLEMENT_CLASSES.loaderWagon
+        end
+        return nil, nil
+    end
     if self.spec_plow ~= nil then
         return "plow", TerraLogic.IMPLEMENT_CLASSES.plow
     end
@@ -4986,21 +5156,34 @@ function TerraLogic:getOverSpeedGroundToolType()
         return "weeder", TerraLogic.IMPLEMENT_CLASSES.weeder
     end
     if self.spec_sprayer ~= nil then
-        local category = getStoreCategory(self)
-        local params = self.spec_sprayer.workAreaParameters
-        local fillTypeIndex = params ~= nil
-            and (params.sprayFillType or params.fillType or params.fillTypeIndex) or nil
+        local category = string.lower(tostring(getStoreCategory(self) or ""))
+        -- Category checks deliberately precede all generic sprayer handling.
+        -- Transport and utility barrels share broad GIANTS code with working
+        -- applicators, so only explicit working shop groups are supported.
+        if string.find(category, "slurrytransport", 1, true) ~= nil then
+            return nil, nil
+        end
+        if string.find(category, "manurespreaders", 1, true) ~= nil then
+            return "manureSpreader", TerraLogic.IMPLEMENT_CLASSES.manureSpreader
+        end
+        if string.find(category, "slurrytanks", 1, true) ~= nil then
+            return "slurrySpreader", TerraLogic.IMPLEMENT_CLASSES.slurrySpreader
+        end
+        if string.find(category, "slurrytools", 1, true) ~= nil then
+            return "slurryApplicator", TerraLogic.IMPLEMENT_CLASSES.slurryApplicator
+        end
         local isSolidSpreader = string.find(category, "fertilizer", 1, true) ~= nil
             and string.find(category, "spreader", 1, true) ~= nil
-        if FillType ~= nil then
-            isSolidSpreader = isSolidSpreader
-                or (FillType.FERTILIZER ~= nil and fillTypeIndex == FillType.FERTILIZER)
-                or (FillType.LIME ~= nil and fillTypeIndex == FillType.LIME)
-        end
+        local isLiquidSprayer = string.find(category, "sprayer", 1, true) ~= nil
         if isSolidSpreader then
             return "fertilizerSpreader", TerraLogic.IMPLEMENT_CLASSES.fertilizerSpreader
         end
-        return "liquidSprayer", TerraLogic.IMPLEMENT_CLASSES.liquidSprayer
+        if isLiquidSprayer then
+            return "liquidSprayer", TerraLogic.IMPLEMENT_CLASSES.liquidSprayer
+        end
+        -- Fill type alone is deliberately not a recognition signal. Unknown
+        -- categories retain their original speed limit and processing.
+        return nil, nil
     end
     return nil, nil
 end
@@ -5041,6 +5224,7 @@ function TerraLogic:updateOverSpeedImplementClass()
     spec.isMowerTool = self.spec_mower ~= nil
     spec.isSurfaceForageTool = self.spec_mower ~= nil
         or self.spec_windrower ~= nil or self.spec_tedder ~= nil
+        or self.spec_baler ~= nil or self.spec_forageWagon ~= nil
     spec.classificationSource = classificationSource
     spec.isGroundTool = implementClass ~= nil
         and implementClass.work ~= nil
@@ -5760,6 +5944,12 @@ function TerraLogic:getWorkingSpeedRatio()
     end
 
     local currentSpeed = math.abs(self:getLastSpeed(true) or 0)
+    -- A lowered implement standing still is ready, but it is not accumulating
+    -- sliding abrasion. This also keeps the always-on HUD's dash state aligned
+    -- with the actual wear model.
+    if currentSpeed < 0.5 then
+        return nil
+    end
     return currentSpeed / spec.optimalSpeed, currentSpeed
 end
 
@@ -5800,7 +5990,8 @@ function TerraLogic:updateDamageAmount(superFunc, dt)
     -- Recover the XML-neutral damage from Vanilla's already age-amplified
     -- return value, then apply TerraLogic's stretched 100-hour ageing ramp. This also
     -- safely migrates long-running saves without changing stored age/hours.
-    local actualNeutralFromVanilla = vanillaAgeUsageFactor > 0
+    local actualNeutralFromVanilla = vanillaDamage > 0
+        and vanillaAgeUsageFactor > 0
         and vanillaDamage / vanillaAgeUsageFactor or actualNeutralDamage
     local policyBaselineDamage = actualNeutralFromVanilla
         * adjustedAgeUsageFactor
@@ -5897,6 +6088,25 @@ function TerraLogic:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSel
     local spec = self.spec_terraLogic
     if spec == nil or spec.ratedSpeed == nil then
         return
+    end
+    if self.isServer then
+        local now = g_currentMission ~= nil and (g_currentMission.time or 0) or 0
+        local actualWorkActive = spec.lastActualWorkTime ~= nil
+            and now - spec.lastActualWorkTime <= 500
+        local qualityWorkActive = spec.lastQualityWorkTime ~= nil
+            and now - spec.lastQualityWorkTime <= 500
+        local stateChanged = false
+        if spec.actualWorkActive ~= actualWorkActive then
+            spec.actualWorkActive = actualWorkActive
+            stateChanged = true
+        end
+        if spec.qualityWorkActive ~= qualityWorkActive then
+            spec.qualityWorkActive = qualityWorkActive
+            stateChanged = true
+        end
+        if stateChanged then
+            self:raiseDirtyFlags(spec.actualWorkDirtyFlag)
+        end
     end
     if spec.workAreaFunctionsRefreshed ~= true
         and (self.spec_sowingMachine ~= nil or self.spec_sprayer ~= nil) then

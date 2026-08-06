@@ -10,64 +10,86 @@
     </title>
 
     <description>
-        <en><![CDATA[TerraLogic makes field work in Farming Simulator 25 more realistic by replacing many fixed working-speed limits with actual consequences.
+        <en><![CDATA[TerraLogic makes field work in Farming Simulator 25 more realistic by replacing artificial working-speed limits with realistic consequences.
 
-You can drive faster than the speed shown in the shop, but doing so is not free. Poor work can increase wear, require more power, reduce crop growth and harvest yield, or leave visible mistakes behind. A small amount of overspeed may save time, while pushing a machine far beyond its intended speed may cost more money than it saves.
+Instead of preventing you from driving faster, TerraLogic lets you decide how much risk you want to take. Working beyond the recommended speed can save valuable time, but it also increases wear, draft, repair costs and the risk of poor field work. Sometimes pushing harder is worth it—but often it will cost more than it saves.
 
-TerraLogic combines two different consequence systems. Mechanical consequences represent mistakes you can see directly on the field, while work quality simulates the invisible long-term effects of poor field work. Together they make vehicle power, implement choice and working speed much more important.
+TerraLogic combines two complementary consequence systems. Visible Field Effects simulate the immediate, physical effects of working too fast, such as missed seed patches or uneven field work. Work Quality stores the invisible quality of every field operation directly in the soil on an area-by-area basis. These stored values persist across multiple field operations and crop cycles, ultimately influencing crop growth and harvest yield.
 
-Main Features:
-- Replaces artificial speed limits with realistic mechanical and agronomic consequences.
-- Stores Work Quality separately across the field, allowing different areas to produce different harvest results.
-- Working speed directly influences wear, work quality and final harvest yield.
-- Realistic draft forces, soil-dependent abrasion and underground stone impacts.
-- Dynamic HUD showing the recommended working-speed range.
+Core Features:
+- Replaces fixed working-speed limits with realistic agronomic and mechanical consequences.
+- Stores persistent Work Quality directly inside the soil, allowing different parts of the same field to develop independently and produce different harvest results.
+- Working speed directly influences draft, abrasion, implement wear, Work Quality and final harvest yield.
+- Dynamic HUD showing the recommended working-speed range and, optionally, the achieved Work Quality.
+- Realistic underground stone impacts. Damage depends on working speed, stone size, implement type and real-world protection systems such as auto-reset plow bodies.
+- Realistic draft forces and soil-dependent abrasion. Precision Farming soil types influence both draft resistance and implement wear.
 
-Mechanical Consequences:
+Visible Field Effects:
+Working too fast can leave visible mistakes behind. The faster you drive, the more noticeable these effects become.
+
 - Seeders: Reduced seeding quality and missed seed patches.
 - Mowers: Small patches of grass may remain standing.
 - Tedders & Windrowers: Increasing amounts of crop are left on the ground.
-- Fertilizer Spreaders & Sprayers: Uneven application and untreated areas.
-- Mechanical Weeders & Hoes: Weeds may survive and extreme overspeed can damage crops or disturb the seedbed.
-- Stone pickers: Increasing amounts of stones left on the ground.
+- Sprayers, Fertilizer Spreaders, Slurry Tankers & Manure Spreaders: Uneven application and untreated areas.
+- Mechanical Weeders & Hoes: Weeds may survive, while extreme overspeed can even damage crops or disturb the seedbed.
+- Stone Pickers: Increasing amounts of stones remain on the field.
+- Balers & Forage Wagons: Their pickups may leave material behind.
+- Mulchers: Leave an uneven mulching pattern.
 
 Additional Features:
-- Poor plowing quality gradually recovers while crops grow.
-- Poorly seeded grass starts growing denser over time, increasing yield to normal levels.
-- Supports Precision Farming, including realistic draft and application behaviour.
-- Compatible with More Realistic, Advanced Damage System, Realistic Harvesting, Moisture System, Courseplay, AutoDrive and many other gameplay mods.
-- Multiplayer tested and fully supported.
+- Poor Work Quality from plowing gradually recovers over successive crop cycles, reflecting the soil's natural regeneration.
+- Poorly established grass gradually recovers over multiple harvests, allowing yield to slowly return as the grass stand becomes denser.
+- Optional Visible Field Effects can be disabled for improved performance. Implements whose economic balance relies solely on Visible Field Effects regain their original speed limits.
+- Supports Precision Farming, including realistic draft behaviour and application simulation.
+- Supports More Realistic with selectable draft calculation.
+- Compatible with Advanced Damage System, Realistic Harvesting, Moisture System, Courseplay, AutoDrive and many other gameplay mods.
+- Multiplayer fully supported with server-controlled gameplay settings.
 
-Combines and standard crop harvesters are intentionally excluded to avoid conflicts with dedicated harvesting mods.]]></en>
-        <de><![CDATA[TerraLogic macht die Feldarbeit im Farming Simulator 25 realistischer, indem starre Geschwindigkeitsbegrenzungen durch echte Konsequenzen ersetzt werden.
+Notes:
+- Combines and standard crop harvesters are intentionally excluded to avoid conflicts with dedicated harvesting mods such as Realistic Harvesting.
 
-Du kannst schneller fahren, als die im Shop angegebene Arbeitsgeschwindigkeit – allerdings nicht ohne Folgen. Schlechte Feldarbeit erhöht den Verschleiß, erfordert mehr Zugkraft, kann Pflanzenwachstum und Ertrag verringern, oder sichtbare Bearbeitungsfehler hinterlassen. Geringe Geschwindigkeitsüberschreitungen können Zeit sparen, während extreme Geschwindigkeiten meist mehr Probleme verursachen, als sie lösen.
+Report bugs, leave feedback or suggest new features:
+https://github.com/Saibotsu/FS25_TerraLogic]]></en>
+        <de><![CDATA[TerraLogic macht die Feldarbeit im Farming Simulator 25 realistischer, indem künstliche Arbeitsgeschwindigkeitsbegrenzungen durch realistische Konsequenzen ersetzt werden.
 
-TerraLogic kombiniert zwei unterschiedliche Konsequenzsysteme. Mechanische Folgen bilden sichtbare Fehler auf dem Feld ab, während die Arbeitsqualität die unsichtbaren, langfristigen Auswirkungen schlechter Feldarbeit simuliert. Dadurch werden Motorleistung, Gerätewahl und Arbeitsgeschwindigkeit deutlich wichtiger.
+Anstatt dich durch ein unsichtbares Tempolimit einzuschränken, überlässt TerraLogic dir die Entscheidung, wie viel Risiko du eingehen möchtest. Höhere Arbeitsgeschwindigkeiten können wertvolle Zeit sparen, erhöhen jedoch gleichzeitig Verschleiß, Zugkraftbedarf, Reparaturkosten und das Risiko schlechter Feldarbeit. Manchmal lohnt sich dieses Risiko – oft kostet es jedoch mehr, als es einspart.
+
+TerraLogic kombiniert zwei sich ergänzende Konsequenzsysteme. Visible Field Effects bilden die sofort sichtbaren, physikalischen Folgen überhöhter Arbeitsgeschwindigkeiten ab, beispielsweise ungesäte Bereiche oder ein ungleichmäßiges Arbeitsbild. Die Work Quality speichert dagegen die unsichtbare Qualität jedes einzelnen Arbeitsgangs flächenbasiert direkt im Boden. Diese Werte bleiben über mehrere Arbeitsgänge und Anbauzyklen erhalten und beeinflussen langfristig Pflanzenwachstum und Ertrag.
 
 Hauptfeatures:
-- Ersetzt starre Tempolimits durch realistische mechanische und agronomische Konsequenzen.
-- Speichert die Work Quality flächenbasiert, sodass unterschiedliche Bereiche eines Feldes unterschiedliche Erträge liefern können.
-- Arbeitsgeschwindigkeit beeinflusst Verschleiß, Arbeitsqualität und den späteren Ertrag.
-- Realistische Zugkräfte, bodenabhängige Abrasion und simulierte unterirdische Steine.
-- Dynamisches HUD mit empfohlenem Arbeitsgeschwindigkeitsbereich.
+- Ersetzt starre Arbeitsgeschwindigkeitsbegrenzungen durch realistische agronomische und mechanische Konsequenzen.
+- Speichert eine persistente Work Quality direkt im Boden, sodass unterschiedliche Bereiche eines Feldes unterschiedliche Erträge liefern können.
+- Arbeitsgeschwindigkeit beeinflusst Zugkraft, Abrasion, Verschleiß, Work Quality und den späteren Ertrag.
+- Dynamisches HUD mit empfohlenem Arbeitsgeschwindigkeitsbereich und optionaler Anzeige der erreichten Work Quality.
+- Realistische Schäden durch simulierte unterirdische Steine. Die Schadenshöhe hängt von Geschwindigkeit, Steingröße, Gerätetyp und realistischen Schutzmechanismen wie automatisch auslösenden Pflugkörpern ab.
+- Realistische Zugkräfte und bodenabhängige Abrasion. Bei Precision Farming beeinflussen die verschiedenen Bodenarten sowohl den Zugkraftbedarf als auch den Verschleiß.
 
-Mechanische Folgen:
+Visible Field Effects:
+Zu hohe Arbeitsgeschwindigkeiten können sichtbare Bearbeitungsfehler verursachen. Je schneller gearbeitet wird, desto deutlicher treten diese Effekte auf.
+
 - Sämaschinen: Schlechtere Saatqualität und ungesäte Bereiche.
 - Mähwerke: Einzelne Grasbüschel bleiben stehen.
-- Wender & Schwader: Zunehmend mehr Erntegut bleibt liegen.
-- Düngerstreuer & Spritzen: Ungleichmäßige Ausbringung und unbehandelte Bereiche.
-- Hacken & Striegel: Unkraut wird unzuverlässiger entfernt; bei extremen Geschwindigkeiten können Pflanzen und Saatbett beschädigt werden.
-- Steinsammler: Zunehmend unzuverlässiger aufgesammelte Steine.
+- Wender & Schwader: Zunehmend mehr Erntegut bleibt auf dem Feld liegen.
+- Spritzen, Düngerstreuer, Güllefässer & Miststreuer: Ungleichmäßige Ausbringung und unbehandelte Bereiche.
+- Hacken & Striegel: Unkraut wird unzuverlässiger entfernt; bei extremen Geschwindigkeiten können Pflanzen oder das Saatbett beschädigt werden.
+- Steinsammler: Zunehmend mehr Steine bleiben auf dem Feld zurück.
+- Ballenpressen & Ladewagen: Der Pick-Up nimmt das Erntegut nicht mehr vollständig auf.
+- Mulcher: Hinterlassen ein ungleichmäßiges Mulchbild.
 
 Weitere Features:
-- Schlecht gepflügter Boden regeneriert sich während des Pflanzenwachstums langsam.
-- Schlecht gesätes Gras wächst mit der Zeit dichter und bringt wieder den ursprünglichen Ertrag beim Mähen.
+- Schlechte Pflugqualität regeneriert sich über mehrere Anbauzyklen hinweg langsam durch natürliche Bodenprozesse.
+- Schlecht etablierte Grasbestände werden über mehrere Schnitte hinweg allmählich dichter, wodurch sich der Ertrag langsam wieder erholt.
+- Visible Field Effects können optional deaktiviert werden, um die Performance zu verbessern. Anbaugeräte, die nur durch Visible Field Effects an Wirtschaftlichkeit verlieren, erhalten dadurch ihr Tempolimit zurück.
 - Unterstützung für Precision Farming mit realistischen Zugkräften und Ausbringungsverhalten.
-- Kompatibel mit More Realistic, Advanced Damage System, Realistic Harvesting, Moisture System, Courseplay, AutoDrive und vielen weiteren Gameplay-Mods.
-- Multiplayer getestet und vollständig unterstützt.
+- Unterstützung für More Realistic mit umschaltbarer Zugkraftberechnung.
+- Kompatibel mit Advanced Damage System, Realistic Harvesting, Moisture System, Courseplay, AutoDrive und vielen weiteren Gameplay-Mods.
+- Multiplayer vollständig unterstützt, inklusive servergesteuerter Gameplay-Einstellungen.
 
-Mähdrescher und gewöhnliche Feldfrucht-Ernter bleiben bewusst unverändert, um Konflikte mit spezialisierten Ernte-Mods zu vermeiden.]]></de>
+Hinweise:
+- Mähdrescher und gewöhnliche Feldfrucht-Ernter sind bewusst ausgeschlossen, um Konflikte mit spezialisierten Ernte-Mods wie Realistic Harvesting zu vermeiden.
+
+Fehler melden, Feedback geben oder neue Ideen vorschlagen:
+https://github.com/Saibotsu/FS25_TerraLogic]]></de>
     </description>
 
     <l10n>
@@ -130,6 +152,10 @@ Mähdrescher und gewöhnliche Feldfrucht-Ernter bleiben bewusst unverändert, um
         <text name="terraLogic_speedHudQuality">
             <en>Work quality: %d %%</en>
             <de>Arbeitsqualit&#228;t: %d %%</de>
+        </text>
+        <text name="terraLogic_speedHudQualityUnavailable">
+            <en>Work quality: -</en>
+            <de>Arbeitsqualit&#228;t: -</de>
         </text>
         <text name="terraLogic_speedHudActiveImplements">
             <en>%d tools</en>
@@ -236,10 +262,10 @@ Mähdrescher und gewöhnliche Feldfrucht-Ernter bleiben bewusst unverändert, um
     <multiplayer supported="true" />
 
     <extraSourceFiles>
-        <sourceFile filename="scripts/TerraLogicSettings.lua" />
-        <sourceFile filename="scripts/TerraLogicImplementProfiles.lua" />
-        <sourceFile filename="scripts/TerraLogicDropoutManager.lua" />
-        <sourceFile filename="scripts/TerraLogicQualityManager.lua" />
-        <sourceFile filename="scripts/TerraLogicMain.lua" />
+        <sourceFile filename="scripts\TerraLogicSettings.lua" />
+        <sourceFile filename="scripts\TerraLogicImplementProfiles.lua" />
+        <sourceFile filename="scripts\TerraLogicDropoutManager.lua" />
+        <sourceFile filename="scripts\TerraLogicQualityManager.lua" />
+        <sourceFile filename="scripts\TerraLogicMain.lua" />
     </extraSourceFiles>
 </modDesc>

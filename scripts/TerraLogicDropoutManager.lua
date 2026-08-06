@@ -101,17 +101,20 @@ TerraLogicDropoutManager.PROFILES = {
         enabled = true,
         patternType = "surfaceIslands",
         activationMarginKph = 0.00,
-        onsetFailureFractionPerKph = 0.009,
-        maximumFailureFraction = 0.28,
+        -- Fifty percent more target misses than the preceding test build. The
+        -- slightly larger/denser islands compensate for overlapping mower
+        -- WorkAreas repairing part of the theoretical failure fraction.
+        onsetFailureFractionPerKph = 0.016875,
+        maximumFailureFraction = 0.525,
         failureCurveStrength = 4.50,
         patternLaneWidthM = 0.60,
         maximumPatternLanes = 32,
-        islandSpacingM = 3.50,
-        minimumIslandRadiusM = 0.75,
-        maximumIslandRadiusM = 1.35,
+        islandSpacingM = 3.35,
+        minimumIslandRadiusM = 0.85,
+        maximumIslandRadiusM = 1.50,
         -- Smaller circles preserve the same target failure area by activating
         -- more lattice candidates, producing more numerous grass islands.
-        islandRadiusOffsetM = 0.15,
+        islandRadiusOffsetM = 0.25,
         patternSalt = 27109
     },
     windrowerPatch = {
@@ -200,6 +203,76 @@ TerraLogicDropoutManager.PROFILES = {
         islandRadiusOffsetM = 0.20,
         patternSalt = 67579
     },
+    -- A baler misses material at the pickup rather than changing the ground.
+    -- Narrow, round islands keep part of the existing swath available for a
+    -- second, slower pass without inventing or deleting collected material.
+    balerPatch = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        activationMarginKph = 0.00,
+        -- Midpoint between the former mild pickup curve and the last, overly
+        -- aggressive test build. This is especially relevant at +2 km/h.
+        onsetFailureFractionPerKph = 0.0115,
+        maximumFailureFraction = 0.35,
+        failureCurveStrength = 4.625,
+        extremeSpeedBoostStartRatio = 1.35,
+        extremeSpeedMaximumFailureFraction = 0.80,
+        timeSavingFailureStartKph = 1.75,
+        timeSavingFailureBlendKph = 0.675,
+        timeSavingFailureMultiplier = 1.19,
+        patternLaneWidthM = 0.45,
+        maximumPatternLanes = 24,
+        islandSpacingM = 3.25,
+        minimumIslandRadiusM = 0.60,
+        maximumIslandRadiusM = 1.05,
+        islandRadiusOffsetM = 0.325,
+        patternSalt = 82763
+    },
+    -- Loader wagons share the pickup principle with balers, but retain their
+    -- own profile so both machine groups can be balanced independently.
+    loaderWagonPatch = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        actualWorkRequiresPickup = true,
+        activationMarginKph = 0.00,
+        onsetFailureFractionPerKph = 0.018,
+        maximumFailureFraction = 0.44,
+        failureCurveStrength = 5.25,
+        extremeSpeedBoostStartRatio = 1.35,
+        extremeSpeedMaximumFailureFraction = 0.90,
+        timeSavingFailureStartKph = 1.50,
+        timeSavingFailureBlendKph = 0.60,
+        timeSavingFailureMultiplier = 1.32,
+        patternLaneWidthM = 0.55,
+        maximumPatternLanes = 24,
+        islandSpacingM = 3.25,
+        minimumIslandRadiusM = 0.80,
+        maximumIslandRadiusM = 1.30,
+        islandRadiusOffsetM = 0.60,
+        patternSalt = 92821
+    },
+    -- Mulcher misses are compact patches of standing residue. The separate
+    -- profile keeps this visible surface result independent from mower tuning.
+    mulcherPatch = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        activationMarginKph = 0.00,
+        onsetFailureFractionPerKph = 0.010,
+        maximumFailureFraction = 0.34,
+        failureCurveStrength = 4.75,
+        extremeSpeedBoostStartRatio = 1.35,
+        extremeSpeedMaximumFailureFraction = 0.82,
+        timeSavingFailureStartKph = 2.00,
+        timeSavingFailureBlendKph = 0.75,
+        timeSavingFailureMultiplier = 1.18,
+        patternLaneWidthM = 0.55,
+        maximumPatternLanes = 32,
+        islandSpacingM = 3.25,
+        minimumIslandRadiusM = 0.65,
+        maximumIslandRadiusM = 1.15,
+        islandRadiusOffsetM = 0.35,
+        patternSalt = 34123
+    },
     limePatch = {
         enabled = true,
         patternType = "surfaceIslands",
@@ -280,26 +353,87 @@ TerraLogicDropoutManager.PROFILES = {
         enabled = true,
         patternType = "surfaceIslands",
         activationMarginKph = 0.00,
-        onsetFailureFractionPerKph = 0.008,
-        maximumFailureFraction = 0.32,
-        failureCurveStrength = 4.50,
-        extremeSpeedBoostStartRatio = 1.35,
-        extremeSpeedMaximumFailureFraction = 0.80,
-        timeSavingFailureStartKph = 2.00,
-        timeSavingFailureBlendKph = 0.75,
-        timeSavingFailureMultiplier = 1.15,
+        onsetFailureFractionPerKph = 0.016,
+        maximumFailureFraction = 0.50,
+        failureCurveStrength = 5.50,
+        extremeSpeedBoostStartRatio = 1.30,
+        extremeSpeedMaximumFailureFraction = 0.92,
+        timeSavingFailureStartKph = 1.50,
+        timeSavingFailureBlendKph = 0.60,
+        timeSavingFailureMultiplier = 1.35,
+        -- Spinner WorkAreas overlap across their cone-shaped depth. Doubling
+        -- the target share offsets the repeated writes; the common 95% safety
+        -- clamp still prevents a completely untreated pass.
+        failureFractionMultiplier = 2.00,
         patternLaneWidthM = 0.65,
         maximumPatternLanes = 32,
-        islandSpacingM = 3.75,
-        minimumIslandRadiusM = 0.70,
-        maximumIslandRadiusM = 1.35,
-        islandRadiusOffsetM = 0.25,
+        islandSpacingM = 3.10,
+        minimumIslandRadiusM = 1.10,
+        maximumIslandRadiusM = 1.80,
+        islandRadiusOffsetM = 0.75,
+        -- The spinner cone repeatedly covers the same ground along its depth.
+        -- Long world-space ellipses survive those overlapping writes and leave
+        -- a visibly irregular trailing/outer edge instead of tiny repaired dots.
+        minimumLongitudinalRadiusMultiplier = 2.50,
+        maximumLongitudinalRadiusMultiplier = 4.00,
+        useLongitudinalPatternGrid = true,
+        patternRowLengthM = 2.50,
+        maximumPatternRows = 10,
+        patternSalt = 69539
+    },
+    -- Manure was already balanced correctly. Keep its previous spinner curve
+    -- separate so fertilizer tuning cannot silently make manure too harsh.
+    manureSpreaderPatch = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        activationMarginKph = 0.00,
+        onsetFailureFractionPerKph = 0.012,
+        maximumFailureFraction = 0.40,
+        failureCurveStrength = 5.00,
+        extremeSpeedBoostStartRatio = 1.35,
+        extremeSpeedMaximumFailureFraction = 0.88,
+        timeSavingFailureStartKph = 2.00,
+        timeSavingFailureBlendKph = 0.75,
+        timeSavingFailureMultiplier = 1.25,
+        patternLaneWidthM = 0.65,
+        maximumPatternLanes = 32,
+        islandSpacingM = 3.40,
+        minimumIslandRadiusM = 0.80,
+        maximumIslandRadiusM = 1.50,
+        islandRadiusOffsetM = 0.45,
         minimumLongitudinalRadiusMultiplier = 1.25,
         maximumLongitudinalRadiusMultiplier = 2.00,
         useLongitudinalPatternGrid = true,
         patternRowLengthM = 3.00,
         maximumPatternRows = 8,
-        patternSalt = 69539
+        patternSalt = 153887
+    },
+    -- Rear splash-plate slurry equipment has the same deep WorkArea overlap
+    -- as a spinner, but needs a stronger full-width response than granules.
+    slurrySpreaderPatch = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        activationMarginKph = 0.00,
+        onsetFailureFractionPerKph = 0.018,
+        maximumFailureFraction = 0.50,
+        failureCurveStrength = 5.50,
+        extremeSpeedBoostStartRatio = 1.30,
+        extremeSpeedMaximumFailureFraction = 0.92,
+        timeSavingFailureStartKph = 1.50,
+        timeSavingFailureBlendKph = 0.60,
+        timeSavingFailureMultiplier = 1.35,
+        patternLaneWidthM = 0.65,
+        maximumPatternLanes = 32,
+        islandSpacingM = 3.10,
+        minimumIslandRadiusM = 0.90,
+        maximumIslandRadiusM = 1.65,
+        islandRadiusOffsetM = 0.65,
+        minimumLongitudinalRadiusMultiplier = 1.35,
+        maximumLongitudinalRadiusMultiplier = 2.25,
+        useLongitudinalPatternGrid = true,
+        patternRowLengthM = 2.60,
+        maximumPatternRows = 10,
+        patternSalt = 43237
     },
     limeSpreaderPatch = {
         enabled = true,
@@ -313,17 +447,18 @@ TerraLogicDropoutManager.PROFILES = {
         timeSavingFailureStartKph = 2.00,
         timeSavingFailureBlendKph = 0.75,
         timeSavingFailureMultiplier = 1.15,
+        failureFractionMultiplier = 2.00,
         patternLaneWidthM = 0.65,
         maximumPatternLanes = 32,
-        islandSpacingM = 3.75,
-        minimumIslandRadiusM = 0.75,
-        maximumIslandRadiusM = 1.40,
-        islandRadiusOffsetM = 0.25,
-        minimumLongitudinalRadiusMultiplier = 1.25,
-        maximumLongitudinalRadiusMultiplier = 2.00,
+        islandSpacingM = 3.25,
+        minimumIslandRadiusM = 1.05,
+        maximumIslandRadiusM = 1.75,
+        islandRadiusOffsetM = 0.70,
+        minimumLongitudinalRadiusMultiplier = 2.50,
+        maximumLongitudinalRadiusMultiplier = 4.00,
         useLongitudinalPatternGrid = true,
-        patternRowLengthM = 3.00,
-        maximumPatternRows = 8,
+        patternRowLengthM = 2.50,
+        maximumPatternRows = 10,
         patternSalt = 79657
     },
     herbicidePatch = {

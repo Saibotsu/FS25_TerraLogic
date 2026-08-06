@@ -1375,13 +1375,21 @@ function TerraLogicMain:clearQualityFieldInfoRows()
     self.qualityFieldInfoSignature = nil
 end
 
-local function getIsSpeedHudImplementReady(implement)
+local function getIsSpeedHudImplementReady(implement, requireWorkReady)
     local spec = implement ~= nil and implement.spec_terraLogic or nil
     if spec == nil then return false end
+    -- Vehicle types may share broad GIANTS specializations (especially
+    -- sprayer). Runtime classification is the final authority: unsupported
+    -- water, transport or utility tools must not enter the TerraLogic HUD.
+    if spec.implementClassKey == nil then return false end
+    -- "Always on" describes the HUD itself, not the current work state. A
+    -- recognized attached implement therefore remains selectable while raised,
+    -- switched off or stationary. Dynamic mode keeps the strict live checks.
+    if requireWorkReady ~= true then return true end
     if spec.isGroundTool == true or spec.isSurfaceForageTool == true then
-        -- For ploughs and other ground tools, "active" means attached and
-        -- lowered into working position. Terrain pixels do not need to change
-        -- at this instant, so the HUD also remains useful while stationary.
+        -- Dynamic readiness checks only the machine state here. Whether the
+        -- pass actually changed an eligible field cell is evaluated separately
+        -- for the quality label.
         local lowered = implement.getIsImplementChainLowered ~= nil
             and implement:getIsImplementChainLowered(true) == true
         if implement.getIsImplementChainLowered == nil
@@ -1394,9 +1402,10 @@ local function getIsSpeedHudImplementReady(implement)
         local inWorkPosition = TerraLogic == nil
             or TerraLogic.getIsOverSpeedWorkAreaInWorkPosition == nil
             or TerraLogic.getIsOverSpeedWorkAreaInWorkPosition(implement) == true
-        if (spec.isSurfaceForageTool == true
-                or implement.spec_stonePicker ~= nil)
-            and implement.getIsTurnedOn ~= nil then
+        local requiresTurnedOn = implement.spec_turnOnVehicle ~= nil
+            or spec.isSurfaceForageTool == true
+            or implement.spec_stonePicker ~= nil
+        if requiresTurnedOn and implement.getIsTurnedOn ~= nil then
             return lowered and inWorkPosition and implement:getIsTurnedOn() == true
         end
         return lowered and inWorkPosition
@@ -1408,14 +1417,16 @@ local function getIsSpeedHudImplementReady(implement)
     return false
 end
 
--- Selects the most restrictive active implement for the shared speed HUD.
-function TerraLogicMain:getSpeedHudImplement()
+-- Selects the most restrictive work-ready implement for the shared speed HUD.
+-- Successful density-map work is deliberately not required here: that state
+-- belongs to the quality label and would make pickup tools flicker.
+function TerraLogicMain:getSpeedHudImplement(requireWorkReady, currentSpeed)
     local vehicle = g_localPlayer ~= nil and g_localPlayer:getCurrentVehicle() or nil
     if vehicle == nil then return nil end
     local candidates, seen = {}, {}
     local function addCandidate(candidate)
         if candidate ~= nil and not seen[candidate]
-            and getIsSpeedHudImplementReady(candidate) then
+            and getIsSpeedHudImplementReady(candidate, requireWorkReady) then
             seen[candidate] = true
             candidates[#candidates + 1] = candidate
         end
@@ -1479,35 +1490,50 @@ local function getCompactImplementName(implement)
         and string.sub(name, 1, maxCharacters - 1) .. "..." or name
 end
 
-function TerraLogicMain:getSpeedHudWorkQuality(implement, currentSpeed)
+local function getSpeedHudWorkQualityComponent(implement)
     local spec = implement ~= nil and implement.spec_terraLogic or nil
-    if spec == nil or TerraLogicQualityManager == nil then return nil end
-    local component = nil
-    if implement.spec_mower ~= nil then
-        if self.mowerQualityEnabled == false then return nil end
-        component = "mower"
-    elseif implement.spec_sowingMachine ~= nil then
-        component = "seed"
+    if spec == nil then return nil end
+    if implement.spec_sowingMachine ~= nil then
+        return "seed"
     elseif implement.spec_sprayer ~= nil then
-        component = TerraLogic ~= nil
+        return TerraLogic ~= nil
             and TerraLogic.getApplicationComponentForVehicle ~= nil
             and TerraLogic.getApplicationComponentForVehicle(implement)
             or spec.applicationQualityComponent or "fertilizer"
-        if component == "herbicide" then return nil end
     elseif implement.spec_plow ~= nil then
-        component = "soilPlow"
+        return "soilPlow"
     elseif implement.spec_cultivator ~= nil or implement.spec_subsoiler ~= nil
         or spec.implementClassKey == "powerHarrow"
         or spec.implementClassKey == "discHarrow"
         or spec.implementClassKey == "spader" then
-        component = "soilCultivate"
+        return "soilCultivate"
     elseif implement.spec_roller ~= nil then
-        component = "roller"
+        return "roller"
     elseif implement.spec_mulcher ~= nil then
-        component = "mulch"
-    elseif implement.spec_weeder ~= nil then
-        return nil
+        return "mulch"
     end
+    -- Mowers, tedders, windrowers, stone pickers, mechanical weeders,
+    -- balers and loader wagons have physical consequences only. They must not
+    -- present a synthetic quality percentage or a permanent "Quality: -" row.
+    return nil
+end
+
+local function getIsSpeedHudImplementWritingQuality(implement, currentSpeed)
+    local spec = implement ~= nil and implement.spec_terraLogic or nil
+    if spec == nil or (tonumber(currentSpeed) or 0) < 0.5 then
+        return false
+    end
+    if spec.qualityWorkActive == true then return true end
+    -- Same-frame listen-server fallback before the synchronized flag reaches
+    -- the HUD. This timestamp is set only after at least one cell was accepted.
+    local now = g_currentMission ~= nil and (g_currentMission.time or 0) or 0
+    return spec.lastQualityWorkTime ~= nil
+        and now - spec.lastQualityWorkTime <= 500
+end
+
+function TerraLogicMain:getSpeedHudWorkQuality(implement, currentSpeed)
+    if TerraLogicQualityManager == nil then return nil end
+    local component = getSpeedHudWorkQualityComponent(implement)
     if component == nil then return nil end
     -- The speed HUD describes execution quality, not PF's transient remaining
     -- N/pH gain at the exact map pixel. Using that local gain made the display
@@ -1638,7 +1664,13 @@ function TerraLogicMain:drawSpeedHud()
         return
     end
 
-    local implement, activeImplementCount = self:getSpeedHudImplement()
+    local currentSpeed = math.abs(vehicle:getLastSpeed(true) or 0)
+    -- Dynamic mode requires the implement to be lowered/in work position and,
+    -- where applicable, switched on. It does not require a positive density-
+    -- map result, so balers remain stable over sparse windrows. Always mode
+    -- intentionally keeps recognized attached tools visible in every state.
+    local implement, activeImplementCount = self:getSpeedHudImplement(
+        hudMode == "dynamic", currentSpeed)
     if implement == nil then
         self.speedHudImplement = nil
         self.speedHudOptimalSince = nil
@@ -1649,15 +1681,19 @@ function TerraLogicMain:drawSpeedHud()
     local realSpeed = tonumber(spec.safeSpeed)
         or tonumber(spec.optimalSpeed) or shopSpeed
     if shopSpeed <= 0 then return end
-    local currentSpeed = math.abs(vehicle:getLastSpeed(true) or 0)
+    local isWritingQuality = getIsSpeedHudImplementWritingQuality(
+        implement, currentSpeed)
     local qualityTextEnabled = TerraLogicSettings == nil
         or TerraLogicSettings.showQualityText ~= false
-    local quality = qualityTextEnabled
+    local hasStoredWorkQuality = qualityTextEnabled
+        and getSpeedHudWorkQualityComponent(implement) ~= nil
+    local quality = hasStoredWorkQuality and isWritingQuality
         and self:getSpeedHudWorkQuality(implement, currentSpeed) or nil
+    local showUnavailableQuality = hasStoredWorkQuality and quality == nil
     local showImplementCount = qualityTextEnabled
         and (activeImplementCount or 0) > 1
     local showSupplementalRow = renderText ~= nil
-        and (quality ~= nil or showImplementCount)
+        and (quality ~= nil or showUnavailableQuality or showImplementCount)
 
     if self.speedHudImplement ~= implement then
         self.speedHudImplement = implement
@@ -1693,7 +1729,8 @@ function TerraLogicMain:drawSpeedHud()
     else
         self.speedHudOptimalSince = nil
     end
-    if now < (self.speedHudVehicleNameHiddenUntil or 0)
+    if (hudMode == "dynamic"
+            and now < (self.speedHudVehicleNameHiddenUntil or 0))
         or hideForOptimalSpeed then
         return
     end
@@ -1702,7 +1739,9 @@ function TerraLogicMain:drawSpeedHud()
     -- an existing HUDDisplay when available, including the user's UI scale.
     local centreX = 0.5
     local width, height = getSpeedHudScaledPixels(225, 6)
-    local paddingBottomPixels = showSupplementalRow and 8 or 6
+    -- The narrow bar-only box needs one extra pixel below the progress bar to
+    -- visually match the rounded border's upper inset.
+    local paddingBottomPixels = showSupplementalRow and 8 or 7
     local paddingX, paddingBottom = getSpeedHudScaledPixels(
         14, paddingBottomPixels)
     local qualityTextPixels = math.max(
@@ -1794,6 +1833,11 @@ function TerraLogicMain:drawSpeedHud()
             local format = TerraLogicQualityManager:getText(
                 "terraLogic_speedHudQuality", "Work quality: %d %%")
             local label = string.format(format, roundedQuality)
+            setTextAlignment(RenderText.ALIGN_LEFT)
+            renderText(x, y + height + textGap, size, label)
+        elseif showUnavailableQuality then
+            local label = TerraLogicQualityManager:getText(
+                "terraLogic_speedHudQualityUnavailable", "Work quality: -")
             setTextAlignment(RenderText.ALIGN_LEFT)
             renderText(x, y + height + textGap, size, label)
         end
@@ -2699,6 +2743,9 @@ function TerraLogicMain.installSpecialization()
         local isWindrower = specializations ~= nil
             and specializations.windrower ~= nil
         local isTedder = specializations ~= nil and specializations.tedder ~= nil
+        local isBaler = specializations ~= nil and specializations.baler ~= nil
+        local isForageWagon = specializations ~= nil
+            and specializations.forageWagon ~= nil
         local isHarvester = specializations ~= nil
             and (specializations.combine ~= nil or specializations.cutter ~= nil)
         local isAlreadyInstalled = specializations ~= nil and specializations[SPEC_NAME] ~= nil
@@ -2706,7 +2753,19 @@ function TerraLogicMain.installSpecialization()
         -- Ordinary implements remain supported as before. Motorized forage
         -- surface tools are explicitly allowed; combines/cutters stay out so
         -- TerraLogic does not collide with dedicated harvesting/yield mods.
-        local supportedImplement = isAttachable and isWearable and not isMotorized
+        local isSupportedWorkTool = specializations ~= nil
+            and (specializations.plow ~= nil
+                or specializations.cultivator ~= nil
+                or specializations.sowingMachine ~= nil
+                or specializations.sprayer ~= nil
+                or specializations.roller ~= nil
+                or specializations.mulcher ~= nil
+                or specializations.weeder ~= nil
+                or specializations.stonePicker ~= nil
+                or isMower or isWindrower or isTedder or isBaler
+                or isForageWagon)
+        local supportedImplement = isAttachable and isWearable
+            and not isMotorized and not isHarvester and isSupportedWorkTool
         local supportedSelfPropelledForageTool = isMotorized and isWearable
             and (isMower or isWindrower or isTedder) and not isHarvester
         if (supportedImplement or supportedSelfPropelledForageTool)

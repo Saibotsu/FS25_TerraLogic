@@ -37,6 +37,8 @@ TerraLogicImplementProfiles.REAL_SPEED_KPH = {
     windrower = 10,
     tedder = 10,
     beltRake = 10,
+    baler = 15,
+    loaderWagon = 20,
     roller = 8,
     sowingMachine = 10,
     directDrill = 10,
@@ -86,6 +88,8 @@ TerraLogicImplementProfiles.ABRASION_FACTOR = {
     windrower = 0.05,
     tedder = 0.05,
     beltRake = 0.03,
+    baler = 0.00,
+    loaderWagon = 0.00,
     roller = 0.00,
     sowingMachine = 0.30,
     directDrill = 0.45,
@@ -149,6 +153,12 @@ TerraLogicImplementProfiles.DROPOUT_DEPENDENT_SPEED_CLASSES = {
     precisionPlanter = true,
     liquidSprayer = true,
     fertilizerSpreader = true,
+    manureSpreader = true,
+    slurrySpreader = true,
+    slurryApplicator = true,
+    baler = true,
+    loaderWagon = true,
+    mulcher = true,
     mower = true,
     windrower = true,
     tedder = true,
@@ -345,7 +355,7 @@ TerraLogicImplementProfiles.PROFILES = {
         yield = YIELD_QUALITY.mulcher,
         impacts = {depthFactor = 0.20, stoneProtection = false, mediumDamageFactor = 1.00},
         stones = {mode = "Surface mulcher", surface = 0.35, generated = 0.00, hidden = 0.85},
-        dropoutProfile = nil
+        dropoutProfile = "mulcherPatch"
     },
     mower = {
         name = "Mower",
@@ -378,6 +388,26 @@ TerraLogicImplementProfiles.PROFILES = {
         impacts = {depthFactor = 0.00, stoneProtection = false, mediumDamageFactor = 1.00},
         stones = nil,
         dropoutProfile = "tedderPatch"
+    },
+    baler = {
+        name = "Baler",
+        work = {optimalSpeedKph = REAL_SPEED.baler, depthCm = 0, groundContactTool = false},
+        draft = {enabled = false, overspeedScale = 0.00},
+        wear = {model = "surface", abrasionFactor = ABRASION.baler},
+        yield = {weight = 0.00, maxPenalty = 0.00},
+        impacts = {depthFactor = 0.00, stoneProtection = false, mediumDamageFactor = 1.00},
+        stones = nil,
+        dropoutProfile = "balerPatch"
+    },
+    loaderWagon = {
+        name = "Loader Wagon",
+        work = {optimalSpeedKph = REAL_SPEED.loaderWagon, depthCm = 0, groundContactTool = false},
+        draft = {enabled = false, overspeedScale = 0.00},
+        wear = {model = "surface", abrasionFactor = ABRASION.loaderWagon},
+        yield = {weight = 0.00, maxPenalty = 0.00},
+        impacts = {depthFactor = 0.00, stoneProtection = false, mediumDamageFactor = 1.00},
+        stones = nil,
+        dropoutProfile = "loaderWagonPatch"
     },
     stonePicker = {
         name = "Stone Picker",
@@ -431,6 +461,36 @@ TerraLogicImplementProfiles.PROFILES = {
         impacts = {depthFactor = 0.00, stoneProtection = false, mediumDamageFactor = 1.00},
         stones = nil,
         dropoutProfile = "fertilizerSpreader"
+    },
+    manureSpreader = {
+        name = "Manure Spreader",
+        work = {optimalSpeedKph = REAL_SPEED.manureSpreader, depthCm = 0, groundContactTool = false},
+        draft = {enabled = false, overspeedScale = 0.00},
+        wear = {abrasionFactor = ABRASION.manureSpreader},
+        yield = YIELD_QUALITY.manureBroadcaster,
+        impacts = {depthFactor = 0.00, stoneProtection = false, mediumDamageFactor = 1.00},
+        stones = nil,
+        dropoutProfile = "fertilizerSpreader"
+    },
+    slurrySpreader = {
+        name = "Slurry Spreader",
+        work = {optimalSpeedKph = REAL_SPEED.slurryDistributor, depthCm = 0, groundContactTool = false},
+        draft = {enabled = false, overspeedScale = 0.00},
+        wear = {abrasionFactor = ABRASION.slurryDistributor},
+        yield = YIELD_QUALITY.manureBroadcaster,
+        impacts = {depthFactor = 0.00, stoneProtection = false, mediumDamageFactor = 1.00},
+        stones = nil,
+        dropoutProfile = "fertilizerSpreader"
+    },
+    slurryApplicator = {
+        name = "Slurry Applicator",
+        work = {optimalSpeedKph = REAL_SPEED.dribbleBar, depthCm = 0, groundContactTool = false},
+        draft = {enabled = false, overspeedScale = 0.00},
+        wear = {abrasionFactor = ABRASION.dribbleBar},
+        yield = YIELD_QUALITY.dribbleBar,
+        impacts = {depthFactor = 0.00, stoneProtection = false, mediumDamageFactor = 1.00},
+        stones = nil,
+        dropoutProfile = "liquidSprayer"
     }
 }
 

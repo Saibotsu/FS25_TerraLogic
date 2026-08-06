@@ -1382,6 +1382,23 @@ function TerraLogicQualityManager:recordWorkArea(
             end
         end
     end
+    if acceptedCells > 0 and vehicleSpec ~= nil then
+        vehicleSpec.lastActualWorkTime = g_currentMission.time or 0
+        vehicleSpec.lastActualWorkProfile = group
+        vehicleSpec.lastQualityWorkTime = g_currentMission.time or 0
+        local stateChanged = false
+        if vehicleSpec.actualWorkActive ~= true then
+            vehicleSpec.actualWorkActive = true
+            stateChanged = true
+        end
+        if vehicleSpec.qualityWorkActive ~= true then
+            vehicleSpec.qualityWorkActive = true
+            stateChanged = true
+        end
+        if vehicle ~= nil and vehicle.isServer and stateChanged then
+            vehicle:raiseDirtyFlags(vehicleSpec.actualWorkDirtyFlag)
+        end
+    end
     if changed then self.dirty = true end
     return acceptedCells, #touchedPositions, changed
 end
@@ -1397,34 +1414,10 @@ function TerraLogicQualityManager:getSpeedQuality(vehicle, currentSpeed)
 end
 
 function TerraLogicQualityManager:getRootCropHarvesterPenalty(cutter)
-    if cutter == nil or cutter.configFileName == nil then
-        return 0, 1, "unclassified"
-    end
-    local storeItem = g_storeManager ~= nil
-        and g_storeManager:getItemByXMLFilename(cutter.configFileName) or nil
-    local category = string.lower(tostring(
-        storeItem ~= nil and storeItem.categoryName or ""))
-    local isRootCropHarvester = category == "potatoharvesting"
-        or category == "beetharvesters"
-        or category == "beetharvestercutters"
-    if not isRootCropHarvester then
-        return 0, 1, category ~= "" and category or "unclassified"
-    end
-
-    local rootVehicle = cutter.rootVehicle or cutter
-    local speed = rootVehicle.getLastSpeed ~= nil
-        and math.abs(rootVehicle:getLastSpeed(true) or 0) or 0
-    local shopSpeed = tonumber(cutter.speedLimit)
-        or tonumber(rootVehicle.speedLimit) or 0
-    local realSpeed = TerraLogicImplementProfiles ~= nil
-        and TerraLogicImplementProfiles.REAL_SPEED_KPH ~= nil
-        and TerraLogicImplementProfiles.REAL_SPEED_KPH.potatoHarvester
-        or 6
-    local balance = TerraLogicImplementProfiles.YIELD_QUALITY.rootCropHarvester
-    local economy = self:getSpeedEconomyForSpeeds(realSpeed, shopSpeed, speed)
-    local quality, penalty = self:applyProductiveEconomy(
-        economy, balance.maxPenalty)
-    return penalty, quality, category
+    -- Harvesters and headers are deliberately outside TerraLogic's implement
+    -- simulation. The common Cutter hook below only applies quality already
+    -- stored by earlier field work; harvesting speed itself adds no penalty.
+    return 0, 1, "stored field quality only"
 end
 
 function TerraLogicQualityManager:getCellAtWorldPosition(x, z, fallbackX, fallbackZ)
