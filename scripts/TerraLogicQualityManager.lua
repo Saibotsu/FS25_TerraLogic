@@ -547,6 +547,19 @@ function TerraLogicQualityManager:applyProductiveEconomy(economy, maximumPenalty
     return quality, penalty, areaFactor, shopAreaFactor
 end
 
+-- Preserves the existing first-order quality loss at shop speed, then bends
+-- that loss smoothly towards a class-specific lower bound. `additionalLoss`
+-- is intentionally unbounded, so the curve never reaches a hard cap at a
+-- finite speed but converges on the minimum at increasingly absurd speeds.
+function TerraLogicQualityManager:approachMinimumQuality(
+        minimumQuality, additionalLoss)
+    local minimum = math.clamp(tonumber(minimumQuality) or 0, 0, 0.99)
+    local shopQuality = self.QUALITY_AT_SHOP_SPEED
+    local remainingRange = math.max(shopQuality - minimum, 0.0001)
+    local loss = math.max(tonumber(additionalLoss) or 0, 0)
+    return minimum + remainingRange * math.exp(-loss / remainingRange)
+end
+
 -- Converts the shared speed curve into one of the two gameplay effects.
 -- Productive work may reduce the whole yield down to its category cap. Bonus
 -- work can only remove the positive contribution passed in `bonusOverride`.
@@ -562,6 +575,10 @@ function TerraLogicQualityManager:getWorkQualityModel(
     local bonusDefinition = self.BONUS_GROUPS[group]
     local quality, penalty, areaFactor, shopAreaFactor
     local vehicleSpec = vehicle ~= nil and vehicle.spec_terraLogic or nil
+    local classKey = vehicleSpec ~= nil
+        and vehicleSpec.implementClassKey or nil
+    local minimumQuality = TerraLogicImplementProfiles
+        .getMinimumWorkQuality(classKey, component)
     local isDirectDrillSoilPass = component == "soilCultivate"
         and vehicleSpec ~= nil
         and vehicleSpec.implementClassKey == "directDrill"
@@ -590,27 +607,33 @@ function TerraLogicQualityManager:getWorkQualityModel(
         if economy.shopRatio <= 1 then
             quality = economy.preShopQuality
             totalNow = 1 + bonus * quality
-        elseif tonumber(bonusDefinition.rateLimitedRange) ~= nil then
+        elseif tonumber(bonusDefinition.rateLimitedRange) ~= nil
+            and minimumQuality ~= nil then
             -- Application equipment has a limited mass/volume flow. Slightly
-            -- exceeding shop speed therefore under-applies gently; only large
-            -- overspeed collapses distribution. The squared envelope is flat
-            -- at shop speed and at its zero point, avoiding a visible kink.
+            -- exceeding shop speed therefore under-applies gently. The
+            -- squared demand is flat at shop speed, while the exponential
+            -- envelope prevents an abrupt total loss at high overspeed.
             local range = math.max(
                 tonumber(bonusDefinition.rateLimitedRange) or 0.80, 0.01)
-            local t = math.clamp(economy.overspeed / range, 0, 1)
-            quality = self.QUALITY_AT_SHOP_SPEED
-                * (1 - t * t) ^ 2
+            local t = economy.overspeed / range
+            local additionalLoss = self.QUALITY_AT_SHOP_SPEED
+                * 2 * t * t * dropoutOverspeedShare
+            quality = self:approachMinimumQuality(
+                minimumQuality, additionalLoss)
             totalNow = 1 + bonus * quality
             economy.rateLimitedCurve = true
             economy.rateLimitedRange = range
-        elseif (tonumber(bonusDefinition.bonus) or 0) <= 0.05 then
+        elseif (tonumber(bonusDefinition.bonus) or 0) <= 0.05
+            and minimumQuality ~= nil then
             -- A 2.5% roller/mulcher bonus is smaller than almost every useful
             -- overspeed time saving. Strict hourly break-even would therefore
             -- collapse quality to zero almost immediately. Keep these tiny
             -- optional bonuses readable and smooth; wear/impacts still punish
             -- speed and the balancing HUD may honestly report it as profitable.
-            quality = math.clamp(self.QUALITY_AT_SHOP_SPEED
-                - 4.05 * economy.overspeed * economy.overspeed, 0, 1)
+            local additionalLoss = 4.05
+                * economy.overspeed * economy.overspeed
+            quality = self:approachMinimumQuality(
+                minimumQuality, additionalLoss)
             totalNow = 1 + bonus * quality
             economy.microBonusCurve = true
         else
@@ -618,7 +641,7 @@ function TerraLogicQualityManager:getWorkQualityModel(
             quality = bonus > 0 and (totalNow - 1) / bonus or 1
         end
         quality = math.clamp(quality, 0, 1)
-        if dropoutOverspeedShare < 1 then
+        if dropoutOverspeedShare < 1 and minimumQuality == nil then
             quality = math.clamp(
                 self.QUALITY_AT_SHOP_SPEED
                     - (self.QUALITY_AT_SHOP_SPEED - quality)
@@ -633,13 +656,30 @@ function TerraLogicQualityManager:getWorkQualityModel(
         penalty = math.clamp(1 - areaFactor, 0, 1)
         economy.effectType = "bonus"
         economy.bonus = bonus
-        economy.bonusFloorReached = totalNow <= 1.00001
+        economy.bonusFloorReached = minimumQuality ~= nil
+            and quality <= minimumQuality + 0.00001
+            or totalNow <= 1.00001
     else
         local cap = math.clamp(definition ~= nil
             and definition.maxYieldPenalty or 0, 0, 1)
-        quality, penalty, areaFactor, shopAreaFactor =
-            self:applyProductiveEconomy(economy, cap)
-        if dropoutOverspeedShare < 1 then
+        if economy.shopRatio > 1 and minimumQuality ~= nil and cap > 0 then
+            shopAreaFactor = 1 - cap
+                * (1 - self.QUALITY_AT_SHOP_SPEED)
+            -- -log(retention) follows the old economy curve at mild overspeed
+            -- but keeps growing after the former hard yield cap was reached.
+            local retention = math.max(economy.areaRetention, 0.000000001)
+            local additionalLoss = shopAreaFactor / cap
+                * (-math.log(retention)) * dropoutOverspeedShare
+            quality = self:approachMinimumQuality(
+                minimumQuality, additionalLoss)
+            areaFactor = 1 - cap * (1 - quality)
+            penalty = math.clamp(1 - areaFactor, 0, cap)
+            economy.minimumEnvelopeCurve = true
+        else
+            quality, penalty, areaFactor, shopAreaFactor =
+                self:applyProductiveEconomy(economy, cap)
+        end
+        if dropoutOverspeedShare < 1 and minimumQuality == nil then
             areaFactor = math.clamp(
                 shopAreaFactor
                     - (shopAreaFactor - areaFactor)
@@ -654,10 +694,13 @@ function TerraLogicQualityManager:getWorkQualityModel(
         end
         economy.effectType = "wholeYield"
         economy.maximumPenalty = cap
-        economy.penaltyFloorReached = areaFactor <= 1 - cap + 0.00001
+        economy.penaltyFloorReached = minimumQuality ~= nil
+            and quality <= minimumQuality + 0.00001
+            or areaFactor <= 1 - cap + 0.00001
     end
 
     economy.quality = quality
+    economy.minimumQuality = minimumQuality
     economy.dropoutWorkQualityOverspeedShare = dropoutOverspeedShare
     economy.yieldPenalty = penalty
     economy.areaFactor = areaFactor

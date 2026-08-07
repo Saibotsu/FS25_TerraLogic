@@ -321,6 +321,42 @@ TerraLogicDropoutManager.PROFILES = {
         islandRadiusOffsetM = 0.20,
         patternSalt = 68449
     },
+    -- Integrated slurry hose booms expose a very shallow WorkArea. Use coarse
+    -- hose sections and stretch their islands in travel direction so a missed
+    -- section survives density-map rasterization across consecutive frames.
+    -- The failure curve itself stays unchanged: at double shop speed roughly
+    -- half of the application area is still the intended upper-speed result.
+    slurryHoseBoomPatch = {
+        enabled = true,
+        patternType = "surfaceIslands",
+        activationMarginKph = 0.00,
+        onsetFailureFractionPerKph = 0.008,
+        maximumFailureFraction = 0.28,
+        failureCurveStrength = 4.50,
+        extremeSpeedBoostStartRatio = 1.35,
+        extremeSpeedMaximumFailureFraction = 0.50,
+        beyondDoubleMaximumFailureFraction = 0.90,
+        beyondDoubleFullSpeedRatio = 4.00,
+        maximumFailedCellFractionPerRow = 0.80,
+        timeSavingFailureStartKph = 2.00,
+        timeSavingFailureBlendKph = 0.75,
+        timeSavingFailureMultiplier = 1.10,
+        failureFractionMultiplier = 1.00,
+        expandRadiusForTargetCoverage = true,
+        maximumCoverageRadiusScale = 2.40,
+        patternLaneWidthM = 2.00,
+        maximumPatternLanes = 10,
+        islandSpacingM = 4.00,
+        minimumIslandRadiusM = 0.90,
+        maximumIslandRadiusM = 1.50,
+        islandRadiusOffsetM = 0.30,
+        minimumLongitudinalRadiusMultiplier = 2.50,
+        maximumLongitudinalRadiusMultiplier = 4.00,
+        useLongitudinalPatternGrid = true,
+        patternRowLengthM = 2.00,
+        maximumPatternRows = 8,
+        patternSalt = 98491
+    },
     liquidLimePatch = {
         enabled = true,
         patternType = "surfaceIslands",
@@ -358,13 +394,17 @@ TerraLogicDropoutManager.PROFILES = {
         failureCurveStrength = 5.50,
         extremeSpeedBoostStartRatio = 1.30,
         extremeSpeedMaximumFailureFraction = 0.92,
+        -- A spinner keeps throwing material even when its pattern becomes
+        -- inaccurate. Never let one longitudinal WorkArea row disappear in
+        -- full; at least 45% of its width must still reach Vanilla.
+        maximumFailedCellFractionPerRow = 0.55,
         timeSavingFailureStartKph = 1.50,
         timeSavingFailureBlendKph = 0.60,
         timeSavingFailureMultiplier = 1.35,
-        -- Spinner WorkAreas overlap across their cone-shaped depth. Doubling
-        -- the target share offsets the repeated writes; the common 95% safety
-        -- clamp still prevents a completely untreated pass.
-        failureFractionMultiplier = 2.00,
+        -- Spinner WorkAreas overlap across their cone-shaped depth. A slightly
+        -- stronger target share offsets the repeated writes; the per-row cap
+        -- above preserves continuous spreading at extreme speed.
+        failureFractionMultiplier = 2.30,
         patternLaneWidthM = 0.65,
         maximumPatternLanes = 32,
         islandSpacingM = 3.10,
@@ -392,6 +432,9 @@ TerraLogicDropoutManager.PROFILES = {
         failureCurveStrength = 5.00,
         extremeSpeedBoostStartRatio = 1.35,
         extremeSpeedMaximumFailureFraction = 0.88,
+        -- Rear beaters also keep feeding material while bouncing. Their throw
+        -- may be rougher than a disc spreader, but cannot switch off entirely.
+        maximumFailedCellFractionPerRow = 0.50,
         timeSavingFailureStartKph = 2.00,
         timeSavingFailureBlendKph = 0.75,
         timeSavingFailureMultiplier = 1.25,
@@ -419,6 +462,7 @@ TerraLogicDropoutManager.PROFILES = {
         failureCurveStrength = 5.50,
         extremeSpeedBoostStartRatio = 1.30,
         extremeSpeedMaximumFailureFraction = 0.92,
+        maximumFailedCellFractionPerRow = 0.50,
         timeSavingFailureStartKph = 1.50,
         timeSavingFailureBlendKph = 0.60,
         timeSavingFailureMultiplier = 1.35,
@@ -444,10 +488,11 @@ TerraLogicDropoutManager.PROFILES = {
         failureCurveStrength = 4.50,
         extremeSpeedBoostStartRatio = 1.35,
         extremeSpeedMaximumFailureFraction = 0.80,
+        maximumFailedCellFractionPerRow = 0.55,
         timeSavingFailureStartKph = 2.00,
         timeSavingFailureBlendKph = 0.75,
         timeSavingFailureMultiplier = 1.15,
-        failureFractionMultiplier = 2.00,
+        failureFractionMultiplier = 2.20,
         patternLaneWidthM = 0.65,
         maximumPatternLanes = 32,
         islandSpacingM = 3.25,
@@ -1036,8 +1081,12 @@ end
 function TerraLogicDropoutManager:getSurfacePatchFailedLanes(
         profileName, lanes, failureFraction,
         longitudinalDirectionX, longitudinalDirectionZ)
+    local cfg = self:getProfile(profileName)
     local failedIndexes = {}
     local failedCount = 0
+    local maximumFailedFraction = cfg ~= nil
+        and tonumber(cfg.maximumFailedCellFractionPerRow) or nil
+    local failedCandidates = maximumFailedFraction ~= nil and {} or nil
     for laneIndex, lane in ipairs(lanes or {}) do
         -- width/height are absolute points. Their average is the center of
         -- the selected parallelogram lane.
@@ -1050,6 +1099,44 @@ function TerraLogicDropoutManager:getSurfacePatchFailedLanes(
                 longitudinalDirectionX, longitudinalDirectionZ) then
             failedIndexes[laneIndex] = true
             failedCount = failedCount + 1
+            if failedCandidates ~= nil then
+                failedCandidates[#failedCandidates + 1] = {
+                    laneIndex = laneIndex,
+                    failurePriority = self:getPatternValue(
+                        sampleX, sampleZ, laneIndex,
+                        (tonumber(cfg.patternSalt) or 0) + 887,
+                        1)
+                }
+            end
+        end
+    end
+
+    -- Deep cone/splash WorkAreas can sit completely inside one large island
+    -- at extreme speed. That would prevent Vanilla from applying any material,
+    -- which models a switched-off spreader rather than a bouncing, inaccurate
+    -- throw. Profiles may cap the skipped share per longitudinal row. The cap
+    -- is deliberately applied after the unchanged island curve and intervenes
+    -- only when one row would exceed its allowed missed share.
+    local laneCount = #(lanes or {})
+    if maximumFailedFraction ~= nil and laneCount > 0 then
+        maximumFailedFraction = math.clamp(maximumFailedFraction, 0, 0.95)
+        local maximumFailedCells = math.floor(
+            laneCount * maximumFailedFraction + 0.0001)
+        if maximumFailedFraction > 0 and laneCount > 1 then
+            maximumFailedCells = math.max(maximumFailedCells, 1)
+        end
+        maximumFailedCells = math.min(
+            maximumFailedCells, math.max(laneCount - 1, 0))
+        if failedCount > maximumFailedCells then
+            table.sort(failedCandidates, function(a, b)
+                return a.failurePriority > b.failurePriority
+            end)
+            failedIndexes = {}
+            for candidateIndex = 1, maximumFailedCells do
+                failedIndexes[
+                    failedCandidates[candidateIndex].laneIndex] = true
+            end
+            failedCount = maximumFailedCells
         end
     end
     return failedIndexes, failedCount

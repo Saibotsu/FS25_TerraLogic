@@ -4201,9 +4201,48 @@ function TerraLogic.getApplicationComponentForVehicle(vehicle)
     return getApplicationComponent(fillTypeIndex, fillTypeDesc)
 end
 
+-- Some self-contained slurry tanks carry a real hose/shoe boom even though
+-- GIANTS keeps them in the broad `slurryTanks` shop category. Category-only
+-- recognition therefore calls them splash-plate spreaders. Ground-adjusted
+-- sections identify the flat, sprayer-like application geometry without
+-- changing the implement's main TerraLogic class or its Work Quality balance.
+local function getIsBaseGameFlieglPFW(vehicle)
+    local configName = string.lower(tostring(
+        vehicle ~= nil and vehicle.configFileName or ""))
+    configName = string.gsub(configName, "\\", "/")
+    return string.find(
+        configName, "fliegl/pfw18000maxxlineplus/", 1, true) ~= nil
+end
+
+local function getIsIntegratedSlurryHoseBoom(vehicle)
+    local spec = vehicle ~= nil and vehicle.spec_terraLogic or nil
+    if spec == nil or spec.implementClassKey ~= "slurrySpreader" then
+        return false
+    end
+
+    local adjustedSpec = vehicle.spec_groundAdjustedNodes
+    if adjustedSpec ~= nil then
+        local adjustedNodes = adjustedSpec.groundAdjustedNodes
+            or adjustedSpec.nodes
+        if type(adjustedNodes) == "table" then
+            local count = 0
+            for _ in pairs(adjustedNodes) do count = count + 1 end
+            if count >= 4 then return true end
+        end
+    end
+
+    -- Stable fallback for the base-game Fliegl in case GIANTS changes the
+    -- runtime field name of GroundAdjustedNodes in another game patch.
+    return getIsBaseGameFlieglPFW(vehicle)
+end
+
 local function getApplicationPhysicalDropoutProfile(vehicle, component)
     if component == "herbicide" then return "herbicidePatch" end
     local spec = vehicle ~= nil and vehicle.spec_terraLogic or nil
+    if getIsIntegratedSlurryHoseBoom(vehicle) then
+        return component == "lime" and "liquidLimePatch"
+            or "slurryHoseBoomPatch"
+    end
     if spec ~= nil and spec.implementClassKey == "manureSpreader" then
         return "manureSpreaderPatch"
     end

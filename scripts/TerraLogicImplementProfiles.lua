@@ -141,6 +141,67 @@ TerraLogicImplementProfiles.WORK_QUALITY_DROPOUT_COMPONENTS = {
 -- share is coorected to 0.45
 TerraLogicImplementProfiles.WORK_QUALITY_DROPOUT_OVERSPEED_SHARE = 0.45
 
+-- Work Quality never represents the percentage of visibly processed ground.
+-- It describes how well the successful part of an operation was performed.
+-- Even at absurd speed a tool still does some useful work, so every stored
+-- quality class approaches a plausible minimum instead of hitting an abrupt
+-- zero. Class overrides keep different tools that write the same ledger
+-- component (for example a drill and a planter) independently tuneable.
+TerraLogicImplementProfiles.WORK_QUALITY_MINIMUMS = {
+    componentFallback = {
+        soilPlow = 0.25,
+        soilCultivate = 0.30,
+        seed = 0.15,
+        fertilizer = 0.35,
+        lime = 0.35,
+        herbicide = 0.35,
+        roller = 0.65,
+        mulch = 0.50
+    },
+    byClass = {
+        plow = {soilPlow = 0.25},
+        subsoiler = {soilPlow = 0.25},
+        cultivator = {soilCultivate = 0.30},
+        shallowCultivator = {soilCultivate = 0.35},
+        discHarrow = {soilCultivate = 0.30},
+        powerHarrow = {soilCultivate = 0.30},
+        spader = {soilCultivate = 0.25},
+
+        -- A direct drill writes both seedbed and placement quality.
+        directDrill = {soilCultivate = 0.30, seed = 0.12},
+        sowingMachine = {seed = 0.15},
+        precisionPlanter = {seed = 0.10},
+
+        fertilizerSpreader = {fertilizer = 0.35, lime = 0.35},
+        liquidSprayer = {
+            fertilizer = 0.35,
+            lime = 0.35,
+            herbicide = 0.35
+        },
+        -- Broad organic distribution remains somewhat useful even when its
+        -- pattern becomes very uneven. Applicators use the same conservative
+        -- floor until their individual PF distribution can be distinguished.
+        manureSpreader = {fertilizer = 0.40},
+        slurrySpreader = {fertilizer = 0.40},
+        slurryApplicator = {fertilizer = 0.40},
+
+        weeder = {herbicide = 0.35},
+        hoe = {herbicide = 0.35},
+        roller = {roller = 0.65},
+        mulcher = {mulch = 0.50}
+    }
+}
+
+function TerraLogicImplementProfiles.getMinimumWorkQuality(classKey, component)
+    local balance = TerraLogicImplementProfiles.WORK_QUALITY_MINIMUMS
+    local classBalance = balance.byClass[classKey]
+    local value = classBalance ~= nil and classBalance[component] or nil
+    if value == nil then
+        value = balance.componentFallback[component]
+    end
+    return value ~= nil and math.clamp(tonumber(value) or 0, 0, 0.99) or nil
+end
+
 -- Every class in this list relies on physical misses as part of its unlimited-
 -- speed consequence. If the server disables physical dropouts, the original
 -- XML/shop speed limit is restored. Category B still uses its full quality
