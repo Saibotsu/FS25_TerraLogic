@@ -187,6 +187,7 @@ end
 function TerraLogicMain:loadMap(mapNode, mapFile)
     TerraLogicSettings:load()
     TerraLogicQualityManager:load()
+    TerraLogicGrassGapManager:load()
     -- Physical mowing gaps are the default and sole live overspeed penalty.
     -- The console command remains available for explicit comparison tests.
     self.mowerQualityEnabled = false
@@ -224,6 +225,7 @@ end
 -- Saves both the quality ledger and the server-controlled settings.
 function TerraLogicMain.saveWorkQualityData()
     TerraLogicQualityManager:save()
+    TerraLogicGrassGapManager:save()
     TerraLogicSettings:save()
 end
 
@@ -234,12 +236,14 @@ function TerraLogicMain:update(dt)
     -- never the stored quality result.
     TerraLogicQualityManager:processStoredCellPrune(16, 512)
     TerraLogicQualityManager:flushPendingMowerClears()
+    TerraLogicGrassGapManager:update(dt)
     TerraLogicSettings:tryInstallMenu()
 end
 
 -- Flushes data and releases HUD resources when leaving a mission.
 function TerraLogicMain:deleteMap()
     TerraLogicQualityManager:save()
+    TerraLogicGrassGapManager:delete()
     self:deleteSpeedHudOverlays()
     self:clearQualityFieldInfoRows()
     if self.qualityInfoBox ~= nil and g_currentMission ~= nil

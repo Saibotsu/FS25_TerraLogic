@@ -1135,6 +1135,10 @@ end
 -- Runs Vanilla cultivation first, then records quality only for changed ground.
 function TerraLogic:processCultivatorArea(superFunc, workArea, dt)
     local realArea, area = self:processOverSpeedStoneArea(superFunc, workArea, dt)
+    if (tonumber(realArea) or 0) > 0
+        and TerraLogicGrassGapManager ~= nil then
+        TerraLogicGrassGapManager:clearArea(workArea)
+    end
     -- A direct drill's cultivating work area is part of the same agronomic
     -- seeding pass. Direct-drill seed quality already represents this result,
     -- so recording cultivating quality here would charge it twice.
@@ -3234,6 +3238,10 @@ end
 
 function TerraLogic:processPlowArea(superFunc, workArea, dt)
     local realArea, totalArea = self:processOverSpeedStoneArea(superFunc, workArea, dt)
+    if (tonumber(realArea) or 0) > 0
+        and TerraLogicGrassGapManager ~= nil then
+        TerraLogicGrassGapManager:clearArea(workArea)
+    end
     local speed = math.abs(self:getLastSpeed(true) or 0)
     local quality, yieldPenalty = TerraLogicQualityManager:getWorkQualityModel(
         self, speed, "soilPlow")
@@ -3795,7 +3803,7 @@ function TerraLogic:prepareOverSpeedSeedQualityArea(workArea)
     -- target loss and still begin only above advertised shop speed.
     local workQuality, yieldPenalty, workEconomy =
         TerraLogicQualityManager:getWorkQualityModel(
-            self, speed, "seed", nil, not isPerennialGrass)
+            self, speed, "seed", nil, true)
     local seedBalance = TerraLogic.getWorkQualityBalance(self, "seed")
     local physicalDropoutsEnabled = getArePhysicalDropoutsEnabled()
     local physicalDropoutPenalty = physicalDropoutsEnabled
@@ -3850,17 +3858,6 @@ function TerraLogic:prepareOverSpeedSeedQualityArea(workArea)
     end
 
     spec.seedQualityFruit = fruitTypeDesc.name or tostring(fruitTypeIndex)
-    -- Empty physical dropout pixels never spread laterally in the game's fruit
-    -- density map and would therefore make a perennial grass defect permanent.
-    -- Grass keeps the complete modeled seed penalty in the quality ledger and
-    -- lets each later cut halve it; annual crops retain physical dropouts.
-    if isPerennialGrass then
-        spec.seedQuality = 1
-        spec.seedQualityStatus = "perennial grass quality ledger"
-        spec.seedQualityPatternMode = "perennial recovery"
-        spec.seedQualityLatch = nil
-        return nil
-    end
     if quality >= 0.9999 then
         spec.seedQualityStatus = "perfect"
         spec.seedQualityPatternMode = "perfect"
@@ -3901,7 +3898,8 @@ function TerraLogic:prepareOverSpeedSeedQualityArea(workArea)
     return {
         geometry = geometry,
         failedLanes = failedLanes,
-        fruitTypeIndex = fruitTypeIndex
+        fruitTypeIndex = fruitTypeIndex,
+        isPerennialGrass = isPerennialGrass
     }
 end
 
@@ -4540,7 +4538,25 @@ function TerraLogic:processSowingMachineArea(superFunc, workArea, dt)
     local qualityContext = self:prepareOverSpeedSeedQualityArea(workArea)
     local function processSowingAndQuality(vehicle, area, deltaTime)
         if qualityContext == nil or FSDensityMapUtil == nil then
-            return superFunc(vehicle, area, deltaTime)
+            local realArea, totalArea = superFunc(vehicle, area, deltaTime)
+            if (tonumber(realArea) or 0) > 0
+                and TerraLogicGrassGapManager ~= nil then
+                local activeSowingParams = vehicle.spec_sowingMachine ~= nil
+                    and vehicle.spec_sowingMachine.workAreaParameters or nil
+                local activeFruit = activeSowingParams ~= nil
+                    and activeSowingParams.seedsFruitType or selectedFruit
+                if FruitType ~= nil and FruitType.GRASS ~= nil
+                    and activeFruit == FruitType.GRASS then
+                    -- Even a correctly driven grass seeder can leave a narrow
+                    -- seam between two imperfectly aligned passes. Track only
+                    -- gaps confirmed beside this successful grass pass.
+                    TerraLogicGrassGapManager:replaceSowingArea(
+                        area, nil, true)
+                else
+                    TerraLogicGrassGapManager:clearArea(area)
+                end
+            end
+            return realArea, totalArea
         end
 
         local seedSpec = vehicle.spec_terraLogic
@@ -4698,6 +4714,17 @@ function TerraLogic:processSowingMachineArea(superFunc, workArea, dt)
 
         seedSpec.seedQualityPostClearPixels = postClearPixels
         seedSpec.seedQualityFailedPixels = postClearPixels
+        if TerraLogicGrassGapManager ~= nil then
+            if qualityContext.isPerennialGrass then
+                TerraLogicGrassGapManager:replaceSowingArea(
+                    area, densityFailedLanes,
+                    (tonumber(results[2]) or 0) > 0)
+            elseif (tonumber(results[2]) or 0) > 0 then
+                -- Direct drilling another crop over an old grass stand must
+                -- invalidate only TerraLogic's former grass-gap ownership.
+                TerraLogicGrassGapManager:clearArea(area)
+            end
+        end
         if seedSpec.seedQualityPostClearLogged ~= true then
             seedSpec.seedQualityPostClearLogged = true
             TerraLogicLogging.debug(
@@ -6699,15 +6726,9 @@ function TerraLogic:getOverSpeedDebugData()
         thresholdQuality, liveSeedDamagePenalty, liveSeedSpeedPenalty,
             liveSeedHealth, liveSeedThresholdSpeed, liveSeedThresholdShift =
                 self:getOverSpeedSeedQuality(speed)
-        local liveSeedParams = self.spec_sowingMachine.workAreaParameters
-        local liveSeedFruitType = liveSeedParams ~= nil
-            and liveSeedParams.seedsFruitType or nil
-        local liveSeedAllowsDropouts = not (FruitType ~= nil
-            and FruitType.GRASS ~= nil
-            and liveSeedFruitType == FruitType.GRASS)
         liveSeedWorkQuality, liveSeedYieldPenalty =
             TerraLogicQualityManager:getWorkQualityModel(
-                self, speed, "seed", nil, liveSeedAllowsDropouts)
+                self, speed, "seed", nil, true)
         local seedBalance = TerraLogic.getWorkQualityBalance(self, "seed")
         local physicalDropoutPenalty = getArePhysicalDropoutsEnabled()
             and TerraLogicQualityManager:calculateYieldPenalty(
