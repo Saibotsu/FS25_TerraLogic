@@ -451,8 +451,12 @@ function TerraLogicGrassGapManager:refreshSignalsIncremental(maxChunks)
 end
 
 function TerraLogicGrassGapManager:onPeriodChanged()
-    if g_currentMission == nil or not g_currentMission:getIsServer()
-        or self.chunks == nil or next(self.chunks) == nil then return end
+    if g_currentMission == nil or not g_currentMission:getIsServer() then return end
+    if TerraLogicQualityManager ~= nil
+        and TerraLogicQualityManager.queuePlowGrowthRecovery ~= nil then
+        TerraLogicQualityManager:queuePlowGrowthRecovery()
+    end
+    if self.chunks == nil or next(self.chunks) == nil then return end
     self:queueGrowthPass()
 end
 

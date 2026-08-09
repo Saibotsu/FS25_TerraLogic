@@ -236,6 +236,7 @@ function TerraLogicMain:update(dt)
     -- never the stored quality result.
     TerraLogicQualityManager:processStoredCellPrune(16, 512)
     TerraLogicQualityManager:flushPendingMowerClears()
+    TerraLogicQualityManager:updatePlowGrowthRecovery(dt)
     TerraLogicGrassGapManager:update(dt)
     TerraLogicSettings:tryInstallMenu()
 end

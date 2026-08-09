@@ -23,6 +23,15 @@ TerraLogicQualityManager.LAYER_FLUSH_THRESHOLD = 128
 -- not been touched for a short period, so perennial recovery runs once per
 -- cut instead of once per WorkArea/frame.
 TerraLogicQualityManager.MOWER_CELL_SETTLE_TIME_MS = 500
+-- Three equal exponential steps leave exactly half of the original plough
+-- defect at harvest: (1 - stepShare)^3 = 0.5. Only the quality display is
+-- advanced during growth; the current crop keeps its original locked penalty.
+TerraLogicQualityManager.PLOW_GROWTH_STAGES = 3
+TerraLogicQualityManager.PLOW_TOTAL_RECOVERY_SHARE = 0.50
+TerraLogicQualityManager.PLOW_GROWTH_STEP_SHARE = 1
+    - (1 - TerraLogicQualityManager.PLOW_TOTAL_RECOVERY_SHARE) ^ (1 / 3)
+TerraLogicQualityManager.PLOW_GROWTH_DELAY_MS = 1500
+TerraLogicQualityManager.PLOW_GROWTH_CHECKS_PER_FRAME = 512
 TerraLogicQualityManager.SAVE_FILE = "terraLogicWorkQuality.xml"
 TerraLogicQualityManager.LEGACY_SAVE_FILE = "overSpeedWorkQuality.xml"
 -- Quality is almost perfect throughout the advertised working range. Above
@@ -712,6 +721,261 @@ end
 
 -- Quality ledger ------------------------------------------------------------
 
+local PLOW_GROWTH_BASE_LAYER = "plowGrowthBase"
+local PLOW_GROWTH_STEP_LAYER = "plowGrowthSteps"
+local PLOW_GROWTH_SAMPLE_OFFSETS = {
+    {0, 0}, {-0.25, -0.25}, {0.25, -0.25},
+    {-0.25, 0.25}, {0.25, 0.25}
+}
+
+function TerraLogicQualityManager:getGrowthStateAtCell(ix, iz)
+    if FSDensityMapUtil == nil
+        or FSDensityMapUtil.getFruitTypeIndexAtWorldPos == nil then
+        return nil, nil
+    end
+    local x = (ix + 0.5) * self.CELL_SIZE
+    local z = (iz + 0.5) * self.CELL_SIZE
+    for _, sample in ipairs(PLOW_GROWTH_SAMPLE_OFFSETS) do
+        local ok, fruitTypeIndex, growthState = pcall(
+            FSDensityMapUtil.getFruitTypeIndexAtWorldPos,
+            x + sample[1] * self.CELL_SIZE,
+            z + sample[2] * self.CELL_SIZE)
+        if ok and tonumber(growthState) ~= nil then
+            return tonumber(fruitTypeIndex), tonumber(growthState)
+        end
+    end
+    return nil, nil
+end
+
+function TerraLogicQualityManager:getPlowGrowthStateMap(fruitTypeIndex)
+    fruitTypeIndex = tonumber(fruitTypeIndex)
+    if fruitTypeIndex == nil or g_fruitTypeManager == nil
+        or g_fruitTypeManager.getFruitTypeByIndex == nil then return nil end
+    self.plowGrowthStateMaps = self.plowGrowthStateMaps or {}
+    local cached = self.plowGrowthStateMaps[fruitTypeIndex]
+    if cached ~= nil then return cached ~= false and cached or nil end
+    local desc = g_fruitTypeManager:getFruitTypeByIndex(fruitTypeIndex)
+    if desc == nil then
+        self.plowGrowthStateMaps[fruitTypeIndex] = false
+        return nil
+    end
+    local map = {
+        stages = {},
+        minHarvest = tonumber(desc.minHarvestingGrowthState),
+        maxHarvest = tonumber(desc.maxHarvestingGrowthState)
+    }
+    -- Fruit XMLs use different numbers of internal states. Classify their
+    -- named visual phases instead of assuming that every crop advances by the
+    -- same raw density-map distance. Prefix matching also covers variants such
+    -- as greenSmall3, greenMiddleSecond and greenBig4.
+    for state, name in pairs(desc.growthStateToName or {}) do
+        state = tonumber(state)
+        local normalized = string.lower(tostring(name or ""))
+        local stage
+        if state ~= nil and map.minHarvest ~= nil
+            and map.minHarvest > 0 and state >= map.minHarvest
+            and state <= (map.maxHarvest or map.minHarvest) then
+            stage = self.PLOW_GROWTH_STAGES
+        elseif string.find(normalized, "greensmall", 1, true) ~= nil then
+            stage = 1
+        elseif string.find(normalized, "greenmiddle", 1, true) ~= nil
+            or string.find(normalized, "greenbig", 1, true) ~= nil then
+            stage = 2
+        elseif (map.minHarvest == nil or map.minHarvest <= 0)
+            and string.find(normalized, "harvestready", 1, true) ~= nil then
+            stage = self.PLOW_GROWTH_STAGES
+        end
+        if state ~= nil and stage ~= nil then map.stages[state] = stage end
+    end
+    self.plowGrowthStateMaps[fruitTypeIndex] = map
+    return map
+end
+
+-- Density-map states are not consecutive visible growth stages. Wheat, for
+-- example, may use greenSmall=2, greenBig=6 and harvestReady=8, and growth
+-- calendar mods can jump directly between them. Prefer the named phases and
+-- use normalized progress only as a compatibility fallback for custom crops.
+function TerraLogicQualityManager:getSemanticPlowGrowthStage(
+        fruitTypeIndex, growthState, baseState)
+    growthState = tonumber(growthState)
+    baseState = tonumber(baseState)
+    if growthState == nil then return 0 end
+    -- Some crops (for example rice) are sown directly into a named visible
+    -- state. Merely observing that unchanged starting state is not growth.
+    if baseState ~= nil and growthState == baseState then return 0 end
+    local stateMap = self:getPlowGrowthStateMap(fruitTypeIndex)
+    if stateMap ~= nil then
+        local namedStage = stateMap.stages[growthState]
+        if namedStage ~= nil then return namedStage end
+        local minHarvest = stateMap.minHarvest
+        local maxHarvest = stateMap.maxHarvest or minHarvest
+        if minHarvest ~= nil and growthState >= minHarvest
+            and growthState <= maxHarvest then return self.PLOW_GROWTH_STAGES end
+        local startState = baseState or 1
+        if minHarvest ~= nil and minHarvest > startState
+            and growthState > startState and growthState < minHarvest then
+            local progress = (growthState - startState)
+                / (minHarvest - startState)
+            return math.clamp(math.floor(
+                progress * self.PLOW_GROWTH_STAGES + 0.5), 1,
+                self.PLOW_GROWTH_STAGES - 1)
+        end
+    end
+    if baseState ~= nil and growthState > baseState then
+        return math.clamp(growthState - baseState, 1,
+            self.PLOW_GROWTH_STAGES - 1)
+    end
+    return 0
+end
+
+function TerraLogicQualityManager:clearPlowGrowthCycleAtOffset(chunk, offset)
+    if chunk == nil then return false end
+    local changed = false
+    for _, name in ipairs({PLOW_GROWTH_BASE_LAYER, PLOW_GROWTH_STEP_LAYER}) do
+        local layer = chunk.counts[name]
+        if layer ~= nil then
+            changed = setLayerByte(layer, offset, 0) or changed
+            if layer.nonDefaultCount == 0 then chunk.counts[name] = nil end
+        end
+    end
+    return changed
+end
+
+-- Sowing starts a new crop cycle. Store the density-map state seen directly
+-- after the successful seed write so later scans can count real forward growth
+-- transitions instead of calendar months in which this crop remains dormant.
+function TerraLogicQualityManager:beginPlowGrowthCycle(ix, iz)
+    local _, _, chunkKey, offset = getChunkPosition(ix, iz)
+    local chunk = self.chunks[chunkKey]
+    if chunk == nil then return false end
+    local mask = getLayerByte(chunk.status, offset)
+    if not hasBit(mask, self.COMPONENTS.soilPlow.bit)
+        or not hasBit(mask, self.COMPONENTS.seed.bit) then
+        return self:clearPlowGrowthCycleAtOffset(chunk, offset)
+    end
+    local _, growthState = self:getGrowthStateAtCell(ix, iz)
+    -- A four-metre quality cell can contain a physical seed gap exactly at
+    -- its centre although Vanilla changed another part of the cell. Successful
+    -- seed recording still proves a fresh crop cycle; state 1 is the standard
+    -- raw sowing state and is a safe fallback for that sparse case.
+    growthState = growthState or 1
+    local baseLayer = chunk.counts[PLOW_GROWTH_BASE_LAYER]
+    if baseLayer == nil then
+        baseLayer = newLayer(0, ZERO_DATA)
+        chunk.counts[PLOW_GROWTH_BASE_LAYER] = baseLayer
+    end
+    local stepLayer = chunk.counts[PLOW_GROWTH_STEP_LAYER]
+    if stepLayer == nil then
+        stepLayer = newLayer(0, ZERO_DATA)
+        chunk.counts[PLOW_GROWTH_STEP_LAYER] = stepLayer
+    end
+    local changed = setLayerByte(baseLayer, offset,
+        math.clamp(math.floor(growthState + 1), 1, 255))
+    changed = setLayerByte(stepLayer, offset, 0) or changed
+    return changed
+end
+
+function TerraLogicQualityManager:recoverPlowQualityOnly(position, stages)
+    stages = math.clamp(math.floor(tonumber(stages) or 0), 0,
+        self.PLOW_GROWTH_STAGES)
+    if stages <= 0 then return false end
+    local remainingShare = (1 - self.PLOW_GROWTH_STEP_SHARE) ^ stages
+    return self:recoverPersistentQualityAfterHarvest(
+        position, "soilPlow", 1 - remainingShare, true, false)
+end
+
+function TerraLogicQualityManager:processPlowGrowthCell(
+        chunk, chunkKey, offset)
+    local mask = getLayerByte(chunk.status, offset)
+    if not hasBit(mask, self.COMPONENTS.soilPlow.bit)
+        or not hasBit(mask, self.COMPONENTS.seed.bit) then return false end
+    local baseLayer = chunk.counts[PLOW_GROWTH_BASE_LAYER]
+    if baseLayer == nil then return false end
+    local baseEncoded = getLayerByte(baseLayer, offset)
+    if baseEncoded <= 0 then return false end
+    local zeroOffset = offset - 1
+    local position = {
+        ix = chunk.x * self.CHUNK_SIZE + zeroOffset % self.CHUNK_SIZE,
+        iz = chunk.z * self.CHUNK_SIZE
+            + math.floor(zeroOffset / self.CHUNK_SIZE),
+        chunkKey = chunkKey,
+        offset = offset
+    }
+    local fruitTypeIndex, growthState = self:getGrowthStateAtCell(
+        position.ix, position.iz)
+    if growthState == nil then return false end
+    local baseState = baseEncoded - 1
+    local desiredSteps = self:getSemanticPlowGrowthStage(
+        fruitTypeIndex, growthState, baseState)
+    local stepLayer = chunk.counts[PLOW_GROWTH_STEP_LAYER]
+    local completedSteps = stepLayer ~= nil
+        and getLayerByte(stepLayer, offset) or 0
+    if desiredSteps <= completedSteps then return false end
+    local changed = self:recoverPlowQualityOnly(
+        position, desiredSteps - completedSteps)
+    if stepLayer == nil then
+        stepLayer = newLayer(0, ZERO_DATA)
+        chunk.counts[PLOW_GROWTH_STEP_LAYER] = stepLayer
+    end
+    changed = setLayerByte(stepLayer, offset, desiredSteps) or changed
+    if changed then self.dirty = true end
+    return changed
+end
+
+function TerraLogicQualityManager:queuePlowGrowthRecovery()
+    if g_currentMission == nil or not g_currentMission:getIsServer() then return end
+    self.plowGrowthPending = true
+    self.plowGrowthDelayRemaining = self.PLOW_GROWTH_DELAY_MS
+end
+
+function TerraLogicQualityManager:startPlowGrowthRecovery()
+    local keys = {}
+    for key, chunk in pairs(self.chunks) do
+        if chunk.status.nonDefaultCount > 0
+            and chunk.counts[PLOW_GROWTH_BASE_LAYER] ~= nil then
+            keys[#keys + 1] = key
+        end
+    end
+    self.plowGrowthPending = false
+    self.plowGrowthJob = #keys > 0 and {
+        keys = keys,
+        keyIndex = 1,
+        offset = 1
+    } or nil
+end
+
+function TerraLogicQualityManager:updatePlowGrowthRecovery(dt)
+    if g_currentMission == nil or not g_currentMission:getIsServer() then return end
+    if self.plowGrowthPending then
+        self.plowGrowthDelayRemaining = math.max(
+            (self.plowGrowthDelayRemaining or 0) - (tonumber(dt) or 0), 0)
+        if self.plowGrowthDelayRemaining <= 0 then
+            self:startPlowGrowthRecovery()
+        end
+    end
+    local job = self.plowGrowthJob
+    if job == nil then return end
+    local checks = 0
+    while job.keyIndex <= #job.keys
+        and checks < self.PLOW_GROWTH_CHECKS_PER_FRAME do
+        local key = job.keys[job.keyIndex]
+        local chunk = self.chunks[key]
+        if chunk == nil then
+            job.keyIndex = job.keyIndex + 1
+            job.offset = 1
+        else
+            self:processPlowGrowthCell(chunk, key, job.offset)
+            checks = checks + 1
+            job.offset = job.offset + 1
+            if job.offset > self.CHUNK_CELL_COUNT then
+                job.keyIndex = job.keyIndex + 1
+                job.offset = 1
+            end
+        end
+    end
+    if job.keyIndex > #job.keys then self.plowGrowthJob = nil end
+end
+
 -- Writes one successful operation into a cell while preserving group history.
 function TerraLogicQualityManager:setCellComponent(
         ix, iz, component, quality, yieldWeight, maxYieldPenalty,
@@ -797,6 +1061,9 @@ function TerraLogicQualityManager:setCellComponent(
         if penaltyLayer.nonDefaultCount == 0 then
             chunk.penalties[component] = nil
         end
+    end
+    if component == "seed" then
+        changed = self:beginPlowGrowthCycle(ix, iz) or changed
     end
     return changed
 end
@@ -900,6 +1167,7 @@ function TerraLogicQualityManager:clearCell(position)
             if countLayer.nonDefaultCount == 0 then chunk.counts[name] = nil end
         end
     end
+    self:clearPlowGrowthCycleAtOffset(chunk, position.offset)
     if chunk.status.nonDefaultCount == 0 then
         self.chunks[position.chunkKey] = nil
     end
@@ -930,6 +1198,9 @@ function TerraLogicQualityManager:clearCellComponent(position, component)
         setLayerByte(countLayer, position.offset, 0)
         if countLayer.nonDefaultCount == 0 then chunk.counts[component] = nil end
     end
+    if component == "seed" or component == "soilPlow" then
+        self:clearPlowGrowthCycleAtOffset(chunk, position.offset)
+    end
     if chunk.status.nonDefaultCount == 0 then
         self.chunks[position.chunkKey] = nil
     end
@@ -942,9 +1213,10 @@ end
 -- present so field info can continue showing the recovered quality.
 -- Harvest lifecycle ---------------------------------------------------------
 
--- Recovers persistent plough/grass quality once after a completed harvest.
+-- Recovers a persistent quality layer and/or its locked crop penalty. Growth
+-- uses quality-only recovery; harvest uses penalty-only recovery afterwards.
 function TerraLogicQualityManager:recoverPersistentQualityAfterHarvest(
-        position, component, recoveryShare)
+        position, component, recoveryShare, recoverQuality, recoverPenalty)
     local definition = self.COMPONENTS[component]
     if definition == nil then return false end
     local chunk = self.chunks[position.chunkKey]
@@ -954,10 +1226,12 @@ function TerraLogicQualityManager:recoverPersistentQualityAfterHarvest(
 
     local changed = false
     recoveryShare = math.clamp(tonumber(recoveryShare) or 0.5, 0, 1)
+    recoverQuality = recoverQuality ~= false
+    recoverPenalty = recoverPenalty ~= false
     local qualityLayer = chunk.qualities[component]
     local encoded = qualityLayer ~= nil
         and getLayerByte(qualityLayer, position.offset) or 255
-    if encoded < 255 then
+    if recoverQuality and encoded < 255 then
         local quality = encoded / 254
         local recovered = quality + (1 - quality) * recoveryShare
         local recoveredEncoded = recovered >= 0.9995 and 255
@@ -971,7 +1245,7 @@ function TerraLogicQualityManager:recoverPersistentQualityAfterHarvest(
     end
 
     local penaltyLayer = chunk.penalties[component]
-    if penaltyLayer ~= nil then
+    if recoverPenalty and penaltyLayer ~= nil then
         local oldPenalty = getLayerByte(penaltyLayer, position.offset)
         local recoveredPenalty = math.floor(
             oldPenalty * (1 - recoveryShare) + 0.5)
@@ -986,8 +1260,33 @@ function TerraLogicQualityManager:recoverPersistentQualityAfterHarvest(
 end
 
 function TerraLogicQualityManager:recoverPlowQualityAfterHarvest(position)
+    local chunk = position ~= nil and self.chunks[position.chunkKey] or nil
+    local baseLayer = chunk ~= nil
+        and chunk.counts[PLOW_GROWTH_BASE_LAYER] or nil
+    local tracked = baseLayer ~= nil
+        and getLayerByte(baseLayer, position.offset) > 0
+    local changed = false
+    if tracked then
+        local stepLayer = chunk.counts[PLOW_GROWTH_STEP_LAYER]
+        local completedSteps = stepLayer ~= nil
+            and math.clamp(getLayerByte(stepLayer, position.offset),
+                0, self.PLOW_GROWTH_STAGES) or 0
+        -- A completed harvest proves that the crop reached the end of its
+        -- cycle. Catch up a delayed/missed period scan without changing the
+        -- penalty until after the harvested liters were already calculated.
+        changed = self:recoverPlowQualityOnly(
+            position, self.PLOW_GROWTH_STAGES - completedSteps) or changed
+        changed = self:recoverPersistentQualityAfterHarvest(
+            position, "soilPlow", self.PLOW_TOTAL_RECOVERY_SHARE,
+            false, true) or changed
+        changed = self:clearPlowGrowthCycleAtOffset(
+            chunk, position.offset) or changed
+        return changed
+    end
+    -- Legacy/current-cycle cells without growth tracking retain the former
+    -- once-per-harvest behaviour.
     return self:recoverPersistentQualityAfterHarvest(
-        position, "soilPlow", 0.5)
+        position, "soilPlow", self.PLOW_TOTAL_RECOVERY_SHARE)
 end
 
 function TerraLogicQualityManager:advanceCellAfterHarvest(position)
@@ -1029,6 +1328,10 @@ function TerraLogicQualityManager:clearAfterMowerPass(
         -- the lifecycle distinction was introduced.
         changed = self:clearCellComponent(position, "lime") or changed
     end
+    -- Grass keeps its establishment layers after cutting, so the cut state is
+    -- the base of the next three-step regrowth cycle.
+    changed = self:beginPlowGrowthCycle(
+        position.ix, position.iz) or changed
     return changed
 end
 
@@ -1785,6 +2088,10 @@ function TerraLogicQualityManager:load()
     self.pendingHarvestClears = {}
     self.pendingMowerClears = {}
     self.partialHarvestCells = {}
+    self.plowGrowthPending = false
+    self.plowGrowthDelayRemaining = 0
+    self.plowGrowthJob = nil
+    self.plowGrowthStateMaps = {}
     self:resetHarvestDiagnostics()
     self.pruneChunkKeys = nil
     self.pruneChunkIndex = nil
@@ -1893,13 +2200,22 @@ function TerraLogicQualityManager:load()
                         end
                     end
                     if format >= 7 then
-                        local countValue = getXMLString(
-                            xml, key .. "#count_fertilizer")
-                        if countValue ~= nil then
-                            local countLayer = newLayer(
-                                0, hexToBytes(countValue, 0))
-                            if countLayer.nonDefaultCount > 0 then
-                                chunk.counts.fertilizer = countLayer
+                        local countNames = {"fertilizer"}
+                        if format >= 9 then
+                            countNames[#countNames + 1] =
+                                PLOW_GROWTH_BASE_LAYER
+                            countNames[#countNames + 1] =
+                                PLOW_GROWTH_STEP_LAYER
+                        end
+                        for _, countName in ipairs(countNames) do
+                            local countValue = getXMLString(
+                                xml, key .. "#count_" .. countName)
+                            if countValue ~= nil then
+                                local countLayer = newLayer(
+                                    0, hexToBytes(countValue, 0))
+                                if countLayer.nonDefaultCount > 0 then
+                                    chunk.counts[countName] = countLayer
+                                end
                             end
                         end
                     else
@@ -2028,7 +2344,7 @@ function TerraLogicQualityManager:load()
         end
     end
     delete(xml)
-    self.dirty = format < 8 or recoveredFromMirror or migratedFromLegacy
+    self.dirty = format < 9 or recoveredFromMirror or migratedFromLegacy
     self.mirrorNeedsSync = mirrorPath == nil or not fileExists(mirrorPath)
     self:beginStoredCellPrune()
     TerraLogicLogging.debug("[FS25_TerraLogic] Loaded %d work-quality cells in %d compact chunks (%d partial harvest markers)",
@@ -2045,7 +2361,7 @@ function TerraLogicQualityManager:save()
     local index, savedCells = 0, 0
     if self.dirty then
         local xml = createXMLFile("terraLogicWorkQuality", path, "quality")
-        setXMLInt(xml, "quality#format", 8)
+        setXMLInt(xml, "quality#format", 9)
         setXMLInt(xml, "quality#cellSize", self.CELL_SIZE)
         setXMLInt(xml, "quality#chunkSize", self.CHUNK_SIZE)
         for _, chunk in pairs(self.chunks) do
