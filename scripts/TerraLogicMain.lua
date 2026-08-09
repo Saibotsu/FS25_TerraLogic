@@ -1011,12 +1011,13 @@ function TerraLogicMain:consoleCommandPrintBalance()
             local impacts = implementClass.impacts or {}
             local stones = implementClass.stones or {}
             Logging.info(
-                "[FS25_TerraLogic] implementProfile.%s optimalSpeed=%s safeSpeedRatio=%s minimumShopFactor=%s maximumShopFactor=%s depthCm=%.1f groundContact=%s draftEnabled=%s draftScale=%.6f impactDepth=%.6f stoneProtection=%s mediumImpactDamageFactor=%.6f abrasionFactor=%.6f stoneMode=%s stoneSurface=%.6f stoneGenerated=%.6f stoneHidden=%.6f dropout=%s impactDropout=%s name=%s",
+                "[FS25_TerraLogic] implementProfile.%s optimalSpeed=%s safeSpeedRatio=%s minimumShopFactor=%s maximumShopFactor=%s depthCm=%.1f draftDepthResponse=%.6f groundContact=%s draftEnabled=%s draftScale=%.6f impactDepth=%.6f stoneProtection=%s mediumImpactDamageFactor=%.6f abrasionFactor=%.6f stoneMode=%s stoneSurface=%.6f stoneGenerated=%.6f stoneHidden=%.6f dropout=%s impactDropout=%s name=%s",
                 name, tostring(work.optimalSpeedKph),
                 tostring(wear.safeSpeedRatio or "default"),
                 tostring(wear.minimumShopFactor or "default"),
                 tostring(wear.maximumShopFactor or "default"),
                 tonumber(work.depthCm) or 0,
+                TerraLogic.getDraftDepthResponse(work.depthCm),
                 tostring(work.groundContactTool == true),
                 tostring(draft.enabled == true), tonumber(draft.overspeedScale) or 0,
                 tonumber(impacts.depthFactor) or 0,
@@ -2558,9 +2559,10 @@ function TerraLogicMain:draw()
             "--- DRAFT / RESISTANCE ---",
             string.format("Shared draft curve | x1 through shop | strength %.2f | exponent %.2f | cap x%.2f",
                 data.draftSpeedStrength, data.draftSpeedExponent, data.draftSpeedMaximum),
-            string.format("Additional draft %s | profile scale x%.2f | global %s | runtime x%.3f | current x%.3f",
+            string.format("Additional draft %s | profile scale x%.2f | depth response %.1f%% | global %s | runtime x%.3f | current x%.3f",
                 data.additionalDraftEnabled and "ELIGIBLE" or "EXCLUDED",
-                data.additionalDraftScale, data.globalDraftEnabled and "ON" or "OFF",
+                data.additionalDraftScale, data.draftDepthResponse * 100,
+                data.globalDraftEnabled and "ON" or "OFF",
                 data.draftRuntimeMultiplier, data.speedDraftMultiplier),
             string.format("Normalized drawbar-power proxy | speed ratio %.2f x draft %.3f = %.3f",
                 ratedSpeed > 0 and currentSpeed / ratedSpeed or 0,
@@ -2580,7 +2582,9 @@ function TerraLogicMain:draw()
                 or string.format("Implement abrasion x%.3f | abrasive share %.0f%% | tool x soil load %.3f | baseline x%.3f",
                     data.implementAbrasionFactor, data.abrasiveShare * 100,
                     data.abrasiveLoad, data.baselineAbrasionMultiplier),
-            string.format("Resistance x%.3f | %s", data.soilResistanceMultiplier, data.resistanceSource),
+            string.format("Resistance raw x%.3f -> depth-adjusted x%.3f | %s",
+                data.rawSoilResistanceMultiplier,
+                data.soilResistanceMultiplier, data.resistanceSource),
 
             "--- RANDOM IMPACTS (ABSTRACT / HIDDEN) ---",
             string.format("Status %s | frequency runtime x%.3f | damage runtime x%.3f",

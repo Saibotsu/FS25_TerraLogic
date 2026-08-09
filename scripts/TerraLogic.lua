@@ -58,12 +58,15 @@ TerraLogic.WEAR_CUSTOM_RATE_WARNING_MIN = 0.25
 TerraLogic.WEAR_CUSTOM_RATE_WARNING_MAX = 4.00
 
 -- One shared overspeed curve for every soil-engaging implement. Base maxForce
--- already represents width, depth and nominal draft; applying another
--- depth-shaped curve here would count those properties twice. Individual
--- profiles only enable/disable this curve and may scale its excess term.
+-- already represents width, depth and nominal draft. The depth response below
+-- therefore scales only TerraLogic's added PF-soil and overspeed excess, never
+-- the XML base force itself. The ease-out curve gives shallow tools little
+-- additional resistance while deep tools approach the full effect smoothly.
 TerraLogic.DRAFT_SPEED_STRENGTH_FALLBACK = 0.35
 TerraLogic.DRAFT_SPEED_EXPONENT_FALLBACK = 1.00
 TerraLogic.DRAFT_MAX_FALLBACK = 1.50
+TerraLogic.DRAFT_DEPTH_REFERENCE_CM = 50.00
+TerraLogic.DRAFT_DEPTH_RESPONSE_EXPONENT = 2.25
 
 -- Random impacts are area-based and split into three independently tunable
 -- severity tiers. At/below XML rated speed every tier only uses its small
@@ -181,6 +184,23 @@ local function getRuntimeBalanceMultiplier(name)
         return TerraLogicMain:getBalanceMultiplier(name)
     end
     return 1
+end
+
+-- Converts the class-level nominal work depth into a cached 0..1 response.
+-- f(x)=1-(1-x)^2.25 closely follows the intended balance table while staying
+-- continuous for custom profiles and clamped beyond the 50 cm reference.
+function TerraLogic.getDraftDepthResponse(depthCm)
+    local reference = math.max(TerraLogic.DRAFT_DEPTH_REFERENCE_CM, 0.01)
+    local normalized = math.clamp(
+        math.max(tonumber(depthCm) or 0, 0) / reference, 0, 1)
+    return 1 - (1 - normalized) ^ TerraLogic.DRAFT_DEPTH_RESPONSE_EXPONENT
+end
+
+-- Applies a depth response only to a multiplier's excess around neutral x1.
+function TerraLogic.applyDraftDepthResponse(multiplier, depthResponse)
+    local value = tonumber(multiplier) or 1
+    local response = math.clamp(tonumber(depthResponse) or 0, 0, 1)
+    return 1 + (value - 1) * response
 end
 
 function TerraLogic:getDamageResistanceMultiplier(damage)
@@ -502,7 +522,9 @@ function TerraLogic:getOverSpeedDraftMultiplier(currentSpeed)
     if TerraLogicMain ~= nil and TerraLogicMain.draftEnabled == false then
         draftScale = 0
     end
-    return 1 + (rawDraft - 1) * draftScale
+    local depthAdjustedDraft = TerraLogic.applyDraftDepthResponse(
+        rawDraft, spec.draftDepthResponse)
+    return 1 + (depthAdjustedDraft - 1) * draftScale
 end
 
 function TerraLogic:getOverSpeedImpactRisk(currentSpeed)
@@ -614,6 +636,9 @@ function TerraLogic:onLoad(savegame)
         storeCategoryResolved = false,
         workDepthCm = implementClass ~= nil and implementClass.work ~= nil
             and implementClass.work.depthCm or 0,
+        draftDepthResponse = TerraLogic.getDraftDepthResponse(
+            implementClass ~= nil and implementClass.work ~= nil
+                and implementClass.work.depthCm or 0),
         impactDepthFactor = implementClass ~= nil and implementClass.impacts ~= nil
             and implementClass.impacts.depthFactor or 1,
         impactStoneProtection = implementClass ~= nil
@@ -660,6 +685,7 @@ function TerraLogic:onLoad(savegame)
         pfMode = "auto",
         pfSource = "not checked",
         resistanceMultiplier = 1,
+        soilDraftResistanceMultiplier = 1,
         abrasionMultiplier = 1,
         impactFrequencyFactor = 1,
         impactSeverityFactor = 1,
@@ -5298,6 +5324,7 @@ function TerraLogic:updateOverSpeedImplementClass()
     spec.groundToolType = implementClass ~= nil and implementClass.name or "Not ground-engaging"
     spec.workDepthCm = implementClass ~= nil and implementClass.work ~= nil
         and implementClass.work.depthCm or 0
+    spec.draftDepthResponse = TerraLogic.getDraftDepthResponse(spec.workDepthCm)
     spec.impactDepthFactor = implementClass ~= nil and implementClass.impacts ~= nil
         and implementClass.impacts.depthFactor or 1
     spec.impactStoneProtection = implementClass ~= nil
@@ -5854,7 +5881,9 @@ function TerraLogic:updateOverSpeedResistance()
     end
     local damageResistance = draftContactActive
         and self:getDamageResistanceMultiplier(damage) or 1
-    local soilResistance = draftContactActive and spec.resistanceMultiplier or 1
+    local soilResistance = draftContactActive
+        and TerraLogic.applyDraftDepthResponse(
+            spec.resistanceMultiplier, spec.draftDepthResponse) or 1
     local effectiveResistance = soilResistance * damageResistance * draftMultiplier
     local appliedResistance = effectiveResistance
     local mrCompensation = 1
@@ -5866,6 +5895,7 @@ function TerraLogic:updateOverSpeedResistance()
         appliedResistance = 1
         damageResistance = 1
         draftMultiplier = 1
+        soilResistance = 1
         effectiveResistance = 1
     elseif TerraLogicSettings ~= nil
         and TerraLogicSettings:isMoreRealisticActive() then
@@ -5890,6 +5920,7 @@ function TerraLogic:updateOverSpeedResistance()
     spec.lastAppliedMaxForce = powerConsumer.maxForce
     spec.damageResistanceMultiplier = damageResistance
     spec.currentDraftMultiplier = draftMultiplier
+    spec.soilDraftResistanceMultiplier = soilResistance
     spec.effectiveResistanceMultiplier = effectiveResistance
     spec.draftModel = draftModel
     spec.moreRealisticCompensation = mrCompensation
@@ -6389,7 +6420,7 @@ function TerraLogic:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSel
             balanceTest.draftMax = math.max(balanceTest.draftMax or 1, draftMultiplier)
             balanceTest.abrasionTime = (balanceTest.abrasionTime or 0) + abrasion * dt
             balanceTest.resistanceTime = (balanceTest.resistanceTime or 0)
-                + (spec.resistanceMultiplier or 1) * dt
+                + (spec.soilDraftResistanceMultiplier or 1) * dt
             local ratedSpeed = tonumber(spec.ratedSpeed) or 0
             if ratedSpeed > 0 and currentSpeed > ratedSpeed then
                 balanceTest.aboveRatedMs = (balanceTest.aboveRatedMs or 0) + dt
@@ -6674,8 +6705,11 @@ function TerraLogic:getOverSpeedDebugData()
     local modifiedMaxForce = powerConsumer ~= nil and tonumber(powerConsumer.maxForce) or 0
     local baseMaxForce = tonumber(spec.baseMaxForce) or modifiedMaxForce or 0
     local profileDraftActive = spec.additionalDraftEnabled == true
+    local projectedSoilResistance = profileDraftActive
+        and TerraLogic.applyDraftDepthResponse(
+            spec.resistanceMultiplier, spec.draftDepthResponse) or 1
     local soilMaxForce = baseMaxForce
-        * (profileDraftActive and (spec.resistanceMultiplier or 1) or 1)
+        * projectedSoilResistance
     local projectedDamageResistance = profileDraftActive
         and self:getDamageResistanceMultiplier(damage) or 1
     local projectedMaxForce = soilMaxForce * projectedDamageResistance
@@ -6813,6 +6847,7 @@ function TerraLogic:getOverSpeedDebugData()
         storeCategory = spec.storeCategory or "unknown",
         classificationSource = spec.classificationSource or "unknown",
         workDepthCm = spec.workDepthCm or 0,
+        draftDepthResponse = spec.draftDepthResponse or 0,
         impactDepthFactor = spec.impactDepthFactor or 1,
         impactStoneProtection = spec.impactStoneProtection == true,
         impactMediumDamageFactor = spec.impactMediumDamageFactor or 1,
@@ -6868,7 +6903,8 @@ function TerraLogic:getOverSpeedDebugData()
         abrasionMultiplier = spec.abrasionMultiplier or 1,
         abrasionSource = spec.abrasionSource or "Vanilla",
         resistanceSource = spec.resistanceSource or "Vanilla",
-        soilResistanceMultiplier = spec.resistanceMultiplier or 1,
+        rawSoilResistanceMultiplier = spec.resistanceMultiplier or 1,
+        soilResistanceMultiplier = projectedSoilResistance,
         damageResistanceMultiplier = projectedDamageResistance,
         damageResistanceFullAt = TerraLogic.DAMAGE_RESISTANCE_FULL_AT,
         damageResistanceExponent = TerraLogic.DAMAGE_RESISTANCE_EXPONENT,
