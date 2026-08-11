@@ -6,13 +6,23 @@
     Unauthorized copying, modification, or redistribution is prohibited
     except where expressly permitted by the copyright owner.
 
-    Source fingerprint: TMW-TL-CORE-1.200061
+    Source fingerprint: TMW-TL-CORE-1.200065
 ]]
 
 TerraLogic = {}
 OverSpeedDamage = TerraLogic
 -- Numeric source signature only; it is deliberately excluded from gameplay math.
-TerraLogic.SOURCE_FINGERPRINT = 1.200061
+TerraLogic.SOURCE_FINGERPRINT = 1.200065
+
+-- Damage warnings deliberately describe two distinct risks. Continuous wear
+-- is measured per worked hectare and excludes discrete stone spikes, while a
+-- stone warning requires an actual medium/big impact above shop speed. The
+-- latter uses travel speed rather than the rotation-energy floor, so a rotary
+-- implement working at its rated speed cannot trigger the warning by itself.
+TerraLogic.HIGH_DAMAGE_WARNING_PER_HA = 0.05
+TerraLogic.STONE_WARNING_MIN_SPEED_RATIO = 1.10
+TerraLogic.STONE_WARNING_COOLDOWN_MS = 30000
+TerraLogic.HIGH_DAMAGE_WARNING_COOLDOWN_MS = 60000
 
 -- The two modules are loaded by modDesc before this specialization. Keep these
 -- aliases for older debug/console code, but never define per-class values here.
@@ -388,6 +398,54 @@ local function getVisibleHitSeverityFactor()
     local minimum = tonumber(selected.minimum) or 0
     local maximum = math.max(tonumber(selected.maximum) or minimum, minimum)
     return minimum + (maximum - minimum) * math.random()
+end
+
+local function advanceDamageWarningSerial(vehicle, serialKey, pendingKey)
+    local spec = vehicle ~= nil and vehicle.spec_terraLogic or nil
+    if spec == nil then return end
+    spec[serialKey] = ((tonumber(spec[serialKey]) or 0) + 1) % 256
+    -- A listen-server host consumes the same pending flag locally. Dedicated
+    -- clients receive the serial through the existing specialization stream.
+    spec[pendingKey] = true
+    if vehicle.isServer and vehicle.raiseDirtyFlags ~= nil
+        and spec.actualWorkDirtyFlag ~= nil then
+        vehicle:raiseDirtyFlags(spec.actualWorkDirtyFlag)
+    end
+end
+
+local function queueStrongStoneImpactWarning(
+        vehicle, impactTier, currentSpeed, appliedDamage)
+    local spec = vehicle ~= nil and vehicle.spec_terraLogic or nil
+    local rated = spec ~= nil and tonumber(spec.ratedSpeed) or 0
+    local speed = math.max(tonumber(currentSpeed) or 0, 0)
+    if spec == nil or vehicle.isServer ~= true
+        or (impactTier ~= "medium" and impactTier ~= "big")
+        or (tonumber(appliedDamage) or 0) <= 0
+        or rated <= 0
+        or speed / rated <= TerraLogic.STONE_WARNING_MIN_SPEED_RATIO then
+        return
+    end
+    local now = g_currentMission ~= nil and (g_currentMission.time or 0) or 0
+    if now < (spec.damageWarningNextStoneServerTime or 0) then return end
+    spec.damageWarningNextStoneServerTime = now
+        + TerraLogic.STONE_WARNING_COOLDOWN_MS
+    advanceDamageWarningSerial(
+        vehicle, "damageWarningStoneSerial", "damageWarningStonePending")
+end
+
+local function queueHighDamagePerHectareWarning(vehicle, damagePerHectare)
+    local spec = vehicle ~= nil and vehicle.spec_terraLogic or nil
+    if spec == nil or vehicle.isServer ~= true
+        or (tonumber(damagePerHectare) or 0)
+            <= TerraLogic.HIGH_DAMAGE_WARNING_PER_HA then
+        return
+    end
+    local now = g_currentMission ~= nil and (g_currentMission.time or 0) or 0
+    if now < (spec.damageWarningNextGeneralServerTime or 0) then return end
+    spec.damageWarningNextGeneralServerTime = now
+        + TerraLogic.HIGH_DAMAGE_WARNING_COOLDOWN_MS
+    advanceDamageWarningSerial(
+        vehicle, "damageWarningGeneralSerial", "damageWarningGeneralPending")
 end
 
 local function getEffectiveAbrasionMultiplier(spec)
@@ -886,6 +944,17 @@ function TerraLogic:onLoad(savegame)
         lastActualWorkProfile = nil,
         qualityWorkActive = false,
         lastQualityWorkTime = nil,
+        conditionWarningWasActive = false,
+        conditionWarning50Shown = false,
+        conditionWarningNext75Time = 0,
+        conditionWarningNext90Time = 0,
+        conditionWarningLastDamage = nil,
+        damageWarningStoneSerial = 0,
+        damageWarningGeneralSerial = 0,
+        damageWarningStonePending = false,
+        damageWarningGeneralPending = false,
+        damageWarningNextStoneServerTime = 0,
+        damageWarningNextGeneralServerTime = 0,
         soilUpdateTimer = 0,
         soilTypeIndex = 0,
         soilName = "Vanilla / unknown",
@@ -1537,6 +1606,8 @@ function TerraLogic.processVisibleStoneExposure(self, frameAreaHa, currentSpeed)
                 and math.min(impactDamage,
                     math.max(1 - damageBeforeEvent, 0))
                 or impactDamage
+            queueStrongStoneImpactWarning(
+                self, impactTier, currentSpeed, appliedDamage)
 
             addDamageAnalysisValue(spec,
                 TerraLogic.STONE_VISIBLE_ANALYSIS_KEYS[stoneTier], appliedDamage)
@@ -2576,9 +2647,11 @@ function TerraLogic:processSurfacePatchDropoutArea(
     local speed = self.getLastSpeed ~= nil
         and math.abs(tonumber(self:getLastSpeed(true)) or 0) or 0
     local rated = math.max(tonumber(spec.ratedSpeed) or 0, 0)
+    local _, conditionPenalty =
+        TerraLogicQualityManager:getConditionQualityModel(self, speed)
     local failureFraction =
         TerraLogicDropoutManager:getSurfacePatchFailureFraction(
-            profileName, speed, rated
+            profileName, speed, rated, conditionPenalty
         )
     if failureFraction <= 0 then
         spec.surfacePatchDropoutStatus = "below shop speed"
@@ -4254,7 +4327,8 @@ function TerraLogic:prepareOverSpeedSeedQualityArea(workArea)
 
     -- Stored agronomic quality follows the shared shop-speed economy curve.
     -- Physical missing-plant patterns remain the direct/visual part of that
-    -- target loss and still begin only above advertised shop speed.
+    -- target loss. Speed misses begin above shop speed; condition misses begin
+    -- only after the shared 50% damage threshold.
     local workQuality, yieldPenalty, workEconomy =
         TerraLogicQualityManager:getWorkQualityModel(
             self, speed, "seed", nil, true)
@@ -4266,7 +4340,12 @@ function TerraLogic:prepareOverSpeedSeedQualityArea(workArea)
             seedBalance.weight,
             seedBalance.maxPenalty
         ) or 0
-    local quality = 1 - physicalDropoutPenalty
+    local conditionFactor = 1
+    if physicalDropoutsEnabled then
+        conditionFactor = select(1,
+            TerraLogicQualityManager:getConditionQualityModel(self, speed))
+    end
+    local quality = (1 - physicalDropoutPenalty) * conditionFactor
 
     spec.seedQuality = quality
     spec.seedWorkQuality = workQuality
@@ -4936,17 +5015,22 @@ end
 
 function TerraLogic:onWriteStream(streamId, connection)
     if not connection:getIsServer() then
-        streamWriteBool(streamId,
-            self.spec_terraLogic.actualWorkActive == true)
-        streamWriteBool(streamId,
-            self.spec_terraLogic.qualityWorkActive == true)
+        local spec = self.spec_terraLogic
+        streamWriteBool(streamId, spec.actualWorkActive == true)
+        streamWriteBool(streamId, spec.qualityWorkActive == true)
+        streamWriteUIntN(streamId, spec.damageWarningStoneSerial or 0, 8)
+        streamWriteUIntN(streamId, spec.damageWarningGeneralSerial or 0, 8)
     end
 end
 
 function TerraLogic:onReadStream(streamId, connection)
     if connection:getIsServer() then
-        self.spec_terraLogic.actualWorkActive = streamReadBool(streamId)
-        self.spec_terraLogic.qualityWorkActive = streamReadBool(streamId)
+        local spec = self.spec_terraLogic
+        spec.actualWorkActive = streamReadBool(streamId)
+        spec.qualityWorkActive = streamReadBool(streamId)
+        -- Initial state is a baseline, not a historical warning event.
+        spec.damageWarningStoneSerial = streamReadUIntN(streamId, 8)
+        spec.damageWarningGeneralSerial = streamReadUIntN(streamId, 8)
     end
 end
 
@@ -4958,14 +5042,29 @@ function TerraLogic:onWriteUpdateStream(streamId, connection, dirtyMask)
         if dirty then
             streamWriteBool(streamId, spec.actualWorkActive == true)
             streamWriteBool(streamId, spec.qualityWorkActive == true)
+            streamWriteUIntN(streamId,
+                spec.damageWarningStoneSerial or 0, 8)
+            streamWriteUIntN(streamId,
+                spec.damageWarningGeneralSerial or 0, 8)
         end
     end
 end
 
 function TerraLogic:onReadUpdateStream(streamId, timestamp, connection)
     if connection:getIsServer() and streamReadBool(streamId) then
-        self.spec_terraLogic.actualWorkActive = streamReadBool(streamId)
-        self.spec_terraLogic.qualityWorkActive = streamReadBool(streamId)
+        local spec = self.spec_terraLogic
+        spec.actualWorkActive = streamReadBool(streamId)
+        spec.qualityWorkActive = streamReadBool(streamId)
+        local stoneSerial = streamReadUIntN(streamId, 8)
+        local generalSerial = streamReadUIntN(streamId, 8)
+        if stoneSerial ~= (spec.damageWarningStoneSerial or 0) then
+            spec.damageWarningStonePending = true
+        end
+        if generalSerial ~= (spec.damageWarningGeneralSerial or 0) then
+            spec.damageWarningGeneralPending = true
+        end
+        spec.damageWarningStoneSerial = stoneSerial
+        spec.damageWarningGeneralSerial = generalSerial
     end
 end
 
@@ -6670,6 +6769,63 @@ function TerraLogic:updateDamageAmount(superFunc, dt)
     return currentDamage
 end
 
+local function getIsConditionWarningActivation(vehicle)
+    local spec = vehicle ~= nil and vehicle.spec_terraLogic or nil
+    if spec == nil or spec.implementClassKey == nil then return false end
+    -- A warning describes the selected implement's condition, not whether its
+    -- WorkArea happened to change a density-map pixel in this exact frame.
+    -- Requiring active work processing suppressed warnings for seeders and
+    -- other tools while stationary or over already processed ground.
+    local lowered = true
+    if vehicle.getIsImplementChainLowered ~= nil then
+        lowered = vehicle:getIsImplementChainLowered(true) == true
+    elseif vehicle.getIsLowered ~= nil then
+        lowered = vehicle:getIsLowered() == true
+    end
+    if lowered and vehicle.getIsLowered ~= nil then
+        lowered = vehicle:getIsLowered() ~= false
+    end
+    if not lowered then return false end
+    if vehicle.spec_turnOnVehicle ~= nil
+        and vehicle.getIsTurnedOn ~= nil
+        and not vehicle:getIsTurnedOn() then
+        return false
+    end
+    if spec.isApplicationTool == true
+        and vehicle.getIsTurnedOn ~= nil
+        and not vehicle:getIsTurnedOn() then
+        return false
+    end
+    return TerraLogic.getIsOverSpeedWorkAreaInWorkPosition(vehicle) == true
+end
+
+local function didCrossConditionWarningThreshold(previousDamage, damage)
+    if previousDamage == nil or damage <= previousDamage then return false end
+    return previousDamage < 0.50 and damage >= 0.50
+        or previousDamage < 0.75 and damage >= 0.75
+        or previousDamage < 0.90 and damage >= 0.90
+        or previousDamage < 0.9995 and damage >= 0.9995
+end
+
+local function showPendingDamageWarning(vehicle, spec)
+    if TerraLogicMain == nil then return end
+    -- A stone impact is the more immediate event. Suppress a simultaneous
+    -- general-rate message instead of replacing the first warning one frame
+    -- later with a second blinking text.
+    if spec.damageWarningStonePending == true then
+        spec.damageWarningStonePending = false
+        spec.damageWarningGeneralPending = false
+        if TerraLogicMain.handleStoneImpactWarning ~= nil then
+            TerraLogicMain:handleStoneImpactWarning(vehicle)
+        end
+    elseif spec.damageWarningGeneralPending == true then
+        spec.damageWarningGeneralPending = false
+        if TerraLogicMain.handleHighDamagePerHectareWarning ~= nil then
+            TerraLogicMain:handleHighDamagePerHectareWarning(vehicle)
+        end
+    end
+end
+
 -- Updates simulation state and telemetry once per vehicle tick.
 function TerraLogic:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSelection, isSelected)
     if dt <= 0 then
@@ -6705,6 +6861,37 @@ function TerraLogic:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSel
     end
     self:updateOverSpeedImplementClass()
     self:updateOverSpeedPlowEffects()
+    local conditionWarningDamage = self.getDamageAmount ~= nil
+        and math.clamp(tonumber(self:getDamageAmount()) or 0, 0, 1) or 0
+    if conditionWarningDamage < 0.50 then
+        -- A repair below the first warning threshold starts a fresh condition
+        -- cycle. Old one-shot/cooldown state must not suppress warnings when
+        -- this implement wears past the thresholds again later.
+        spec.conditionWarning50Shown = false
+        spec.conditionWarningNext75Time = 0
+        spec.conditionWarningNext90Time = 0
+    end
+    local conditionWarningActive = getIsConditionWarningActivation(self)
+    local crossedConditionWarningThreshold =
+        didCrossConditionWarningThreshold(
+            spec.conditionWarningLastDamage, conditionWarningDamage)
+    if conditionWarningActive
+        and (spec.conditionWarningWasActive ~= true
+            or crossedConditionWarningThreshold)
+        and TerraLogicMain ~= nil
+        and TerraLogicMain.handleConditionWarningActivation ~= nil then
+        TerraLogicMain:handleConditionWarningActivation(self)
+    end
+    spec.conditionWarningLastDamage = conditionWarningDamage
+    spec.conditionWarningWasActive = conditionWarningActive
+    if crossedConditionWarningThreshold then
+        -- The newly reached condition tier is more useful than a simultaneous
+        -- damage warning and must remain visible for its full duration.
+        spec.damageWarningStonePending = false
+        spec.damageWarningGeneralPending = false
+    else
+        showPendingDamageWarning(self, spec)
+    end
 
     local modEnabled = TerraLogicMain == nil or TerraLogicMain.enabled ~= false
     local physicalDropoutsEnabled = getArePhysicalDropoutsEnabled()
@@ -6756,6 +6943,27 @@ function TerraLogic:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSel
     if self.isServer and spec.damageAnalysis ~= nil then
         spec.damageAnalysis.elapsedMs =
             (spec.damageAnalysis.elapsedMs or 0) + dt
+    end
+    local processedSurfaceStoneExposure = false
+    if speedRatio == nil and self.isServer and modEnabled
+        and spec.isSurfaceForageTool == true
+        and spec.impactVanillaEnabled == true
+        and (spec.stoneCoverageTotalPixels or 0) > 0 then
+        -- Pickups, tedders and windrowers are intentionally not soil tools, so
+        -- getWorkingSpeedRatio() correctly excludes them from soil abrasion.
+        -- Their active WorkArea callback has nevertheless sampled real stones;
+        -- consume that sample here without enabling any ground-tool wear.
+        local surfaceSpeed = self.getLastSpeed ~= nil
+            and math.abs(tonumber(self:getLastSpeed(true)) or 0) or 0
+        local rated = math.max(tonumber(spec.ratedSpeed) or 0, 0)
+        if surfaceSpeed > 0.5 and rated > 0 then
+            local surfaceDistanceM = surfaceSpeed / 3.6 * (dt / 1000)
+            local surfaceAreaHa = surfaceDistanceM
+                * self:getOverSpeedWorkingWidth() / 10000
+            TerraLogic.processVisibleStoneExposure(
+                self, surfaceAreaHa, surfaceSpeed)
+            processedSurfaceStoneExposure = true
+        end
     end
     if speedRatio ~= nil then
         local distanceM = currentSpeed / 3.6 * (dt / 1000)
@@ -6997,6 +7205,8 @@ function TerraLogic:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSel
                     and math.min(impactDamage,
                         math.max(1 - damageBeforeEvent, 0))
                     or impactDamage
+                queueStrongStoneImpactWarning(
+                    self, impactTier, currentSpeed, appliedImpactDamage)
                 spec.telemetryCurrentDamage = (spec.telemetryCurrentDamage or 0) + impactDamage
                 spec.randomImpactDamageWindow = (spec.randomImpactDamageWindow or 0) + impactDamage
                 local analysis = spec.damageAnalysis
@@ -7103,7 +7313,7 @@ function TerraLogic:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSel
             end
         end
     else
-        if self.isServer then
+        if self.isServer and not processedSurfaceStoneExposure then
             -- Never carry the final sample of an old pass into a later pass.
             TerraLogic.processVisibleStoneExposure(self, 0, 0)
         end
@@ -7147,6 +7357,10 @@ function TerraLogic:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSel
             spec.continuousDamagePerHectare = nil
             spec.randomImpactDamagePerHectareLastSecond = nil
             spec.stoneDamagePerHectareLastSecond = nil
+        end
+        if self.isServer then
+            queueHighDamagePerHectareWarning(
+                self, spec.continuousDamagePerHectare)
         end
         spec.telemetryWorking = activeMs > 0
         if activeMs > 0 then

@@ -6,7 +6,7 @@
     Unauthorized copying, modification, or redistribution is prohibited
     except where expressly permitted by the copyright owner.
 
-    Source fingerprint: TMW-TL-SET-1.200317
+    Source fingerprint: TMW-TL-SET-1.200319
 ]]
 
 TerraLogicSettings = {
@@ -19,10 +19,13 @@ TerraLogicSettings = {
     physicalDropoutsEnabled = true,
     showQualityText = true,
     speedHudMode = "dynamic",
+    conditionWarningsEnabled = true,
+    damageWarningsEnabled = true,
+    conditionWarningTimeoutMinutes = 0,
     menuInstalled = false
 }
 -- Numeric source signature only; it is deliberately excluded from gameplay math.
-TerraLogicSettings.SOURCE_FINGERPRINT = 1.200317
+TerraLogicSettings.SOURCE_FINGERPRINT = 1.200319
 
 TerraLogicLogging = TerraLogicLogging or {verbose = false}
 
@@ -74,6 +77,15 @@ function TerraLogicSettings:loadLocal()
             getXMLString(xml, "settings#speedHudMode") or "dynamic"))
         self.speedHudMode = (mode == "always" or mode == "off")
             and mode or "dynamic"
+        self.conditionWarningsEnabled = Utils.getNoNil(
+            getXMLBool(xml, "settings#conditionWarningsEnabled"), true)
+        self.damageWarningsEnabled = Utils.getNoNil(
+            getXMLBool(xml, "settings#damageWarningsEnabled"), true)
+        local warningTimeout = tonumber(getXMLInt(
+            xml, "settings#conditionWarningTimeoutMinutes")) or 0
+        self.conditionWarningTimeoutMinutes = warningTimeout == 1
+            and 1 or (warningTimeout == 2 and 2
+                or (warningTimeout == 5 and 5 or 0))
         delete(xml)
     end
     if migrated then self:saveLocal() end
@@ -90,6 +102,12 @@ function TerraLogicSettings:saveLocal()
     if xml ~= nil and xml ~= 0 then
         setXMLBool(xml, "settings#showQualityText", self.showQualityText == true)
         setXMLString(xml, "settings#speedHudMode", self.speedHudMode)
+        setXMLBool(xml, "settings#conditionWarningsEnabled",
+            self.conditionWarningsEnabled ~= false)
+        setXMLBool(xml, "settings#damageWarningsEnabled",
+            self.damageWarningsEnabled ~= false)
+        setXMLInt(xml, "settings#conditionWarningTimeoutMinutes",
+            self.conditionWarningTimeoutMinutes)
         saveXMLFile(xml)
         delete(xml)
     end
@@ -112,6 +130,21 @@ end
 
 function TerraLogicSettings:getPhysicalDropoutsEnabled()
     return self.physicalDropoutsEnabled ~= false
+end
+
+function TerraLogicSettings:getConditionWarningsEnabled()
+    return self.conditionWarningsEnabled ~= false
+end
+
+function TerraLogicSettings:getDamageWarningsEnabled()
+    return self.damageWarningsEnabled ~= false
+end
+
+function TerraLogicSettings:getConditionWarningTimeoutMs()
+    local minutes = tonumber(self.conditionWarningTimeoutMinutes) or 0
+    minutes = minutes == 1 and 1 or (minutes == 2 and 2
+        or (minutes == 5 and 5 or 0))
+    return minutes * 60 * 1000
 end
 
 function TerraLogicSettings:getVisibleStoneDamageModel()
@@ -278,6 +311,21 @@ function TerraLogicSettingsMenuCallbacks:onSpeedHudModeChanged(state)
     TerraLogicSettings:saveLocal()
 end
 
+function TerraLogicSettingsMenuCallbacks:onConditionWarningsChanged(state)
+    TerraLogicSettings.conditionWarningsEnabled = state == 2
+    TerraLogicSettings:saveLocal()
+end
+
+function TerraLogicSettingsMenuCallbacks:onDamageWarningsChanged(state)
+    TerraLogicSettings.damageWarningsEnabled = state == 2
+    TerraLogicSettings:saveLocal()
+end
+
+function TerraLogicSettingsMenuCallbacks:onConditionWarningTimeoutChanged(state)
+    TerraLogicSettings.conditionWarningTimeoutMinutes = ({0, 1, 2, 5})[state] or 0
+    TerraLogicSettings:saveLocal()
+end
+
 -- Repairs focus IDs after dynamically inserting controls into the menu.
 local function updateFocusIds(element)
     if element == nil then return end
@@ -365,6 +413,33 @@ function TerraLogicSettings:tryInstallMenu()
             g_i18n:getText("terraLogic_settingHudOff")},
         speedHudState,
         "terraLogic_settingHudModeTitle", "terraLogic_settingHudModeTooltip")
+    self.conditionWarningsOption = addOption(
+        "terraLogicConditionWarnings", "onConditionWarningsChanged",
+        {g_i18n:getText("terraLogic_settingOff"),
+            g_i18n:getText("terraLogic_settingOn")},
+        self.conditionWarningsEnabled and 2 or 1,
+        "terraLogic_settingConditionWarningsTitle",
+        "terraLogic_settingConditionWarningsTooltip")
+    self.damageWarningsOption = addOption(
+        "terraLogicDamageWarnings", "onDamageWarningsChanged",
+        {g_i18n:getText("terraLogic_settingOff"),
+            g_i18n:getText("terraLogic_settingOn")},
+        self.damageWarningsEnabled and 2 or 1,
+        "terraLogic_settingDamageWarningsTitle",
+        "terraLogic_settingDamageWarningsTooltip")
+    local warningTimeoutState = self.conditionWarningTimeoutMinutes == 1
+        and 2 or (self.conditionWarningTimeoutMinutes == 2 and 3
+            or (self.conditionWarningTimeoutMinutes == 5 and 4 or 1))
+    self.conditionWarningTimeoutOption = addOption(
+        "terraLogicConditionWarningTimeout",
+        "onConditionWarningTimeoutChanged",
+        {g_i18n:getText("terraLogic_settingWarningTimeoutOff"),
+            g_i18n:getText("terraLogic_settingWarningTimeout1"),
+            g_i18n:getText("terraLogic_settingWarningTimeout2"),
+            g_i18n:getText("terraLogic_settingWarningTimeout5")},
+        warningTimeoutState,
+        "terraLogic_settingConditionWarningTimeoutTitle",
+        "terraLogic_settingConditionWarningTimeoutTooltip")
     page.gameSettingsLayout:invalidateLayout()
     self.menuInstalled = true
 
@@ -413,6 +488,30 @@ function TerraLogicSettings:tryInstallMenu()
                     hudControl:setState(mode == "always" and 2
                         or (mode == "off" and 3 or 1))
                     hudControl:setDisabled(false)
+                end
+                local warningControl =
+                    TerraLogicSettings.conditionWarningsOption
+                if warningControl ~= nil then
+                    warningControl:setState(
+                        TerraLogicSettings.conditionWarningsEnabled and 2 or 1)
+                    warningControl:setDisabled(false)
+                end
+                local damageWarningControl =
+                    TerraLogicSettings.damageWarningsOption
+                if damageWarningControl ~= nil then
+                    damageWarningControl:setState(
+                        TerraLogicSettings.damageWarningsEnabled and 2 or 1)
+                    damageWarningControl:setDisabled(false)
+                end
+                local timeoutControl =
+                    TerraLogicSettings.conditionWarningTimeoutOption
+                if timeoutControl ~= nil then
+                    local minutes =
+                        TerraLogicSettings.conditionWarningTimeoutMinutes
+                    timeoutControl:setState(minutes == 1 and 2
+                        or (minutes == 2 and 3
+                            or (minutes == 5 and 4 or 1)))
+                    timeoutControl:setDisabled(false)
                 end
                 if TerraLogicSettings.draftModelBox ~= nil then
                     local parent = TerraLogicSettings.draftModelBox.parent

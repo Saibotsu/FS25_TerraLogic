@@ -6,13 +6,13 @@
     Unauthorized copying, modification, or redistribution is prohibited
     except where expressly permitted by the copyright owner.
 
-    Source fingerprint: TMW-TL-MAIN-1.200220
+    Source fingerprint: TMW-TL-MAIN-1.200224
 ]]
 
 TerraLogicMain = {}
 OverSpeedDamageMain = TerraLogicMain
 -- Numeric source signature only; it is deliberately excluded from gameplay math.
-TerraLogicMain.SOURCE_FINGERPRINT = 1.200220
+TerraLogicMain.SOURCE_FINGERPRINT = 1.200224
 
 local MOD_NAME = g_currentModName
 local MOD_DIR = g_currentModDirectory
@@ -240,6 +240,112 @@ function TerraLogicMain:update(dt)
     TerraLogicQualityManager:updatePlowGrowthRecovery(dt)
     TerraLogicGrassGapManager:update(dt)
     TerraLogicSettings:tryInstallMenu()
+end
+
+local function getIsLocalControlledImplement(implement)
+    local controlledVehicle = g_localPlayer ~= nil
+        and g_localPlayer:getCurrentVehicle() or nil
+    local rootVehicle = implement ~= nil
+        and (implement.rootVehicle or implement) or nil
+    return controlledVehicle ~= nil and rootVehicle ~= nil
+        and (controlledVehicle == implement or controlledVehicle == rootVehicle
+            or controlledVehicle.rootVehicle == rootVehicle)
+end
+
+-- Shows a short Vanilla-style warning only for an implement controlled by the
+-- local player. Warning preferences remain client-local in multiplayer.
+function TerraLogicMain:showConditionWarning(textKey, fallback, ...)
+    local text = TerraLogicQualityManager ~= nil
+        and TerraLogicQualityManager:getText(textKey, fallback) or fallback
+    if text == nil or text == "" or g_currentMission == nil then return end
+    if select("#", ...) > 0 then
+        local formatOk, formatted = pcall(string.format, text, ...)
+        if formatOk then text = formatted end
+    end
+    local shown = false
+    if g_currentMission.showBlinkingWarning ~= nil then
+        shown = pcall(
+            g_currentMission.showBlinkingWarning,
+            g_currentMission, text, 4000)
+    end
+    local hud = g_currentMission.hud
+    if not shown and hud ~= nil and hud.showBlinkingWarning ~= nil then
+        shown = pcall(hud.showBlinkingWarning, hud, text, 4000)
+    end
+    if not shown and g_currentMission.addIngameNotification ~= nil
+        and FSBaseMission ~= nil and FSBaseMission.INGAME_NOTIFICATION_INFO ~= nil then
+        g_currentMission:addIngameNotification(
+            FSBaseMission.INGAME_NOTIFICATION_INFO, text)
+    end
+end
+
+function TerraLogicMain:handleConditionWarningActivation(implement)
+    local spec = implement ~= nil and implement.spec_terraLogic or nil
+    if self.enabled == false or spec == nil or implement.getDamageAmount == nil
+        or TerraLogicSettings ~= nil
+            and TerraLogicSettings.getConditionWarningsEnabled ~= nil
+            and not TerraLogicSettings:getConditionWarningsEnabled() then
+        return
+    end
+    if not getIsLocalControlledImplement(implement) then return end
+
+    local damage = math.clamp(
+        tonumber(implement:getDamageAmount()) or 0, 0, 1)
+    local now = g_currentMission ~= nil and (g_currentMission.time or 0) or 0
+    local timeout = TerraLogicSettings ~= nil
+        and TerraLogicSettings.getConditionWarningTimeoutMs ~= nil
+        and TerraLogicSettings:getConditionWarningTimeoutMs() or 60000
+    local repeatEveryActivation = timeout <= 0
+    -- Select only the highest current tier. Separate cooldowns allow a newly
+    -- reached, more severe tier to warn immediately on its next activation.
+    if damage >= 0.9995 then
+        self:showConditionWarning("terraLogic_conditionWarning100",
+            "Implement wear: 100 %\nThe implement is defective and must be repaired.")
+    elseif damage >= 0.90 then
+        if repeatEveryActivation
+            or now >= (spec.conditionWarningNext90Time or 0) then
+            self:showConditionWarning("terraLogic_conditionWarning90",
+                "Implement wear: 90 %\nFailure is imminent. Repair is urgently recommended.")
+            spec.conditionWarningNext90Time = now + timeout
+        end
+    elseif damage >= 0.75 then
+        if repeatEveryActivation
+            or now >= (spec.conditionWarningNext75Time or 0) then
+            self:showConditionWarning("terraLogic_conditionWarning75",
+                "Implement wear: 75 %\nRepair is recommended. Wear is reducing work quality.")
+            spec.conditionWarningNext75Time = now + timeout
+        end
+    elseif damage >= 0.50
+        and (repeatEveryActivation
+            or spec.conditionWarning50Shown ~= true) then
+        self:showConditionWarning("terraLogic_conditionWarning50",
+            "Implement wear: 50 %\nWear is now reducing work quality.")
+        spec.conditionWarning50Shown = true
+    end
+end
+
+function TerraLogicMain:handleStoneImpactWarning(implement)
+    if self.enabled == false or not getIsLocalControlledImplement(implement)
+        or TerraLogicSettings ~= nil
+            and TerraLogicSettings.getDamageWarningsEnabled ~= nil
+            and not TerraLogicSettings:getDamageWarningsEnabled() then
+        return
+    end
+    self:showConditionWarning(
+        "terraLogic_stoneImpactWarning",
+        "Severe stone impact\nReduce speed and inspect the implement.")
+end
+
+function TerraLogicMain:handleHighDamagePerHectareWarning(implement)
+    if self.enabled == false or not getIsLocalControlledImplement(implement)
+        or TerraLogicSettings ~= nil
+            and TerraLogicSettings.getDamageWarningsEnabled ~= nil
+            and not TerraLogicSettings:getDamageWarningsEnabled() then
+        return
+    end
+    self:showConditionWarning(
+        "terraLogic_highDamagePerHectareWarning",
+        "Severe implement wear\nDamage exceeds 5 % per hectare.")
 end
 
 -- Flushes data and releases HUD resources when leaving a mission.
@@ -1591,8 +1697,10 @@ function TerraLogicMain:getSpeedHudWorkQuality(implement, currentSpeed)
     -- The speed HUD describes execution quality, not PF's transient remaining
     -- N/pH gain at the exact map pixel. Using that local gain made the display
     -- jump back to 100% on already optimal ground.
-    return select(1, TerraLogicQualityManager:getWorkQualityModel(
-        implement, currentSpeed, component, nil))
+    local quality, _, economy = TerraLogicQualityManager:getWorkQualityModel(
+        implement, currentSpeed, component, nil)
+    return quality, economy ~= nil
+        and (tonumber(economy.conditionQualityLoss) or 0) or 0
 end
 
 function TerraLogicMain:getSpeedHudPhysicalWorkQuality(
@@ -1608,17 +1716,30 @@ function TerraLogicMain:getSpeedHudPhysicalWorkQuality(
     if not physicalDropoutsEnabled then
         return 1
     end
-    local failureFraction =
+    local speedFailureFraction =
         TerraLogicDropoutManager:getSurfacePatchFailureFraction(
             profileName,
             currentSpeed,
             tonumber(spec.ratedSpeed) or 0
         )
+    local _, conditionPenalty =
+        TerraLogicQualityManager:getConditionQualityModel(
+            implement, currentSpeed)
+    local failureFraction =
+        TerraLogicDropoutManager:getSurfacePatchFailureFraction(
+            profileName,
+            currentSpeed,
+            tonumber(spec.ratedSpeed) or 0,
+            conditionPenalty
+        )
     -- This is deliberately an expected execution quality, not persisted field
     -- quality. It uses the exact same target curve as the WorkArea dropout
     -- adapter, so pickup material left behind and the displayed percentage
     -- move together without frame-to-frame lane-selection flicker.
-    return math.clamp(1 - (tonumber(failureFraction) or 0), 0, 1)
+    local quality = math.clamp(1 - (tonumber(failureFraction) or 0), 0, 1)
+    local speedQuality = math.clamp(
+        1 - (tonumber(speedFailureFraction) or 0), 0, 1)
+    return quality, math.max(speedQuality - quality, 0)
 end
 
 local function getSpeedHudScaledPixels(widthPx, heightPx)
@@ -1639,6 +1760,16 @@ end
 local function getSpeedHudDefaultTextPixels()
     return HUDElement ~= nil and HUDElement.TEXT_SIZE ~= nil
         and tonumber(HUDElement.TEXT_SIZE.DEFAULT_TEXT) or 14
+end
+
+local function setSpeedHudConditionTextColor(conditionDamage)
+    if conditionDamage >= 0.90 then
+        setTextColor(1, 0.18, 0.10, 1)
+    elseif conditionDamage >= 0.75 then
+        setTextColor(1, 0.4287, 0.0006, 1)
+    else
+        setTextColor(1, 0.82, 0.18, 1)
+    end
 end
 
 -- Creates reusable overlays once; no textures are allocated during rendering.
@@ -1792,6 +1923,9 @@ function TerraLogicMain:drawSpeedHud()
                 implement, currentSpeed, physicalQualityProfile)
         end
     end
+    local conditionDamage = implement.getDamageAmount ~= nil
+        and math.clamp(
+            tonumber(implement:getDamageAmount()) or 0, 0, 1) or 0
     local showUnavailableQuality = hasDisplayedWorkQuality and quality == nil
     local showImplementCount = qualityTextEnabled
         and (activeImplementCount or 0) > 1
@@ -1933,16 +2067,35 @@ function TerraLogicMain:drawSpeedHud()
         if quality ~= nil then
             local roundedQuality = math.floor(
                 math.clamp(quality, 0, 1) * 100 + 0.5)
-            local format = TerraLogicQualityManager:getText(
-                "terraLogic_speedHudQuality", "Work quality: %d %%")
-            local label = string.format(format, roundedQuality)
+            local label
+            if conditionDamage >= 0.50 then
+                local format = TerraLogicQualityManager:getText(
+                    "terraLogic_speedHudQualityWorn",
+                    "Work quality (worn): %d %%")
+                label = string.format(format, roundedQuality)
+                setSpeedHudConditionTextColor(conditionDamage)
+            else
+                local format = TerraLogicQualityManager:getText(
+                    "terraLogic_speedHudQuality", "Work quality: %d %%")
+                label = string.format(format, roundedQuality)
+            end
             setTextAlignment(RenderText.ALIGN_LEFT)
             renderText(x, y + height + textGap, size, label)
+            setTextColor(1, 1, 1, 1)
         elseif showUnavailableQuality then
-            local label = TerraLogicQualityManager:getText(
-                "terraLogic_speedHudQualityUnavailable", "Work quality: -")
+            local label
+            if conditionDamage >= 0.50 then
+                label = TerraLogicQualityManager:getText(
+                    "terraLogic_speedHudQualityWornUnavailable",
+                    "Work quality (worn): -")
+                setSpeedHudConditionTextColor(conditionDamage)
+            else
+                label = TerraLogicQualityManager:getText(
+                    "terraLogic_speedHudQualityUnavailable", "Work quality: -")
+            end
             setTextAlignment(RenderText.ALIGN_LEFT)
             renderText(x, y + height + textGap, size, label)
+            setTextColor(1, 1, 1, 1)
         end
         if showImplementCount then
             local countFormat = TerraLogicQualityManager:getText(

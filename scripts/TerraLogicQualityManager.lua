@@ -6,13 +6,13 @@
     Unauthorized copying, modification, or redistribution is prohibited
     except where expressly permitted by the copyright owner.
 
-    Source fingerprint: TMW-TL-QUAL-1.200275
+    Source fingerprint: TMW-TL-QUAL-1.200277
 ]]
 
 TerraLogicQualityManager = {}
 OverSpeedQualityManager = TerraLogicQualityManager
 -- Numeric source signature only; it is deliberately excluded from gameplay math.
-TerraLogicQualityManager.SOURCE_FINGERPRINT = 1.200275
+TerraLogicQualityManager.SOURCE_FINGERPRINT = 1.200277
 
 TerraLogicQualityManager.CELL_SIZE = 4
 TerraLogicQualityManager.CHUNK_SIZE = 32
@@ -42,6 +42,13 @@ TerraLogicQualityManager.QUALITY_AT_REAL_SPEED = 1.00
 TerraLogicQualityManager.QUALITY_AT_SHOP_SPEED = 0.95
 TerraLogicQualityManager.MINIMUM_SPEED_QUALITY = 0.00
 TerraLogicQualityManager.ECONOMY_CURVE_K = 1.00
+-- Condition stays neutral through 50% damage, then degrades quadratically.
+-- A worn but still serviceable implement can recover clean work by travelling
+-- very slowly. Beyond 90% damage an irrecoverable share grows smoothly until
+-- a completely broken implement can no longer compensate through speed.
+TerraLogicQualityManager.CONDITION_QUALITY_START_DAMAGE = 0.50
+TerraLogicQualityManager.CONDITION_FULL_RECOVERY_SPEED_RATIO = 0.60
+TerraLogicQualityManager.CONDITION_IRRECOVERABLE_START_DAMAGE = 0.90
 TerraLogicQualityManager.MAXIMUM_TOTAL_YIELD_PENALTY = 0.80
 local CATEGORY_BALANCE = TerraLogicImplementProfiles.WORK_QUALITY_CATEGORIES
 TerraLogicQualityManager.COMPONENTS = {
@@ -539,6 +546,60 @@ function TerraLogicQualityManager:getSpeedEconomy(vehicle, currentSpeed)
         currentSpeed)
 end
 
+-- Shared condition contribution for stored quality, physical misses and HUD.
+-- At realistic speed this yields 100/100/75/0% condition quality at
+-- 0/50/75/100% damage. Up to 90% damage, travelling at or below 60% of
+-- realistic speed removes the condition contribution. Above 90% damage a
+-- smooth irrecoverable share grows to 100% at complete failure.
+function TerraLogicQualityManager:getConditionQualityModel(vehicle, currentSpeed)
+    local damage = vehicle ~= nil and vehicle.getDamageAmount ~= nil
+        and math.clamp(tonumber(vehicle:getDamageAmount()) or 0, 0, 1) or 0
+    local startDamage = math.clamp(
+        tonumber(self.CONDITION_QUALITY_START_DAMAGE) or 0.50, 0, 0.99)
+    local progress = math.clamp(
+        (damage - startDamage) / math.max(1 - startDamage, 0.01), 0, 1)
+    local baseLoss = progress * progress
+    local spec = vehicle ~= nil and vehicle.spec_terraLogic or nil
+    local realisticSpeed = math.max(
+        tonumber(spec ~= nil and spec.optimalSpeed) or 0, 0.01)
+    local speedRatio = math.max(
+        (tonumber(currentSpeed) or 0) / realisticSpeed, 0)
+    local recoverySpeedRatio = math.clamp(
+        tonumber(self.CONDITION_FULL_RECOVERY_SPEED_RATIO) or 0.60,
+        0, 0.95)
+    local speedProgress = math.clamp(
+        (speedRatio - recoverySpeedRatio)
+            / math.max(1 - recoverySpeedRatio, 0.05),
+        0, 1)
+    local speedLoad = speedProgress * speedProgress
+        * (3 - 2 * speedProgress)
+    local irrecoverableStart = math.clamp(
+        tonumber(self.CONDITION_IRRECOVERABLE_START_DAMAGE) or 0.90,
+        startDamage, 0.99)
+    local irrecoverableProgress = math.clamp(
+        (damage - irrecoverableStart)
+            / math.max(1 - irrecoverableStart, 0.01),
+        0, 1)
+    local irrecoverableShare = irrecoverableProgress
+        * irrecoverableProgress * (3 - 2 * irrecoverableProgress)
+    local loadFactor = irrecoverableShare
+        + (1 - irrecoverableShare) * speedLoad
+    local penalty = math.clamp(baseLoss * loadFactor, 0, 1)
+    return 1 - penalty, penalty, {
+        damage = damage,
+        progress = progress,
+        baseLoss = baseLoss,
+        speedRatio = speedRatio,
+        recoverySpeedRatio = recoverySpeedRatio,
+        speedLoad = speedLoad,
+        irrecoverableShare = irrecoverableShare,
+        loadFactor = loadFactor,
+        penalty = penalty,
+        qualityFactor = 1 - penalty,
+        startDamage = startDamage
+    }
+end
+
 function TerraLogicQualityManager:applyProductiveEconomy(economy, maximumPenalty)
     local cap = math.clamp(tonumber(maximumPenalty) or 0, 0, 1)
     local shopAreaFactor = 1 - cap * (1 - self.QUALITY_AT_SHOP_SPEED)
@@ -607,6 +668,28 @@ function TerraLogicQualityManager:getWorkQualityModel(
             1
         )
     end
+    local _, conditionPenalty, condition =
+        self:getConditionQualityModel(vehicle, currentSpeed)
+    local physicalConditionShare = 1
+    local physicalProfile = vehicleSpec ~= nil
+        and vehicleSpec.dropoutProfile or nil
+    local physicalProfileDefinition = physicalProfile ~= nil
+        and TerraLogicDropoutManager ~= nil
+        and TerraLogicDropoutManager:getProfile(physicalProfile) or nil
+    if conditionPenalty > 0 and dropoutReductionAllowed ~= false
+        and TerraLogicSettings ~= nil
+        and TerraLogicSettings:getPhysicalDropoutsEnabled()
+        and physicalProfileDefinition ~= nil
+        and physicalProfileDefinition.enabled == true then
+        -- Use the established Category-B share: the visible consequence gets
+        -- the full condition loss, while the invisible quality of successfully
+        -- processed ground keeps only the same conservative share.
+        physicalConditionShare = math.clamp(
+            tonumber(TerraLogicImplementProfiles
+                .WORK_QUALITY_DROPOUT_OVERSPEED_SHARE) or 0.45, 0, 1)
+    end
+    local storedConditionPenalty = conditionPenalty * physicalConditionShare
+    local storedConditionFactor = 1 - storedConditionPenalty
 
     if bonusDefinition ~= nil then
         local bonus = math.max(tonumber(bonusOverride)
@@ -708,6 +791,21 @@ function TerraLogicQualityManager:getWorkQualityModel(
             or areaFactor <= 1 - cap + 0.00001
     end
 
+    local qualityBeforeCondition = math.clamp(quality, 0, 1)
+    quality = math.clamp(qualityBeforeCondition * storedConditionFactor, 0, 1)
+    if bonusDefinition ~= nil then
+        local bonus = math.max(tonumber(bonusOverride)
+            or bonusDefinition.bonus or 0, 0)
+        local totalNow = 1 + bonus * quality
+        areaFactor = totalNow / math.max(1 + bonus, 0.0001)
+        penalty = math.clamp(1 - areaFactor, 0, 1)
+    else
+        local cap = math.clamp(definition ~= nil
+            and definition.maxYieldPenalty or 0, 0, 1)
+        areaFactor = 1 - cap * (1 - quality)
+        penalty = math.clamp(1 - areaFactor, 0, cap)
+    end
+
     economy.quality = quality
     economy.minimumQuality = minimumQuality
     economy.dropoutWorkQualityOverspeedShare = dropoutOverspeedShare
@@ -716,6 +814,15 @@ function TerraLogicQualityManager:getWorkQualityModel(
     economy.shopAreaFactor = shopAreaFactor
     economy.profitabilityIndex = economy.shopRatio
         * areaFactor / math.max(shopAreaFactor, 0.0001)
+    economy.qualityBeforeCondition = qualityBeforeCondition
+    economy.conditionQualityFactor = storedConditionFactor
+    economy.conditionQualityPenalty = storedConditionPenalty
+    economy.conditionQualityLoss = math.max(qualityBeforeCondition - quality, 0)
+    economy.conditionFullPenalty = conditionPenalty
+    economy.conditionPhysicalShare = physicalConditionShare
+    economy.conditionDamage = condition.damage
+    economy.conditionProgress = condition.progress
+    economy.conditionLoadFactor = condition.loadFactor
     return quality, penalty, economy
 end
 

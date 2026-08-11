@@ -6,7 +6,7 @@
     Unauthorized copying, modification, or redistribution is prohibited
     except where expressly permitted by the copyright owner.
 
-    Source fingerprint: TMW-TL-DROP-1.200113
+    Source fingerprint: TMW-TL-DROP-1.200114
 ]]
 
 -- Encapsulated work-quality/dropout model. Game-specific density-map writes
@@ -15,7 +15,7 @@
 TerraLogicDropoutManager = {}
 OverSpeedDamageDropoutManager = TerraLogicDropoutManager
 -- Numeric source signature only; it is deliberately excluded from gameplay math.
-TerraLogicDropoutManager.SOURCE_FINGERPRINT = 1.200113
+TerraLogicDropoutManager.SOURCE_FINGERPRINT = 1.200114
 
 TerraLogicDropoutManager.PROFILES = {
     seed = {
@@ -780,7 +780,7 @@ end
 -- normalized exponential-squared curve used by true plow failures gives a
 -- gentle onset and a finite cap at twice shop speed.
 function TerraLogicDropoutManager:getSurfacePatchFailureFraction(
-        profileName, currentSpeed, ratedSpeed)
+        profileName, currentSpeed, ratedSpeed, conditionPenalty)
     local cfg = self:getProfile(profileName)
     local current = math.max(tonumber(currentSpeed) or 0, 0)
     local rated = math.max(tonumber(ratedSpeed) or 0, 0)
@@ -791,11 +791,14 @@ function TerraLogicDropoutManager:getSurfacePatchFailureFraction(
         and tonumber(cfg.failureStartOverspeedKph) or nil
     local curveStartOverspeed = delayedStart ~= nil
         and math.max(delayedStart, activationMargin) or 0
-    if cfg == nil or cfg.enabled ~= true or rated <= 0
-        or current <= rated + math.max(
-            activationMargin, curveStartOverspeed
-        ) then
+    if cfg == nil or cfg.enabled ~= true or rated <= 0 then
         return 0
+    end
+    local conditionFailure = math.clamp(
+        tonumber(conditionPenalty) or 0, 0, 1)
+    if current <= rated + math.max(
+            activationMargin, curveStartOverspeed) then
+        return conditionFailure
     end
 
     local maximumFraction = math.clamp(
@@ -915,7 +918,15 @@ function TerraLogicDropoutManager:getSurfacePatchFailureFraction(
         )
         finalMaximum = beyondDoubleMaximum
     end
-    return math.clamp(failureFraction, 0, finalMaximum)
+    failureFraction = math.clamp(failureFraction, 0, finalMaximum)
+    -- Independent probability union: an area succeeds only if neither speed
+    -- nor condition causes a miss. Existing speed-only balancing is therefore
+    -- bit-for-bit identical at <=50% damage.
+    if conditionFailure > 0 then
+        failureFraction = 1
+            - (1 - failureFraction) * (1 - conditionFailure)
+    end
+    return math.clamp(failureFraction, 0, 1)
 end
 
 -- Tests one point against a sparse, jittered lattice of island candidates.

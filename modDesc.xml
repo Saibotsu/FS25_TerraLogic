@@ -37,8 +37,8 @@ Working too fast can leave visible mistakes behind. The faster you drive, the mo
 - Mulchers: Leave an uneven mulching pattern.
 
 Additional Features:
-- Poor Work Quality from plowing gradually recovers over successive crop cycles, reflecting the soil's natural regeneration.
-- Poorly established grass gradually recovers over multiple harvests, allowing yield to slowly return as the grass stand becomes denser.
+- Poor Work Quality from plowing gradually recovers over successive growth cycles, reflecting the soil's natural regeneration.
+- Poorly established grass gradually recovers over multiple growth cycles, allowing yield to slowly return as unsown gaps gradually close.
 - Optional Visible Field Effects can be disabled for improved performance. Implements whose economic balance relies solely on Visible Field Effects regain their original speed limits.
 - Supports Precision Farming, including realistic draft behaviour and application simulation.
 - Supports More Realistic with selectable draft calculation.
@@ -77,8 +77,8 @@ Zu hohe Arbeitsgeschwindigkeiten können sichtbare Bearbeitungsfehler verursache
 - Mulcher: Hinterlassen ein ungleichmäßiges Mulchbild.
 
 Weitere Features:
-- Schlechte Pflugqualität regeneriert sich über mehrere Anbauzyklen hinweg langsam durch natürliche Bodenprozesse.
-- Schlecht etablierte Grasbestände werden über mehrere Schnitte hinweg allmählich dichter, wodurch sich der Ertrag langsam wieder erholt.
+- Schlechte Pflugqualität regeneriert sich über mehrere Wachstumsstufen hinweg langsam durch natürliche Bodenprozesse.
+- Schlecht etablierte Grasbestände werden über mehrere Wachstumsstufen hinweg allmählich dichter, wodurch sich sogar kleinere Saatlücken langsam schließen.
 - Visible Field Effects können optional deaktiviert werden, um die Performance zu verbessern. Anbaugeräte, die nur durch Visible Field Effects an Wirtschaftlichkeit verlieren, erhalten dadurch ihr Tempolimit zurück.
 - Unterstützung für Precision Farming mit realistischen Zugkräften und Ausbringungsverhalten.
 - Unterstützung für More Realistic mit umschaltbarer Zugkraftberechnung.
@@ -152,6 +152,18 @@ https://github.com/Saibotsu/FS25_TerraLogic]]></de>
         <text name="terraLogic_speedHudQuality">
             <en>Work quality: %d %%</en>
             <de>Arbeitsqualit&#228;t: %d %%</de>
+        </text>
+        <text name="terraLogic_speedHudQualityWear">
+            <en>Work quality: %d %% | Wear: -%d %%</en>
+            <de>Arbeitsqualit&#228;t: %d %% | Verschlei&#223;: -%d %%</de>
+        </text>
+        <text name="terraLogic_speedHudQualityWorn">
+            <en>Work quality (worn): %d %%</en>
+            <de>Arbeitsqualit&#228;t (verschlissen): %d %%</de>
+        </text>
+        <text name="terraLogic_speedHudQualityWornUnavailable">
+            <en>Work quality (worn): -</en>
+            <de>Arbeitsqualit&#228;t (verschlissen): -</de>
         </text>
         <text name="terraLogic_speedHudQualityUnavailable">
             <en>Work quality: -</en>
@@ -233,6 +245,70 @@ https://github.com/Saibotsu/FS25_TerraLogic]]></de>
             <en>Off</en>
             <de>Aus</de>
         </text>
+        <text name="terraLogic_settingConditionWarningsTitle">
+            <en>Implement condition warnings</en>
+            <de>Warnungen zum Ger&#228;tezustand</de>
+        </text>
+        <text name="terraLogic_settingConditionWarningsTooltip">
+            <en>Shows a short warning when an activated implement is badly worn. The work-quality display is not affected.</en>
+            <de>Zeigt beim Aktivieren eines stark verschlissenen Ger&#228;ts eine kurze Warnung. Die Arbeitsqualit&#228;tsanzeige bleibt davon unber&#252;hrt.</de>
+        </text>
+        <text name="terraLogic_settingDamageWarningsTitle">
+            <en>Damage warnings</en>
+            <de>Schadenswarnungen</de>
+        </text>
+        <text name="terraLogic_settingDamageWarningsTooltip">
+            <en>Shows warnings for severe stone impacts and continuous damage above 5% per hectare.</en>
+            <de>Zeigt Warnungen bei starken Steinaufprallen und bei mehr als 5 % dauerhaftem Schaden pro Hektar.</de>
+        </text>
+        <text name="terraLogic_settingConditionWarningTimeoutTitle">
+            <en>Condition warning interval</en>
+            <de>Intervall der Zustandswarnungen</de>
+        </text>
+        <text name="terraLogic_settingConditionWarningTimeoutTooltip">
+            <en>Minimum time before the 75% and 90% warnings may appear again. Off shows the strongest applicable warning on every activation.</en>
+            <de>Mindestzeit, bevor die Warnungen bei 75 % und 90 % erneut erscheinen d&#252;rfen. Aus zeigt bei jeder Aktivierung die h&#246;chste zutreffende Warnstufe.</de>
+        </text>
+        <text name="terraLogic_settingWarningTimeoutOff">
+            <en>Off</en>
+            <de>Aus</de>
+        </text>
+        <text name="terraLogic_settingWarningTimeout1">
+            <en>1 minute</en>
+            <de>1 Minute</de>
+        </text>
+        <text name="terraLogic_settingWarningTimeout2">
+            <en>2 minutes</en>
+            <de>2 Minuten</de>
+        </text>
+        <text name="terraLogic_settingWarningTimeout5">
+            <en>5 minutes</en>
+            <de>5 Minuten</de>
+        </text>
+        <text name="terraLogic_conditionWarning50">
+            <en>Implement wear: 50% - Wear is now gradually reducing work quality.</en>
+            <de>Ger&#228;teverschlei&#223;: 50% - Der Verschlei&#223; verringert ab jetzt allmählich die Arbeitsqualit&#228;t.</de>
+        </text>
+        <text name="terraLogic_conditionWarning75">
+            <en>Implement wear: 75% - Repair is recommended. Wear is reducing work quality.</en>
+            <de>Ger&#228;teverschlei&#223;: 75% - Eine Reparatur wird empfohlen. Der Verschlei&#223; verringert die Arbeitsqualit&#228;t.</de>
+        </text>
+        <text name="terraLogic_conditionWarning90">
+            <en>Implement wear: 90% - Failure is imminent. Repair is urgently recommended.</en>
+            <de>Ger&#228;teverschlei&#223;: 90% - Ein Ger&#228;teausfall droht. Eine Reparatur wird dringend empfohlen.</de>
+        </text>
+        <text name="terraLogic_conditionWarning100">
+            <en>Implement wear: 100% - The implement is defective and must be repaired.</en>
+            <de>Ger&#228;teverschlei&#223;: 100% - Das Ger&#228;t ist defekt und muss repariert werden.</de>
+        </text>
+        <text name="terraLogic_stoneImpactWarning">
+            <en>Severe stone impact!Lower speeds reduce impact damage.</en>
+            <de>Starker Steinaufprall! Niedrigere Geschwindigkeiten reduzieren den Aufprallschaden.</de>
+        </text>
+        <text name="terraLogic_highDamagePerHectareWarning">
+            <en>High implement damage rate! Reduce speed and watch for rocky conditions.</en>
+            <de>Hohe Schadensrate am Gerät! Geschwindigkeit reduzieren und auf steinige Bedingungen achten.</de>
+        </text>
         <text name="terraLogic_settingOn">
             <en>On</en>
             <de>An</de>
@@ -266,6 +342,7 @@ https://github.com/Saibotsu/FS25_TerraLogic]]></de>
         <sourceFile filename="scripts\TerraLogicImplementProfiles.lua" />
         <sourceFile filename="scripts\TerraLogicDropoutManager.lua" />
         <sourceFile filename="scripts\TerraLogicQualityManager.lua" />
+        <sourceFile filename="scripts\TerraLogicGrassGapManager.lua" />
         <sourceFile filename="scripts\TerraLogicMain.lua" />
     </extraSourceFiles>
 </modDesc>
