@@ -6,7 +6,7 @@
     Unauthorized copying, modification, or redistribution is prohibited
     except where expressly permitted by the copyright owner.
 
-    Source fingerprint: TMW-TL-PROF-1.200147
+    Source fingerprint: TMW-TL-PROF-1.200148
 ]]
 
 -- Central implement balance table. All values which vary by implement class
@@ -14,7 +14,7 @@
 TerraLogicImplementProfiles = {}
 OverSpeedDamageImplementProfiles = TerraLogicImplementProfiles
 -- Numeric source signature only; it is deliberately excluded from gameplay math.
-TerraLogicImplementProfiles.SOURCE_FINGERPRINT = 1.200147
+TerraLogicImplementProfiles.SOURCE_FINGERPRINT = 1.200148
 
 -- Central real-world baseline table. Entries without a simulation profile are
 -- retained for future recognition work; they do not make an unsupported
@@ -279,18 +279,22 @@ local YIELD_QUALITY = TerraLogicImplementProfiles.YIELD_QUALITY
 -- draft.enabled          allows every TerraLogic MaxForce addition for this class
 -- draft.overspeedScale   scales only the shared overspeed curve's excess
 -- wear.model             "soil" (default) or PF-independent "surface"
--- wear.abrasionFactor    class exposure to sliding mineral abrasion (0..1)
+-- wear.abrasionFactor    retained legacy metadata only; runtime mineral
+--                        abrasion is derived from work.depthCm
 -- wear.safeSpeedRatio    optional forced Vanilla-wear point as shop fraction
 -- wear.minimumShopFactor optional lower class/shop plausibility threshold
 -- wear.maximumShopFactor optional upper class/shop plausibility threshold
 --                        (nil = global hybrid resolver defaults)
--- impacts.depthFactor    scales random impact frequency per hectare
--- impacts.stoneProtection declares a typical mechanical stone-protection
---                        system for the class (trip leg, spring/reset or
---                        shear-bolt protection)
--- impacts.mediumDamageFactor reduces MEDIUM random-impact damage only;
---                        small/big impacts remain unchanged
--- stones.*               real stone-map contact/generation/hidden-risk factors
+-- Hidden-impact frequency is derived only from work.depthCm: the configured
+-- tier rates apply at 30 cm and scale linearly per worked hectare.
+-- impacts.underground    enables depth-based hidden stone contacts
+-- impacts.vanilla        enables contacts with visible Vanilla stones
+-- impacts.workSpeed      lets travel speed determine impact energy
+-- impacts.rotation       supplies a common rotating-part energy floor
+-- impacts.sensitivity    construction class: high, medium or low
+-- impacts.sensitivityFactor is the final per-class impact multiplier
+-- impacts.overspeedOnly  suppresses all stone damage at/below shop speed
+-- stones.*               visible stone-map contact metadata
 -- dropoutProfile         selects continuous work-quality patterns
 -- impactDropoutProfile   selects impact-latched mechanical work gaps
 --
@@ -303,8 +307,8 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = true, overspeedScale = 1.00},
         wear = {abrasionFactor = ABRASION.plow},
         yield = YIELD_QUALITY.plowGroup,
-        impacts = {depthFactor = 1.50, stoneProtection = true, mediumDamageFactor = 0.70},
-        stones = {mode = "Deep generator", surface = 1.00, generated = 1.00, hidden = 0.45},
+        impacts = {underground = true, vanilla = true, workSpeed = true, rotation = false, sensitivity = "low", sensitivityFactor = 0.65},
+        stones = {mode = "Plow", surface = 1.00, generated = 0.00},
         dropoutProfile = nil,
         impactDropoutProfile = nil
     },
@@ -314,8 +318,8 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = true, overspeedScale = 1.00},
         wear = {abrasionFactor = ABRASION.subsoiler},
         yield = YIELD_QUALITY.plowGroup,
-        impacts = {depthFactor = 2.20, stoneProtection = true, mediumDamageFactor = 0.72},
-        stones = {mode = "Deep generator", surface = 1.00, generated = 1.10, hidden = 0.45},
+        impacts = {underground = true, vanilla = true, workSpeed = true, rotation = false, sensitivity = "low", sensitivityFactor = 0.65},
+        stones = {mode = "Subsoiler", surface = 1.00, generated = 0.00},
         dropoutProfile = nil
     },
     cultivator = {
@@ -324,8 +328,8 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = true, overspeedScale = 1.00},
         wear = {abrasionFactor = ABRASION.cultivator},
         yield = YIELD_QUALITY.cultivator,
-        impacts = {depthFactor = 0.90, stoneProtection = true, mediumDamageFactor = 0.75},
-        stones = {mode = "Cultivator", surface = 0.80, generated = 0.75, hidden = 0.60},
+        impacts = {underground = true, vanilla = true, workSpeed = true, rotation = false, sensitivity = "medium", sensitivityFactor = 1.00},
+        stones = {mode = "Cultivator", surface = 1.00, generated = 0.00},
         dropoutProfile = nil
     },
     shallowCultivator = {
@@ -334,8 +338,8 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = true, overspeedScale = 1.00},
         wear = {abrasionFactor = ABRASION.shallowCultivator},
         yield = YIELD_QUALITY.shallowCultivator,
-        impacts = {depthFactor = 0.50, stoneProtection = true, mediumDamageFactor = 0.80},
-        stones = {mode = "Shallow cultivator", surface = 0.45, generated = 0.35, hidden = 0.80},
+        impacts = {underground = true, vanilla = true, workSpeed = true, rotation = false, sensitivity = "medium", sensitivityFactor = 1.00},
+        stones = {mode = "Shallow cultivator", surface = 1.00, generated = 0.00},
         dropoutProfile = nil
     },
     discHarrow = {
@@ -344,8 +348,8 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = true, overspeedScale = 1.00},
         wear = {abrasionFactor = ABRASION.discHarrow},
         yield = YIELD_QUALITY.discHarrow,
-        impacts = {depthFactor = 0.60, stoneProtection = false, mediumDamageFactor = 1.00},
-        stones = {mode = "Disc harrow", surface = 0.50, generated = 0.35, hidden = 0.78},
+        impacts = {underground = true, vanilla = true, workSpeed = true, rotation = false, sensitivity = "medium", sensitivityFactor = 1.00},
+        stones = {mode = "Disc harrow", surface = 1.00, generated = 0.00},
         dropoutProfile = nil
     },
     powerHarrow = {
@@ -354,8 +358,8 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = true, overspeedScale = 1.00},
         wear = {abrasionFactor = ABRASION.powerHarrow},
         yield = YIELD_QUALITY.powerHarrow,
-        impacts = {depthFactor = 0.50, stoneProtection = false, mediumDamageFactor = 1.00},
-        stones = {mode = "Power harrow", surface = 0.45, generated = 0.30, hidden = 0.80},
+        impacts = {underground = true, vanilla = true, workSpeed = false, rotation = true, sensitivity = "medium", sensitivityFactor = 1.00},
+        stones = {mode = "Power harrow", surface = 1.00, generated = 0.00},
         dropoutProfile = nil
     },
     spader = {
@@ -364,8 +368,8 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = true, overspeedScale = 1.00},
         wear = {abrasionFactor = ABRASION.spader},
         yield = YIELD_QUALITY.cultivationGroup,
-        impacts = {depthFactor = 1.50, stoneProtection = false, mediumDamageFactor = 1.00},
-        stones = {mode = "Spader", surface = 0.90, generated = 0.90, hidden = 0.52},
+        impacts = {underground = true, vanilla = true, workSpeed = false, rotation = true, sensitivity = "medium", sensitivityFactor = 1.00},
+        stones = {mode = "Spader", surface = 1.00, generated = 0.00},
         dropoutProfile = nil
     },
     directDrill = {
@@ -374,8 +378,8 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = true, overspeedScale = 1.00},
         wear = {abrasionFactor = ABRASION.directDrill},
         yield = YIELD_QUALITY.directDrill,
-        impacts = {depthFactor = 0.30, stoneProtection = false, mediumDamageFactor = 1.00},
-        stones = {mode = "Direct drill", surface = 0.35, generated = 0.20, hidden = 0.85},
+        impacts = {underground = true, vanilla = true, workSpeed = true, rotation = false, sensitivity = "high", sensitivityFactor = 1.35},
+        stones = {mode = "Direct drill", surface = 1.00, generated = 0.00},
         dropoutProfile = "seed"
     },
     sowingMachine = {
@@ -384,8 +388,8 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = true, overspeedScale = 1.00},
         wear = {abrasionFactor = ABRASION.sowingMachine},
         yield = YIELD_QUALITY.sowingMachine,
-        impacts = {depthFactor = 0.30, stoneProtection = false, mediumDamageFactor = 1.00},
-        stones = {mode = "Sowing machine", surface = 0.25, generated = 0.15, hidden = 0.90},
+        impacts = {underground = true, vanilla = true, workSpeed = true, rotation = false, sensitivity = "high", sensitivityFactor = 1.35},
+        stones = {mode = "Sowing machine", surface = 1.00, generated = 0.00},
         dropoutProfile = "seed"
     },
     precisionPlanter = {
@@ -394,8 +398,8 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = true, overspeedScale = 1.00},
         wear = {abrasionFactor = ABRASION.precisionPlanter},
         yield = YIELD_QUALITY.precisionPlanter,
-        impacts = {depthFactor = 0.30, stoneProtection = false, mediumDamageFactor = 1.00},
-        stones = {mode = "Precision planter", surface = 0.25, generated = 0.15, hidden = 0.90},
+        impacts = {underground = true, vanilla = true, workSpeed = true, rotation = false, sensitivity = "high", sensitivityFactor = 1.35},
+        stones = {mode = "Precision planter", surface = 1.00, generated = 0.00},
         dropoutProfile = "seed"
     },
     roller = {
@@ -404,8 +408,8 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = false, overspeedScale = 0.00},
         wear = {model = "surface", abrasionFactor = ABRASION.roller},
         yield = YIELD_QUALITY.roller,
-        impacts = {depthFactor = 0.15, stoneProtection = false, mediumDamageFactor = 1.00},
-        stones = {mode = "Surface roller", surface = 0.25, generated = 0.00, hidden = 0.90},
+        impacts = {underground = false, vanilla = true, workSpeed = true, rotation = false, sensitivity = "low", sensitivityFactor = 0.65},
+        stones = {mode = "Surface roller", surface = 1.00, generated = 0.00},
         dropoutProfile = nil
     },
     mulcher = {
@@ -414,8 +418,11 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = false, overspeedScale = 0.00},
         wear = {model = "surface", abrasionFactor = ABRASION.mulcher},
         yield = YIELD_QUALITY.mulcher,
-        impacts = {depthFactor = 0.20, stoneProtection = false, mediumDamageFactor = 1.00},
-        stones = {mode = "Surface mulcher", surface = 0.35, generated = 0.00, hidden = 0.85},
+        -- Driven mulchers are robust, but a trapped stone still loads the
+        -- rotor and housing. Passive knife rollers are resolved to low
+        -- sensitivity at runtime when no TurnOnVehicle specialization exists.
+        impacts = {underground = true, vanilla = true, workSpeed = false, rotation = true, sensitivity = "medium", sensitivityFactor = 1.00, passiveSensitivity = "low", passiveSensitivityFactor = 0.65},
+        stones = {mode = "Surface mulcher", surface = 1.00, generated = 0.00},
         dropoutProfile = "mulcherPatch"
     },
     mower = {
@@ -424,10 +431,8 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = false, overspeedScale = 0.00},
         wear = {model = "surface", abrasionFactor = ABRASION.mower},
         yield = YIELD_QUALITY.mower,
-        -- Mowers receive continuous surface wear, but never soil/stone impacts:
-        -- they cut above the soil and must remain separate from harvesters.
-        impacts = {depthFactor = 0.00, stoneProtection = false, mediumDamageFactor = 1.00},
-        stones = nil,
+        impacts = {underground = false, vanilla = true, workSpeed = false, rotation = true, sensitivity = "high", sensitivityFactor = 1.35},
+        stones = {mode = "Mower", surface = 1.00, generated = 0.00},
         dropoutProfile = "mowerPatch"
     },
     windrower = {
@@ -436,8 +441,8 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = false, overspeedScale = 0.00},
         wear = {model = "surface", abrasionFactor = ABRASION.windrower},
         yield = YIELD_QUALITY.windrower,
-        impacts = {depthFactor = 0.00, stoneProtection = false, mediumDamageFactor = 1.00},
-        stones = nil,
+        impacts = {underground = false, vanilla = true, workSpeed = true, rotation = true, sensitivity = "low", sensitivityFactor = 0.65},
+        stones = {mode = "Windrower", surface = 1.00, generated = 0.00},
         dropoutProfile = "windrowerPatch"
     },
     tedder = {
@@ -446,8 +451,8 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = false, overspeedScale = 0.00},
         wear = {model = "surface", abrasionFactor = ABRASION.tedder},
         yield = YIELD_QUALITY.tedder,
-        impacts = {depthFactor = 0.00, stoneProtection = false, mediumDamageFactor = 1.00},
-        stones = nil,
+        impacts = {underground = false, vanilla = true, workSpeed = true, rotation = true, sensitivity = "low", sensitivityFactor = 0.65},
+        stones = {mode = "Tedder", surface = 1.00, generated = 0.00},
         dropoutProfile = "tedderPatch"
     },
     baler = {
@@ -456,8 +461,8 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = false, overspeedScale = 0.00},
         wear = {model = "surface", abrasionFactor = ABRASION.baler},
         yield = {weight = 0.00, maxPenalty = 0.00},
-        impacts = {depthFactor = 0.00, stoneProtection = false, mediumDamageFactor = 1.00},
-        stones = nil,
+        impacts = {underground = false, vanilla = true, workSpeed = true, rotation = true, sensitivity = "medium", sensitivityFactor = 1.00},
+        stones = {mode = "Baler pickup", surface = 1.00, generated = 0.00},
         dropoutProfile = "balerPatch"
     },
     loaderWagon = {
@@ -466,8 +471,8 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = false, overspeedScale = 0.00},
         wear = {model = "surface", abrasionFactor = ABRASION.loaderWagon},
         yield = {weight = 0.00, maxPenalty = 0.00},
-        impacts = {depthFactor = 0.00, stoneProtection = false, mediumDamageFactor = 1.00},
-        stones = nil,
+        impacts = {underground = false, vanilla = true, workSpeed = true, rotation = true, sensitivity = "medium", sensitivityFactor = 1.00},
+        stones = {mode = "Loader wagon pickup", surface = 1.00, generated = 0.00},
         dropoutProfile = "loaderWagonPatch"
     },
     stonePicker = {
@@ -476,8 +481,8 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = false, overspeedScale = 0.00},
         wear = {abrasionFactor = ABRASION.stonePicker},
         yield = {weight = 0.00, maxPenalty = 0.00},
-        impacts = {depthFactor = 0.30, stoneProtection = false, mediumDamageFactor = 1.00},
-        stones = {mode = "Stone picker", surface = 0.10, generated = 0.00, hidden = 0.00},
+        impacts = {underground = true, vanilla = true, workSpeed = false, rotation = true, overspeedOnly = true, sensitivity = "low", sensitivityFactor = 0.65},
+        stones = {mode = "Stone picker", surface = 1.00, generated = 0.00},
         dropoutProfile = "stonePickerPatch"
     },
     weeder = {
@@ -486,8 +491,8 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = true, overspeedScale = 0.15},
         wear = {abrasionFactor = ABRASION.weeder},
         yield = YIELD_QUALITY.herbicideSprayer,
-        impacts = {depthFactor = 0.10, stoneProtection = true, mediumDamageFactor = 0.35},
-        stones = {mode = "Shallow weeder", surface = 0.20, generated = 0.00, hidden = 0.25},
+        impacts = {underground = true, vanilla = true, workSpeed = true, rotation = false, sensitivity = "high", sensitivityFactor = 1.35},
+        stones = {mode = "Shallow weeder", surface = 1.00, generated = 0.00},
         dropoutProfile = "weederPatch"
     },
     hoe = {
@@ -496,8 +501,8 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = true, overspeedScale = 0.30},
         wear = {abrasionFactor = ABRASION.hoe},
         yield = YIELD_QUALITY.herbicideSprayer,
-        impacts = {depthFactor = 0.25, stoneProtection = true, mediumDamageFactor = 0.60},
-        stones = {mode = "Mechanical hoe", surface = 0.30, generated = 0.00, hidden = 0.50},
+        impacts = {underground = true, vanilla = true, workSpeed = true, rotation = false, sensitivity = "medium", sensitivityFactor = 1.00},
+        stones = {mode = "Mechanical hoe", surface = 1.00, generated = 0.00},
         dropoutProfile = "hoePatch"
     },
 
@@ -509,7 +514,7 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = false, overspeedScale = 0.00},
         wear = {abrasionFactor = ABRASION.liquidSprayer},
         yield = YIELD_QUALITY.liquidApplication,
-        impacts = {depthFactor = 0.00, stoneProtection = false, mediumDamageFactor = 1.00},
+        impacts = {underground = false, vanilla = false, workSpeed = false, rotation = false},
         stones = nil,
         dropoutProfile = "liquidSprayer"
     },
@@ -519,7 +524,7 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = false, overspeedScale = 0.00},
         wear = {abrasionFactor = ABRASION.fertilizerSpreader},
         yield = YIELD_QUALITY.fertilizerSpreader,
-        impacts = {depthFactor = 0.00, stoneProtection = false, mediumDamageFactor = 1.00},
+        impacts = {underground = false, vanilla = false, workSpeed = false, rotation = false},
         stones = nil,
         dropoutProfile = "fertilizerSpreader"
     },
@@ -529,7 +534,7 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = false, overspeedScale = 0.00},
         wear = {abrasionFactor = ABRASION.manureSpreader},
         yield = YIELD_QUALITY.manureBroadcaster,
-        impacts = {depthFactor = 0.00, stoneProtection = false, mediumDamageFactor = 1.00},
+        impacts = {underground = false, vanilla = false, workSpeed = false, rotation = false},
         stones = nil,
         dropoutProfile = "fertilizerSpreader"
     },
@@ -539,7 +544,7 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = false, overspeedScale = 0.00},
         wear = {abrasionFactor = ABRASION.slurryDistributor},
         yield = YIELD_QUALITY.manureBroadcaster,
-        impacts = {depthFactor = 0.00, stoneProtection = false, mediumDamageFactor = 1.00},
+        impacts = {underground = false, vanilla = false, workSpeed = false, rotation = false},
         stones = nil,
         dropoutProfile = "fertilizerSpreader"
     },
@@ -549,7 +554,7 @@ TerraLogicImplementProfiles.PROFILES = {
         draft = {enabled = false, overspeedScale = 0.00},
         wear = {abrasionFactor = ABRASION.dribbleBar},
         yield = YIELD_QUALITY.dribbleBar,
-        impacts = {depthFactor = 0.00, stoneProtection = false, mediumDamageFactor = 1.00},
+        impacts = {underground = false, vanilla = false, workSpeed = false, rotation = false},
         stones = nil,
         dropoutProfile = "liquidSprayer"
     }

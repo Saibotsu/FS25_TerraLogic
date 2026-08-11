@@ -6,13 +6,13 @@
     Unauthorized copying, modification, or redistribution is prohibited
     except where expressly permitted by the copyright owner.
 
-    Source fingerprint: TMW-TL-MAIN-1.200217
+    Source fingerprint: TMW-TL-MAIN-1.200218
 ]]
 
 TerraLogicMain = {}
 OverSpeedDamageMain = TerraLogicMain
 -- Numeric source signature only; it is deliberately excluded from gameplay math.
-TerraLogicMain.SOURCE_FINGERPRINT = 1.200217
+TerraLogicMain.SOURCE_FINGERPRINT = 1.200218
 
 local MOD_NAME = g_currentModName
 local MOD_DIR = g_currentModDirectory
@@ -27,6 +27,7 @@ TerraLogicMain.DEBUG_VIEWS = {
     economy = true,
     draft = true,
     impacts = true,
+    damageanalysis = true,
     quality = true,
     balancing = true,
     workquality = true,
@@ -38,6 +39,7 @@ TerraLogicMain.DEBUG_VIEW_HELP = {
     {name = "economy", description = "repair costs and remaining service life"},
     {name = "draft", description = "draft, MaxForce and Precision Farming soil"},
     {name = "impacts", description = "random impacts and real stone contacts"},
+    {name = "damageanalysis", description = "session damage split by exact source"},
     {name = "quality", description = "sowing/application quality and dropouts"},
     {name = "balancing", description = "live time saving, quality and yield trade-off"},
     {name = "workquality", description = "stored work quality and real yield deductions"},
@@ -61,8 +63,7 @@ TerraLogicMain.BALANCE_DEFAULTS = {
     randomFrequency = 1,
     randomDamage = 1,
     stoneSurface = 1,
-    stoneGenerated = 1,
-    stoneHidden = 1
+    stoneGenerated = 1
 }
 TerraLogicMain.BALANCE_NAMES = {
     wear = "wear",
@@ -71,8 +72,7 @@ TerraLogicMain.BALANCE_NAMES = {
     randomfrequency = "randomFrequency",
     randomdamage = "randomDamage",
     stonesurface = "stoneSurface",
-    stonegenerated = "stoneGenerated",
-    stonehidden = "stoneHidden"
+    stonegenerated = "stoneGenerated"
 }
 TerraLogicMain.balanceMultipliers = {}
 for name, value in pairs(TerraLogicMain.BALANCE_DEFAULTS) do
@@ -193,10 +193,11 @@ function TerraLogicMain:loadMap(mapNode, mapFile)
     self.mowerQualityEnabled = false
     local commands = {
         {"tlDebug", "TerraLogic debug toggle/view: tlDebug [view|on|off]", "consoleCommandDebug"},
-        {"tlView", "Open TerraLogic debug view: tlView <overview|wear|economy|draft|impacts|quality|balancing|workquality|technical>", "consoleCommandDebugView"},
+        {"tlView", "Open TerraLogic debug view: tlView <overview|wear|economy|draft|impacts|damageanalysis|quality|balancing|workquality|technical>", "consoleCommandDebugView"},
         {"tlViews", "List TerraLogic debug views", "consoleCommandDebugViews"},
         {"tlDebugClose", "Close the active TerraLogic debug view", "consoleCommandDebugClose"},
         {"tlSetDamage", "Set selected implement damage: tlSetDamage <0-100>", "consoleCommandSetDamage"},
+        {"tlDamageAnalysis", "Open/reset damage analysis: tlDamageAnalysis [reset]", "consoleCommandDamageAnalysis"},
         {"tlPF", "Precision Farming mode: tlPF [auto|on|off]", "consoleCommandPrecisionFarming"},
         {"tlPFInspect", "Inspect Precision Farming runtime objects", "consoleCommandPrecisionFarmingInspect"},
         {"tlEnable", "Enable/disable TerraLogic: tlEnable [on|off]", "consoleCommandEnable"},
@@ -261,7 +262,7 @@ function TerraLogicMain:deleteMap()
         self.balanceTestImplement = nil
     end
     for _, name in ipairs({
-            "tlDebug", "tlView", "tlViews", "tlDebugClose", "tlSetDamage",
+            "tlDebug", "tlView", "tlViews", "tlDebugClose", "tlSetDamage", "tlDamageAnalysis",
             "tlPF", "tlPFInspect", "tlEnable", "tlWearPolicy", "tlAbrasion",
             "tlResistance", "tlDraft", "tlImpacts", "tlStones", "tlMowerQuality", "tlMultiplier",
             "tlBalanceReset", "tlPrintBalance", "tlLog", "tlDraftModel",
@@ -878,7 +879,7 @@ function TerraLogicMain:consoleCommandMultiplier(name, value)
     if resolvedName == nil then
         local names = {
             "wear", "draft", "damageResistance", "randomFrequency",
-            "randomDamage", "stoneSurface", "stoneGenerated", "stoneHidden"
+            "randomDamage", "stoneSurface", "stoneGenerated"
         }
         return "TerraLogic multiplier names: " .. table.concat(names, ", ")
             .. " | usage: tlMultiplier <name> <value|reset>"
@@ -933,7 +934,7 @@ function TerraLogicMain:consoleCommandPrintBalance()
     )
     for _, name in ipairs({
         "wear", "draft", "damageResistance", "randomFrequency",
-        "randomDamage", "stoneSurface", "stoneGenerated", "stoneHidden"
+        "randomDamage", "stoneSurface", "stoneGenerated"
     }) do
         Logging.info(
             "[FS25_TerraLogic] multiplier.%s=%.6f",
@@ -971,25 +972,26 @@ function TerraLogicMain:consoleCommandPrintBalance()
             TerraLogic.DAMAGE_RESISTANCE_EXPONENT
         )
         Logging.info(
-            "[FS25_TerraLogic] random basePerHa=%.6f randomMin=%.6f randomMean=%.6f excessScale=%.6f excessExponent=%.6f",
+            "[FS25_TerraLogic] random basePerHa=%.6f randomMin=%.6f randomMean=%.6f rotationEnergy=%.6f undergroundWithVisible=%.6f",
             TerraLogic.IMPACT_BASE_EVENTS_PER_HA,
             TerraLogic.IMPACT_RANDOM_MIN_FACTOR,
             TerraLogic.IMPACT_RANDOM_MEAN_FACTOR,
-            TerraLogic.IMPACT_EXCESS_ENERGY_SCALE,
-            TerraLogic.IMPACT_EXCESS_ENERGY_EXPONENT
+            TerraLogic.IMPACT_ROTATION_ENERGY,
+            TerraLogic.IMPACT_UNDERGROUND_WITH_VISIBLE_STONES_FACTOR
         )
         for name, tier in pairs(TerraLogic.IMPACT_TIERS) do
             Logging.info(
-                "[FS25_TerraLogic] impactTier.%s eventsPerHa=%.6f probability=%.6f touchDamage=%.6f excessDamage=%.6f maxDamage=%.6f",
+                "[FS25_TerraLogic] impactTier.%s eventsPerHa=%.6f probability=%.6f baseDamage=%.6f maxDamage=%.6f",
                 name, tier.eventsPerHa, tier.probability,
-                tier.touchDamage, tier.excessDamage, tier.maxDamage
+                tier.baseDamage, tier.maxDamage
             )
         end
         Logging.info(
-            "[FS25_TerraLogic] stones surfacePerWeightedHa=%.6f generatedPerWeightedHa=%.6f maxPerScan=%.6f",
-            TerraLogic.STONE_SURFACE_DAMAGE_PER_WEIGHTED_HA,
-            TerraLogic.STONE_GENERATED_DAMAGE_PER_WEIGHTED_HA,
-            TerraLogic.STONE_DAMAGE_MAX_PER_SCAN
+            "[FS25_TerraLogic] stones localExposureEventsPerCoveredHa small=%.3f medium=%.3f big=%.3f maxEventsPerTick=%d",
+            TerraLogic.STONE_VISIBLE_EVENTS_PER_COVERED_HA.small,
+            TerraLogic.STONE_VISIBLE_EVENTS_PER_COVERED_HA.medium,
+            TerraLogic.STONE_VISIBLE_EVENTS_PER_COVERED_HA.big,
+            TerraLogic.STONE_VISIBLE_MAX_EVENTS_PER_TICK
         )
         Logging.info(
             "[FS25_TerraLogic] core soilUpdateMs=%d telemetryMs=%d stoneScanMs=%d",
@@ -999,9 +1001,9 @@ function TerraLogicMain:consoleCommandPrintBalance()
         )
         for index, soil in pairs(TerraLogic.SOIL_DATA) do
             Logging.info(
-                "[FS25_TerraLogic] soil.%d name=%s resistance=%.6f abrasion=%.6f randomFrequency=%.6f randomSeverity=%.6f",
+                "[FS25_TerraLogic] soil.%d name=%s resistance=%.6f abrasion=%.6f randomSeverity=%.6f",
                 index, soil.name, soil.resistance, soil.abrasion,
-                soil.impactFrequency, soil.impactSeverity
+                soil.impactSeverity
             )
         end
         for name, implementClass in pairs(TerraLogic.IMPLEMENT_CLASSES) do
@@ -1011,7 +1013,7 @@ function TerraLogicMain:consoleCommandPrintBalance()
             local impacts = implementClass.impacts or {}
             local stones = implementClass.stones or {}
             Logging.info(
-                "[FS25_TerraLogic] implementProfile.%s optimalSpeed=%s safeSpeedRatio=%s minimumShopFactor=%s maximumShopFactor=%s depthCm=%.1f draftDepthResponse=%.6f groundContact=%s draftEnabled=%s draftScale=%.6f impactDepth=%.6f stoneProtection=%s mediumImpactDamageFactor=%.6f abrasionFactor=%.6f stoneMode=%s stoneSurface=%.6f stoneGenerated=%.6f stoneHidden=%.6f dropout=%s impactDropout=%s name=%s",
+                "[FS25_TerraLogic] implementProfile.%s optimalSpeed=%s safeSpeedRatio=%s minimumShopFactor=%s maximumShopFactor=%s depthCm=%.1f draftDepthResponse=%.6f groundContact=%s draftEnabled=%s draftScale=%.6f impactDepth=%.6f underground=%s vanilla=%s workSpeed=%s rotation=%s overspeedOnly=%s sensitivity=%s sensitivityFactor=%.6f abrasionDepthFactor=%.6f stoneMode=%s dropout=%s impactDropout=%s name=%s",
                 name, tostring(work.optimalSpeedKph),
                 tostring(wear.safeSpeedRatio or "default"),
                 tostring(wear.minimumShopFactor or "default"),
@@ -1020,12 +1022,16 @@ function TerraLogicMain:consoleCommandPrintBalance()
                 TerraLogic.getDraftDepthResponse(work.depthCm),
                 tostring(work.groundContactTool == true),
                 tostring(draft.enabled == true), tonumber(draft.overspeedScale) or 0,
-                tonumber(impacts.depthFactor) or 0,
-                tostring(impacts.stoneProtection == true),
-                tonumber(impacts.mediumDamageFactor) or 1,
-                tonumber(wear.abrasionFactor) or 0,
-                tostring(stones.mode or "none"), tonumber(stones.surface) or 0,
-                tonumber(stones.generated) or 0, tonumber(stones.hidden) or 0,
+                TerraLogic.getImpactDepthFactor(work.depthCm),
+                tostring(impacts.underground == true),
+                tostring(impacts.vanilla == true),
+                tostring(impacts.workSpeed == true),
+                tostring(impacts.rotation == true),
+                tostring(impacts.overspeedOnly == true),
+                tostring(impacts.sensitivity or "none"),
+                tonumber(impacts.sensitivityFactor) or 1,
+                TerraLogic.getAbrasionDepthFactor(work.depthCm),
+                tostring(stones.mode or "none"),
                 tostring(implementClass.dropoutProfile or "none"),
                 tostring(implementClass.impactDropoutProfile or "none"),
                 implementClass.name
@@ -1210,6 +1216,27 @@ function TerraLogicMain:consoleCommandDebugClose()
     self.debugLines = nil
     self.debugNextRefresh = 0
     return "TerraLogic debug view: CLOSED"
+end
+
+function TerraLogicMain:consoleCommandDamageAnalysis(value)
+    if g_currentMission == nil or not g_currentMission:getIsServer() then
+        return "TerraLogic: damage analysis is available on the server/host"
+    end
+    local implement = self:getDebugImplement(true)
+    if implement == nil or implement.spec_terraLogic == nil then
+        return "TerraLogic: no supported implement selected or attached"
+    end
+    local requested = value ~= nil and string.lower(tostring(value)) or ""
+    if requested ~= "" and requested ~= "reset" and requested ~= "start" then
+        return "TerraLogic usage: tlDamageAnalysis [reset]"
+    end
+    if requested == "reset" or requested == "start" then
+        implement:resetOverSpeedDamageAnalysis()
+    end
+    self:consoleCommandDebugView("damageanalysis")
+    return requested == "reset" or requested == "start"
+        and "TerraLogic damage analysis: RESET and running"
+        or "TerraLogic damage analysis: OPEN (use 'tlDamageAnalysis reset' for a new session)"
 end
 
 function TerraLogicMain:consoleCommandDebug(value)
@@ -1970,6 +1997,10 @@ local DEBUG_VIEW_SECTIONS = {
         ["RANDOM IMPACTS (ABSTRACT / HIDDEN)"] = true,
         ["REAL STONE MAP IMPACTS"] = true
     },
+    damageanalysis = {
+        ["SPEED / IMPLEMENT"] = true,
+        ["DAMAGE ANALYSIS"] = true
+    },
     quality = { ["SPEED / IMPLEMENT"] = true, ["WORK QUALITY"] = true },
     technical = { ["SPEED / IMPLEMENT"] = true, ["TECHNICAL"] = true }
 }
@@ -2370,7 +2401,8 @@ function TerraLogicMain:draw()
         return
     end
 
-    local implement = self:getDebugImplement()
+    local implement = self:getDebugImplement(
+        self.debugMode == "damageanalysis")
     if implement == nil then
         renderDebugPanel({"TerraLogic DEBUG", "No supported implement selected/working"})
         return
@@ -2392,6 +2424,20 @@ function TerraLogicMain:draw()
         local recommendedSpeed = tonumber(data.optimalSpeed) or tonumber(data.ratedSpeed) or 0
         local ratedSpeed = tonumber(data.ratedSpeed) or recommendedSpeed
         local currentSpeed = tonumber(data.speed) or 0
+        local damageAnalysis = data.damageAnalysis or {}
+        local damageAnalysisTotal = math.max(
+            tonumber(data.damageAnalysisTotal) or 0, 0)
+        local function formatDamageCause(label, amount, suffix)
+            local value = math.max(tonumber(amount) or 0, 0)
+            local share = damageAnalysisTotal > 0
+                and value / damageAnalysisTotal * 100 or 0
+            return string.format("%s | %.4f%% damage | %.1f%% of recorded%s",
+                label, value * 100, share, suffix or "")
+        end
+        local elapsedSeconds = math.floor(
+            math.max(tonumber(damageAnalysis.elapsedMs) or 0, 0) / 1000)
+        local workingSeconds = math.floor(
+            math.max(tonumber(damageAnalysis.workingMs) or 0, 0) / 1000)
         local lines = {
             string.format("TerraLogic %s | %s | %s | %s",
                 string.upper(self.debugMode or "overview"),
@@ -2415,6 +2461,51 @@ function TerraLogicMain:draw()
                 data.workDepthCm, data.impactDepthFactor),
             string.format("Whole-yield quality | weight %.1f%% | operation cap %.1f%%",
                 data.yieldWeight * 100, data.maxYieldPenalty * 100),
+
+            "--- DAMAGE ANALYSIS ---",
+            string.format("Session %02d:%02d | working %02d:%02d | distance %.1fm | recorded damage %.4f%%",
+                math.floor(elapsedSeconds / 60), elapsedSeconds % 60,
+                math.floor(workingSeconds / 60), workingSeconds % 60,
+                tonumber(damageAnalysis.distanceM) or 0,
+                damageAnalysisTotal * 100),
+            formatDamageCause("General continuous wear",
+                damageAnalysis.generalWear),
+            formatDamageCause("Soil abrasion",
+                damageAnalysis.soilAbrasion),
+            formatDamageCause("Additional overspeed wear",
+                damageAnalysis.overspeedWear),
+            formatDamageCause("Simulated underground: small",
+                damageAnalysis.undergroundSmall,
+                string.format(" | %d hits",
+                    damageAnalysis.undergroundSmallCount or 0)),
+            formatDamageCause("Simulated underground: medium",
+                damageAnalysis.undergroundMedium,
+                string.format(" | %d hits",
+                    damageAnalysis.undergroundMediumCount or 0)),
+            formatDamageCause("Simulated underground: large",
+                damageAnalysis.undergroundBig,
+                string.format(" | %d hits",
+                    damageAnalysis.undergroundBigCount or 0)),
+            formatDamageCause("Real map stones: small",
+                damageAnalysis.mapSmall,
+                string.format(" | %d hits",
+                    damageAnalysis.mapSmallCount or 0)),
+            formatDamageCause("Real map stones: medium",
+                damageAnalysis.mapMedium,
+                string.format(" | %d hits",
+                    damageAnalysis.mapMediumCount or 0)),
+            formatDamageCause("Real map stones: large",
+                damageAnalysis.mapBig,
+                string.format(" | %d hits",
+                    damageAnalysis.mapBigCount or 0)),
+            string.format("Real-map origin | existing %.4f%% | generated during work %.4f%%",
+                (tonumber(damageAnalysis.mapExisting) or 0) * 100,
+                (tonumber(damageAnalysis.mapGenerated) or 0) * 100),
+            data.damageAnalysisVisibleStoneExact
+                and string.format("Visible-stone attribution | EXACT TerraLogic path | %s",
+                    data.visibleStoneDamageSource)
+                or string.format("Visible-stone attribution | VANILLA-OWNED, not separable from continuous wear | %s",
+                    data.visibleStoneDamageSource),
 
             "--- WORK QUALITY ---",
             data.isSowingMachine and string.format(
@@ -2590,19 +2681,25 @@ function TerraLogicMain:draw()
             string.format("Status %s | frequency runtime x%.3f | damage runtime x%.3f",
                 data.randomImpactsEnabled and "ON" or "OFF",
                 data.randomFrequencyRuntimeMultiplier, data.randomDamageRuntimeMultiplier),
-            string.format("PF frequency x%.2f = %.1f/ha | stone-hidden x%.2f (runtime x%.2f) | active %.1f/ha",
-                data.impactFrequencyFactor, data.soilImpactEventsPerHa,
-                data.hiddenImpactFactor, data.stoneHiddenRuntimeMultiplier,
+            string.format("Reference depth %.0fcm = %.1f/ha | actual depth %.0fcm x%.3f => active %.1f/ha",
+                data.impactReferenceDepthCm, data.soilImpactEventsPerHa,
+                data.workDepthCm, data.impactDepthFactor,
                 data.impactRiskEventsPerHa),
             string.format("Area scaling | width %.2fm | active %.1f/ha => expected %.2f hits/km",
                 data.workingWidth or 0, data.impactRiskEventsPerHa,
                 data.impactRiskEventsPerKm),
-            string.format("Depth frequency x%.2f | small %.2f/ha | medium %.3f/ha | big %.3f/ha",
+            string.format("Linear depth frequency x%.3f | small %.2f/ha | medium %.3f/ha | big %.3f/ha",
                 data.impactDepthFactor, data.impactSmallEventsPerHa,
                 data.impactMediumEventsPerHa, data.impactBigEventsPerHa),
-            string.format("Stone protection %s | medium damage x%.2f (small/big unchanged)",
-                data.impactStoneProtection and "YES" or "NO",
-                data.impactMediumDamageFactor),
+            string.format("Stone model | underground %s | vanilla %s | speed %s | rotation %s",
+                data.impactUndergroundEnabled and "YES" or "NO",
+                data.impactVanillaEnabled and "YES" or "NO",
+                data.impactUsesWorkSpeed and "YES" or "NO",
+                data.impactUsesRotation and "YES" or "NO"),
+            string.format("Sensitivity %s x%.2f | overspeed-only %s | underground map factor x%.2f",
+                data.impactSensitivity, data.impactSensitivityFactor,
+                data.impactOverspeedOnly and "YES" or "NO",
+                data.undergroundVisibleStoneFactor),
             string.format("Tier shares | small %.2f%% | medium %.2f%% | big %.3f%%",
                 data.impactSmallProbability * 100, data.impactMediumProbability * 100,
                 data.impactBigProbability * 100),
@@ -2631,12 +2728,28 @@ function TerraLogicMain:draw()
                 data.stoneImpactsEnabled and "ON" or "OFF",
                 data.stoneSystemActive and "ACTIVE" or data.stoneSystemStatus,
                 data.stoneToolMode),
+            string.format("Vanilla range %d..%d | area state %d | field coverage %.1f%%",
+                data.stoneMapMinValue, data.stoneMapMaxValue,
+                data.stoneLastVanillaAreaState,
+                data.stoneLastFieldCoveragePercent),
             string.format("Surface factor x%.3f (runtime x%.3f) | generation factor x%.3f (runtime x%.3f)",
                 data.stoneSurfaceFactor, data.stoneSurfaceRuntimeMultiplier,
                 data.stoneGenerationFactor, data.stoneGeneratedRuntimeMultiplier),
-            string.format("Map | existing level %.2f coverage %.1f%% | generated weighted %.5f ha",
+            string.format("Map | level %.2f raw/effective coverage %.2f%%/%.1f%% | generated %.5f ha",
                 data.stoneExistingLevel, data.stoneExistingCoveragePercent,
+                data.stoneEffectiveCoveragePercent,
                 data.stoneGeneratedWeightedHaLastSecond),
+            string.format("Exposure S/M/B %.3f/%.3f/%.3f | next %.3f/%.3f/%.3f",
+                data.stoneVisibleExposureSmall,
+                data.stoneVisibleExposureMedium,
+                data.stoneVisibleExposureBig,
+                data.stoneVisibleThresholdSmall,
+                data.stoneVisibleThresholdMedium,
+                data.stoneVisibleThresholdBig),
+            string.format("Result hits S/M/B %d/%d/%d | big-source mix 70%%/25%%/5%%",
+                data.stoneVisibleResultSmallCount,
+                data.stoneVisibleResultMediumCount,
+                data.stoneVisibleResultBigCount),
             string.format("Damage last second | surface %.3f%% | generated %.3f%% | total %.3f%% | scans %d",
                 data.stoneSurfaceDamageLastSecondPercent,
                 data.stoneGeneratedDamageLastSecondPercent,

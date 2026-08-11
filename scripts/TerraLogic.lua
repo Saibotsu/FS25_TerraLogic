@@ -6,13 +6,13 @@
     Unauthorized copying, modification, or redistribution is prohibited
     except where expressly permitted by the copyright owner.
 
-    Source fingerprint: TMW-TL-CORE-1.200060
+    Source fingerprint: TMW-TL-CORE-1.200061
 ]]
 
 TerraLogic = {}
 OverSpeedDamage = TerraLogic
 -- Numeric source signature only; it is deliberately excluded from gameplay math.
-TerraLogic.SOURCE_FINGERPRINT = 1.200060
+TerraLogic.SOURCE_FINGERPRINT = 1.200061
 
 -- The two modules are loaded by modDesc before this specialization. Keep these
 -- aliases for older debug/console code, but never define per-class values here.
@@ -29,14 +29,12 @@ local function getArePhysicalDropoutsEnabled()
         or TerraLogicSettings:getPhysicalDropoutsEnabled()
 end
 
--- Continuous speed wear uses the realistic class speed only when the XML shop
--- speed lies inside a plausible factor window. Unusually fast/slow implements
--- fall back to 80% of their own shop speed, preserving mod compatibility. The
--- shop speed gives a 1.0 speed-curve value and the protected realistic speed
--- gives 0.5. A cubic Hermite bridge keeps value and slope continuous. Above
--- shop speed, soil tools retain the old realistic-speed cubic excess shifted
--- down to the neutral shop point. Surface-wear tools use an exact speed-ratio
--- cube, which becomes a squared wear increase per hectare.
+-- Continuous speed wear uses the realistic class speed only below the XML shop
+-- speed. The shop speed gives a 1.0 speed-curve value and the protected
+-- realistic speed gives 0.5. A cubic Hermite bridge keeps value and slope
+-- continuous. Above shop speed every implement uses the same transparent
+-- speed-ratio cube: twice shop speed means x8 damage per working time and x4
+-- damage over the same travelled distance/area.
 TerraLogic.WEAR_SAFE_SPEED_RATIO_DEFAULT = 0.80
 TerraLogic.WEAR_CLASS_SHOP_FACTOR_MIN = 1.05
 TerraLogic.WEAR_CLASS_SHOP_FACTOR_MAX = 1.40
@@ -56,6 +54,13 @@ TerraLogic.AGE_USAGE_MINIMUM_FULL_HOURS = 100.00
 TerraLogic.WEAR_ABRASIVE_SHARE = 0.60
 TerraLogic.WEAR_CUSTOM_RATE_WARNING_MIN = 0.25
 TerraLogic.WEAR_CUSTOM_RATE_WARNING_MAX = 4.00
+-- Soil abrasion keeps the common cubic speed curve. Work depth only changes
+-- the absolute abrasive exposure, so every shallow tool still receives x8
+-- abrasion per working minute at twice its shop speed. The square-root curve
+-- avoids making a 50 cm subsoiler ten times harsher than a 5 cm drill.
+TerraLogic.ABRASION_DEPTH_REFERENCE_CM = 30.00
+TerraLogic.ABRASION_DEPTH_EXPONENT = 0.50
+TerraLogic.ABRASION_DEPTH_MAX_FACTOR = 1.30
 
 -- One shared overspeed curve for every soil-engaging implement. Base maxForce
 -- already represents width, depth and nominal draft. The depth response below
@@ -68,26 +73,31 @@ TerraLogic.DRAFT_MAX_FALLBACK = 1.50
 TerraLogic.DRAFT_DEPTH_REFERENCE_CM = 50.00
 TerraLogic.DRAFT_DEPTH_RESPONSE_EXPONENT = 2.25
 
--- Random impacts are area-based and split into three independently tunable
--- severity tiers. At/below XML rated speed every tier only uses its small
--- touch component. Excess kinetic energy (speedRatio^2 - 1) becomes the
--- dominant damage source above rated speed. This stays independent of FPS.
+-- Random impacts are area-based and split into three severity tiers. Visible
+-- and underground stones use these exact same per-contact damage values.
+-- Travel-speed tools use v^2 impact energy; rotating tools retain a moderate
+-- energy floor equivalent to 125 percent of shop speed.
 TerraLogic.IMPACT_SPIKES_ENABLED = true
 TerraLogic.IMPACT_RANDOM_MIN_FACTOR = 0.60
 TerraLogic.IMPACT_RANDOM_MEAN_FACTOR =
     (1 + TerraLogic.IMPACT_RANDOM_MIN_FACTOR) * 0.5
--- Compress small excess-energy impacts while making the curve increasingly
--- steep at extreme overspeed. At 12/14/15/20 km/h this turns raw excess
--- energy into approximately 0/0.054/0.105/0.593 instead of
--- 0/0.361/0.563/1.778. Touch damage at and below shop speed is unchanged.
-TerraLogic.IMPACT_EXCESS_ENERGY_SCALE = 0.25
-TerraLogic.IMPACT_EXCESS_ENERGY_EXPONENT = 1.50
+TerraLogic.IMPACT_ROTATION_ENERGY = 1.25 * 1.25
+TerraLogic.IMPACT_UNDERGROUND_WITH_VISIBLE_STONES_FACTOR = 0.75
+TerraLogic.IMPACT_SENSITIVITY = {
+    high = 1.35,
+    medium = 1.00,
+    low = 0.65
+}
+-- Underground impact frequency is defined per worked hectare at this depth.
+-- Encounter chance scales linearly with the class work depth; width only enters
+-- through the actually worked area, never as an additional implement factor.
+TerraLogic.IMPACT_REFERENCE_DEPTH_CM = 30.00
 TerraLogic.IMPACT_TIERS = {
-    -- 100 micro contacts/ha create gradual soil-particle wear. Medium and
-    -- big streams are independent and deliberately much rarer.
-    small =   {eventsPerHa = 100.00, touchDamage = 0.00001, excessDamage = 0.0005, maxDamage = 0.010},
-    medium =  {eventsPerHa =   6.00, touchDamage = 0.00050, excessDamage = 0.0250, maxDamage = 0.200},
-    big =     {eventsPerHa =   0.45, touchDamage = 0.00300, excessDamage = 0.5000, maxDamage = 0.850}
+    -- Base damage is the fraction caused by one contact at shop-speed energy
+    -- before soil and sensitivity. Caps keep a single random hit bounded.
+    small =  {eventsPerHa = 100.00, baseDamage = 0.00005, maxDamage = 0.0005},
+    medium = {eventsPerHa =   6.00, baseDamage = 0.00250, maxDamage = 0.0200},
+    big =    {eventsPerHa =   0.45, baseDamage = 0.02000, maxDamage = 0.1500}
 }
 TerraLogic.IMPACT_BASE_EVENTS_PER_HA = 0
 for _, tier in pairs(TerraLogic.IMPACT_TIERS) do
@@ -98,29 +108,63 @@ for _, tier in pairs(TerraLogic.IMPACT_TIERS) do
     tier.probability = tier.eventsPerHa / TerraLogic.IMPACT_BASE_EVENTS_PER_HA
 end
 
--- Vanilla stone-map interaction. All rates are damage fractions per weighted
--- stone hectare (stone-map area multiplied by stone level 1..3). Detection is
--- tied to each real WorkArea processing call, not the render loop. This is
--- intentionally unthrottled so no generated strip is missed; only the debug
--- aggregation is limited to one update per second.
+-- Visible stone-map interaction. WorkAreas measure only the local tier mix;
+-- the vehicle's width x distance supplies the swept area exactly once. This
+-- prevents overlapping WorkAreas from multiplying contact exposure.
 TerraLogic.STONE_INTERACTION_ENABLED = true
 TerraLogic.STONE_SCAN_INTERVAL_MS = 0
-TerraLogic.STONE_SURFACE_DAMAGE_PER_WEIGHTED_HA = 0.0125
-TerraLogic.STONE_GENERATED_DAMAGE_PER_WEIGHTED_HA = 0.0350
-TerraLogic.STONE_DAMAGE_MAX_PER_SCAN = 0.05
-
--- These specializations already multiply their normal work wear from the
--- visible Vanilla stone state. TerraLogic must never add its own surface damage on
--- top. The extended setting only fills the gaps for ground tools Vanilla did
--- not cover. The abstract impact model for hidden stones remains separate.
-TerraLogic.VANILLA_VISIBLE_STONE_CLASSES = {
-    sowingMachine = true,
-    directDrill = true,
-    precisionPlanter = true,
-    weeder = true,
-    mulcher = true,
-    mower = true,
-    hoe = true
+-- Expected opportunities per hectare at visually saturated stone density. A
+-- patch adds exposure only while it is physically below the working implement.
+-- The exponential thresholds form a Poisson process without per-pixel loops.
+TerraLogic.STONE_VISIBLE_EVENTS_PER_COVERED_HA = {
+    small = 12.00,
+    medium = 20.00,
+    big = 30.00
+}
+-- Stone density pixels are sparse cluster anchors, not square metres of solid
+-- rock. Around three percent occupied pixels already represents a visually
+-- saturated Vanilla stone layer. Normalize against that density before the
+-- per-hectare event rates are applied.
+TerraLogic.STONE_VISIBLE_DENSITY_REFERENCE = 0.03
+-- Keep the Poisson-like variation, but prevent an unlucky random threshold
+-- from allowing a fully stone-covered field to produce no contact at all.
+TerraLogic.STONE_VISIBLE_MAX_EXPOSURE_THRESHOLD = 2.00
+TerraLogic.STONE_VISIBLE_TIER_ORDER = {"small", "medium", "big"}
+TerraLogic.STONE_VISIBLE_ANALYSIS_KEYS = {
+    small = "mapSmall",
+    medium = "mapMedium",
+    big = "mapBig"
+}
+-- The visible map state limits which physical impact can result. Most stones
+-- glance off; only a small share of large-stone contacts becomes a big hit.
+TerraLogic.STONE_VISIBLE_IMPACT_MIX = {
+    small = {small = 1.00, medium = 0.00, big = 0.00},
+    medium = {small = 0.80, medium = 0.20, big = 0.00},
+    big = {small = 0.70, medium = 0.25, big = 0.05}
+}
+TerraLogic.STONE_VISIBLE_HIT_SEVERITY = {
+    {probability = 0.70, minimum = 0.25, maximum = 0.55},
+    {probability = 0.25, minimum = 0.55, maximum = 0.85},
+    {probability = 0.05, minimum = 0.85, maximum = 1.00}
+}
+TerraLogic.STONE_VISIBLE_MAX_EVENTS_PER_TICK = 8
+-- Retained for the existing debug view. Damage is now capped per impact tier,
+-- not by an arbitrary total for every WorkArea scan.
+TerraLogic.STONE_VISIBLE_CONTACT_AREA_M2 = 0
+TerraLogic.STONE_DAMAGE_MAX_PER_SCAN = TerraLogic.IMPACT_TIERS.big.maxDamage
+-- Only these supported classes receive a Vanilla stone multiplier through a
+-- specialization-local stoneLastState. TerraLogic neutralizes that one value
+-- during Wearable's damage call when its own visible-stone model is selected.
+TerraLogic.VANILLA_STONE_SPEC_BY_CLASS = {
+    directDrill = "spec_sowingMachine",
+    sowingMachine = "spec_sowingMachine",
+    precisionPlanter = "spec_sowingMachine",
+    mulcher = "spec_mulcher",
+    mower = "spec_mower",
+    windrower = "spec_windrower",
+    tedder = "spec_tedder",
+    weeder = "spec_weeder",
+    hoe = "spec_weeder"
 }
 
 -- Explicit runtime audit of classes whose real processing path writes work
@@ -170,10 +214,10 @@ TerraLogic.SOIL_UPDATE_INTERVAL_MS = 1000
 TerraLogic.TELEMETRY_INTERVAL_MS = 1000
 
 TerraLogic.SOIL_DATA = {
-    [1] = {name = "Loamy Sand", resistance = 0.925, abrasion = 1.30, impactFrequency = 0.60, impactSeverity = 0.85},
-    [2] = {name = "Sandy Loam", resistance = 1.00, abrasion = 1.15, impactFrequency = 0.80, impactSeverity = 1.00},
-    [3] = {name = "Loam", resistance = 1.10, abrasion = 1.00, impactFrequency = 1.00, impactSeverity = 1.20},
-    [4] = {name = "Silty Clay", resistance = 1.225, abrasion = 0.95, impactFrequency = 1.30, impactSeverity = 1.45}
+    [1] = {name = "Loamy Sand", resistance = 0.925, abrasion = 1.30, impactSeverity = 0.85},
+    [2] = {name = "Sandy Loam", resistance = 1.00, abrasion = 1.15, impactSeverity = 1.00},
+    [3] = {name = "Loam", resistance = 1.10, abrasion = 1.00, impactSeverity = 1.20},
+    [4] = {name = "Silty Clay", resistance = 1.225, abrasion = 0.95, impactSeverity = 1.45}
 }
 
 -- Core balance and wear calculations ---------------------------------------
@@ -201,6 +245,30 @@ function TerraLogic.applyDraftDepthResponse(multiplier, depthResponse)
     local value = tonumber(multiplier) or 1
     local response = math.clamp(tonumber(depthResponse) or 0, 0, 1)
     return 1 + (value - 1) * response
+end
+
+-- A simple swept-soil-volume model for hidden stones. At the 30 cm reference
+-- depth the configured tier rates apply unchanged; half the depth produces
+-- half the events per worked hectare. Deep tools may exceed x1 because they
+-- genuinely sweep more soil volume per hectare.
+function TerraLogic.getImpactDepthFactor(depthCm)
+    local reference = math.max(
+        tonumber(TerraLogic.IMPACT_REFERENCE_DEPTH_CM) or 30,
+        0.01
+    )
+    return math.max(tonumber(depthCm) or 0, 0) / reference
+end
+
+function TerraLogic.getAbrasionDepthFactor(depthCm)
+    local reference = math.max(
+        tonumber(TerraLogic.ABRASION_DEPTH_REFERENCE_CM) or 30,
+        0.01
+    )
+    local normalizedDepth = math.max(tonumber(depthCm) or 0, 0) / reference
+    return math.min(
+        normalizedDepth ^ TerraLogic.ABRASION_DEPTH_EXPONENT,
+        TerraLogic.ABRASION_DEPTH_MAX_FACTOR
+    )
 end
 
 function TerraLogic:getDamageResistanceMultiplier(damage)
@@ -255,20 +323,71 @@ function TerraLogic.resolveWearSafeSpeed(ratedSpeed, implementClass)
         "80% shop fallback", shopToClassFactor, true
 end
 
-local function getScaledImpactExcessEnergy(excessImpactEnergy)
-    return TerraLogic.IMPACT_EXCESS_ENERGY_SCALE
-        * math.max(tonumber(excessImpactEnergy) or 0, 0)
-            ^ TerraLogic.IMPACT_EXCESS_ENERGY_EXPONENT
-end
-
-local function getImpactTierMaximumDamage(tier, impactEnergy, excessImpactEnergy, severityFactor)
-    local touchScale = math.clamp(tonumber(impactEnergy) or 0, 0, 1)
-    local scaledExcessEnergy = getScaledImpactExcessEnergy(excessImpactEnergy)
-    local damage = (tier.touchDamage * touchScale
-        + tier.excessDamage * scaledExcessEnergy)
-        * (tonumber(severityFactor) or 1)
+local function getImpactTierMaximumDamage(
+        tier, impactEnergy, severityFactor, sensitivityFactor)
+    local damage = tier.baseDamage
+        * math.max(tonumber(impactEnergy) or 0, 0)
+        * math.max(tonumber(severityFactor) or 1, 0)
+        * math.max(tonumber(sensitivityFactor) or 1, 0)
         * getRuntimeBalanceMultiplier("randomDamage")
     return math.min(math.max(damage, 0), tier.maxDamage)
+end
+
+local function resolveImpactSensitivity(vehicle, classKey, implementClass)
+    local impacts = implementClass ~= nil and implementClass.impacts or nil
+    if impacts == nil then
+        return "none", 1
+    end
+
+    local sensitivity = impacts.sensitivity or "none"
+    local factor = impacts.sensitivityFactor
+        or TerraLogic.IMPACT_SENSITIVITY[sensitivity] or 1
+    -- A passive knife roller has no powered rotor. It can share the Mulcher
+    -- shop category without sharing the impact energy of an active flail or
+    -- rotor mulcher.
+    if classKey == "mulcher" and vehicle.spec_turnOnVehicle == nil
+        and impacts.passiveSensitivity ~= nil then
+        sensitivity = impacts.passiveSensitivity
+        factor = impacts.passiveSensitivityFactor
+            or TerraLogic.IMPACT_SENSITIVITY[sensitivity] or factor
+    end
+    return sensitivity, factor
+end
+
+local function drawExponentialThreshold()
+    return math.min(
+        -math.log(math.max(1 - math.random(), 0.0000001)),
+        TerraLogic.STONE_VISIBLE_MAX_EXPOSURE_THRESHOLD)
+end
+
+local function chooseVisibleImpactTier(stoneTier)
+    local mix = TerraLogic.STONE_VISIBLE_IMPACT_MIX[stoneTier]
+        or TerraLogic.STONE_VISIBLE_IMPACT_MIX.small
+    local roll = math.random()
+    if roll <= (mix.small or 0) then
+        return "small"
+    end
+    if roll <= (mix.small or 0) + (mix.medium or 0) then
+        return "medium"
+    end
+    return "big"
+end
+
+local function getVisibleHitSeverityFactor()
+    local roll = math.random()
+    local cumulative = 0
+    local selected = TerraLogic.STONE_VISIBLE_HIT_SEVERITY[
+        #TerraLogic.STONE_VISIBLE_HIT_SEVERITY]
+    for _, data in ipairs(TerraLogic.STONE_VISIBLE_HIT_SEVERITY) do
+        cumulative = cumulative + (data.probability or 0)
+        if roll <= cumulative then
+            selected = data
+            break
+        end
+    end
+    local minimum = tonumber(selected.minimum) or 0
+    local maximum = math.max(tonumber(selected.maximum) or minimum, minimum)
+    return minimum + (maximum - minimum) * math.random()
 end
 
 local function getEffectiveAbrasionMultiplier(spec)
@@ -282,7 +401,7 @@ local function getEffectiveAbrasionMultiplier(spec)
     local implementFactor = math.clamp(
         tonumber(spec.implementAbrasionFactor) or 0,
         0,
-        1
+        TerraLogic.ABRASION_DEPTH_MAX_FACTOR
     )
     local abrasiveLoad = implementFactor * soilFactor
     local baselineMultiplier = math.max(
@@ -290,6 +409,49 @@ local function getEffectiveAbrasionMultiplier(spec)
         0
     )
     return baselineMultiplier, abrasiveLoad
+end
+
+-- Damage analysis is deliberately bookkeeping-only. These counters are fed
+-- with values that the existing wear and impact paths have already calculated;
+-- they never participate in the actual damage result.
+local function createDamageAnalysisState()
+    return {
+        elapsedMs = 0,
+        workingMs = 0,
+        distanceM = 0,
+        generalWear = 0,
+        soilAbrasion = 0,
+        overspeedWear = 0,
+        undergroundSmall = 0,
+        undergroundMedium = 0,
+        undergroundBig = 0,
+        undergroundSmallCount = 0,
+        undergroundMediumCount = 0,
+        undergroundBigCount = 0,
+        mapSmall = 0,
+        mapMedium = 0,
+        mapBig = 0,
+        mapSmallCount = 0,
+        mapMediumCount = 0,
+        mapBigCount = 0,
+        mapImpactSmallCount = 0,
+        mapImpactMediumCount = 0,
+        mapImpactBigCount = 0,
+        mapExisting = 0,
+        mapGenerated = 0
+    }
+end
+
+local function addDamageAnalysisValue(spec, key, amount)
+    local analysis = spec ~= nil and spec.damageAnalysis or nil
+    local value = math.max(tonumber(amount) or 0, 0)
+    if analysis ~= nil and value > 0 then
+        analysis[key] = (analysis[key] or 0) + value
+    end
+end
+
+function TerraLogic:resetOverSpeedDamageAnalysis()
+    self.spec_terraLogic.damageAnalysis = createDamageAnalysisState()
 end
 
 local function getReferenceWearRate()
@@ -419,7 +581,9 @@ function TerraLogic.registerFunctions(vehicleType)
     SpecializationUtil.registerFunction(vehicleType, "updateOverSpeedResistance", TerraLogic.updateOverSpeedResistance)
     SpecializationUtil.registerFunction(vehicleType, "getOverSpeedBalanceFactors", TerraLogic.getOverSpeedBalanceFactors)
     SpecializationUtil.registerFunction(vehicleType, "getOverSpeedWearMultiplier", TerraLogic.getOverSpeedWearMultiplier)
+    SpecializationUtil.registerFunction(vehicleType, "resetOverSpeedDamageAnalysis", TerraLogic.resetOverSpeedDamageAnalysis)
     SpecializationUtil.registerFunction(vehicleType, "getOverSpeedDraftMultiplier", TerraLogic.getOverSpeedDraftMultiplier)
+    SpecializationUtil.registerFunction(vehicleType, "getStoneImpactEnergy", TerraLogic.getStoneImpactEnergy)
     SpecializationUtil.registerFunction(vehicleType, "getOverSpeedImpactRisk", TerraLogic.getOverSpeedImpactRisk)
     SpecializationUtil.registerFunction(vehicleType, "getOverSpeedStoneToolProfile", TerraLogic.getOverSpeedStoneToolProfile)
     SpecializationUtil.registerFunction(vehicleType, "getOverSpeedStoneMapContext", TerraLogic.getOverSpeedStoneMapContext)
@@ -458,12 +622,10 @@ function TerraLogic:getOverSpeedWearMultiplier(currentSpeed)
                 * t ^ TerraLogic.WEAR_BELOW_SAFE_EXPONENT
     end
 
-    -- Retaining the former (shop/real)^3 excess strength gives a typical
-    -- 12/15 km/h implement x3.68 at 20 km/h, while x0.5 and x1 remain exact.
-    local cubicStrength = spec.wearModel == "surface" and 1
-        or (rated / realistic) ^ TerraLogic.WEAR_ABOVE_SHOP_EXPONENT
-    local shopSlope = cubicStrength
-        * TerraLogic.WEAR_ABOVE_SHOP_EXPONENT
+    -- Above shop speed the same exact cubic applies to all classes. Abrasion
+    -- remains width-independent because updateDamageAmount is time/distance
+    -- based and does not use the worked-area width.
+    local shopSlope = TerraLogic.WEAR_ABOVE_SHOP_EXPONENT
     if speed <= rated then
         local span = math.max(1 - realRatio, 0.0001)
         local t = math.clamp((shopRatio - realRatio) / span, 0, 1)
@@ -479,9 +641,7 @@ function TerraLogic:getOverSpeedWearMultiplier(currentSpeed)
     end
 
     return math.min(
-        TerraLogic.WEAR_AT_SHOP_SPEED
-            + cubicStrength * (shopRatio
-                ^ TerraLogic.WEAR_ABOVE_SHOP_EXPONENT - 1),
+        shopRatio ^ TerraLogic.WEAR_ABOVE_SHOP_EXPONENT,
         TerraLogic.WEAR_MAX
     )
 end
@@ -527,43 +687,77 @@ function TerraLogic:getOverSpeedDraftMultiplier(currentSpeed)
     return 1 + (depthAdjustedDraft - 1) * draftScale
 end
 
-function TerraLogic:getOverSpeedImpactRisk(currentSpeed)
+local function getAreVanillaStonesActive()
+    local mission = g_currentMission
+    if mission == nil or mission.stoneSystem == nil then
+        return false
+    end
+    if mission.missionInfo ~= nil and mission.missionInfo.stonesEnabled == false then
+        return false
+    end
+    return mission.stoneSystem.getMapHasStones == nil
+        or mission.stoneSystem:getMapHasStones()
+end
+
+function TerraLogic:getStoneImpactEnergy(currentSpeed)
     local spec = self.spec_terraLogic
     local rated = tonumber(spec.ratedSpeed) or 0
     local speed = tonumber(currentSpeed) or 0
-    if not TerraLogic.IMPACT_SPIKES_ENABLED
-        or (TerraLogicMain ~= nil and TerraLogicMain.randomImpactsEnabled == false)
-        or rated <= 0 then
-        return 0, 0, 0, 0, 0, 0, 0
+    if rated <= 0 then
+        return 0
     end
 
     local speedRatio = speed / rated
-    local impactEnergy = speedRatio * speedRatio
+    if spec.impactOverspeedOnly == true and speedRatio <= 1 then
+        return 0
+    end
+
+    local impactEnergy = 0
+    if spec.impactUsesWorkSpeed == true then
+        impactEnergy = speedRatio * speedRatio
+    end
+    if spec.impactUsesRotation == true then
+        impactEnergy = math.max(
+            impactEnergy,
+            TerraLogic.IMPACT_ROTATION_ENERGY
+        )
+    end
+    return math.max(impactEnergy, 0)
+end
+
+function TerraLogic:getOverSpeedImpactRisk(currentSpeed)
+    local spec = self.spec_terraLogic
+    if not TerraLogic.IMPACT_SPIKES_ENABLED
+        or (TerraLogicMain ~= nil and TerraLogicMain.randomImpactsEnabled == false)
+        or spec.impactUndergroundEnabled ~= true then
+        return 0, 0, 0, 0, 0, 0, 0
+    end
+
+    local impactEnergy = self:getStoneImpactEnergy(currentSpeed)
+    if impactEnergy <= 0 then
+        return 0, 0, 0, 0, 0, 0, 0
+    end
     local excessImpactEnergy = math.max(impactEnergy - 1, 0)
-    local scaledExcessImpactEnergy =
-        getScaledImpactExcessEnergy(excessImpactEnergy)
-    local frequencyFactor = tonumber(spec.impactFrequencyFactor) or 1
+    local scaledExcessImpactEnergy = excessImpactEnergy
     local severityFactor = tonumber(spec.impactSeverityFactor) or 1
-    local depthFactor = tonumber(spec.impactDepthFactor) or 1
-    local hiddenImpactFactor = tonumber(spec.hiddenImpactFactor) or 1
+    local sensitivityFactor = tonumber(spec.impactSensitivityFactor) or 1
+    local depthFactor = math.max(tonumber(spec.impactDepthFactor) or 0, 0)
+    local visibleStoneFactor = spec.impactVanillaEnabled == true
+        and getAreVanillaStonesActive()
+        and TerraLogic.IMPACT_UNDERGROUND_WITH_VISIBLE_STONES_FACTOR or 1
     local eventsPerHa = TerraLogic.IMPACT_BASE_EVENTS_PER_HA
-        * frequencyFactor * depthFactor * hiddenImpactFactor
+        * depthFactor
+        * visibleStoneFactor
         * getRuntimeBalanceMultiplier("randomFrequency")
     local smallDamage = getImpactTierMaximumDamage(
-        TerraLogic.IMPACT_TIERS.small, impactEnergy, excessImpactEnergy, severityFactor)
+        TerraLogic.IMPACT_TIERS.small, impactEnergy,
+        severityFactor, sensitivityFactor)
     local mediumDamage = getImpactTierMaximumDamage(
-        TerraLogic.IMPACT_TIERS.medium, impactEnergy, excessImpactEnergy, severityFactor)
-    local mediumDamageFactor = math.clamp(
-        tonumber(spec.impactMediumDamageFactor) or 1,
-        0,
-        1
-    )
-    mediumDamage = math.max(
-        mediumDamage * mediumDamageFactor,
-        smallDamage * 1.35
-    )
+        TerraLogic.IMPACT_TIERS.medium, impactEnergy,
+        severityFactor, sensitivityFactor)
     local bigDamage = getImpactTierMaximumDamage(
-        TerraLogic.IMPACT_TIERS.big, impactEnergy, excessImpactEnergy, severityFactor)
+        TerraLogic.IMPACT_TIERS.big, impactEnergy,
+        severityFactor, sensitivityFactor)
     return eventsPerHa, impactEnergy, excessImpactEnergy,
         scaledExcessImpactEnergy,
         smallDamage, mediumDamage, bigDamage
@@ -627,6 +821,8 @@ function TerraLogic:onLoad(savegame)
     local safeSpeed, safeSpeedRatio, safeSpeedSource,
         shopToClassSpeedFactor, safeSpeedFallback =
         TerraLogic.resolveWearSafeSpeed(ratedSpeed, implementClass)
+    local impactSensitivity, impactSensitivityFactor =
+        resolveImpactSensitivity(self, implementClassKey, implementClass)
 
     self.spec_terraLogic = {
         ratedSpeed = ratedSpeed ~= nil and ratedSpeed > 0 and ratedSpeed < math.huge and ratedSpeed or nil,
@@ -639,21 +835,33 @@ function TerraLogic:onLoad(savegame)
         draftDepthResponse = TerraLogic.getDraftDepthResponse(
             implementClass ~= nil and implementClass.work ~= nil
                 and implementClass.work.depthCm or 0),
-        impactDepthFactor = implementClass ~= nil and implementClass.impacts ~= nil
-            and implementClass.impacts.depthFactor or 1,
-        impactStoneProtection = implementClass ~= nil
+        impactDepthFactor = TerraLogic.getImpactDepthFactor(
+            implementClass ~= nil and implementClass.work ~= nil
+                and implementClass.work.depthCm or 0),
+        impactUndergroundEnabled = implementClass ~= nil
             and implementClass.impacts ~= nil
-            and implementClass.impacts.stoneProtection == true,
-        impactMediumDamageFactor = implementClass ~= nil
+            and implementClass.impacts.underground == true,
+        impactVanillaEnabled = implementClass ~= nil
             and implementClass.impacts ~= nil
-            and implementClass.impacts.stoneProtection == true
-            and implementClass.impacts.mediumDamageFactor or 1,
+            and implementClass.impacts.vanilla == true,
+        impactUsesWorkSpeed = implementClass ~= nil
+            and implementClass.impacts ~= nil
+            and implementClass.impacts.workSpeed == true,
+        impactUsesRotation = implementClass ~= nil
+            and implementClass.impacts ~= nil
+            and implementClass.impacts.rotation == true,
+        impactOverspeedOnly = implementClass ~= nil
+            and implementClass.impacts ~= nil
+            and implementClass.impacts.overspeedOnly == true,
+        impactSensitivity = impactSensitivity,
+        impactSensitivityFactor = impactSensitivityFactor,
         additionalDraftEnabled = implementClass ~= nil and implementClass.draft ~= nil
             and implementClass.draft.enabled == true,
         additionalDraftScale = implementClass ~= nil and implementClass.draft ~= nil
             and implementClass.draft.overspeedScale or 0,
-        implementAbrasionFactor = implementClass ~= nil and implementClass.wear ~= nil
-            and implementClass.wear.abrasionFactor or 0,
+        implementAbrasionFactor = TerraLogic.getAbrasionDepthFactor(
+            implementClass ~= nil and implementClass.work ~= nil
+                and implementClass.work.depthCm or 0),
         wearModel = implementClass ~= nil and implementClass.wear ~= nil
             and implementClass.wear.model or "soil",
         yieldWeight = implementClass ~= nil and implementClass.yield ~= nil
@@ -687,9 +895,8 @@ function TerraLogic:onLoad(savegame)
         resistanceMultiplier = 1,
         soilDraftResistanceMultiplier = 1,
         abrasionMultiplier = 1,
-        impactFrequencyFactor = 1,
         impactSeverityFactor = 1,
-        impactSoilSource = "Neutral fallback",
+        impactSoilSource = "Depth-based frequency",
         resistanceSource = "Vanilla",
         abrasionSource = "Vanilla",
         baseMaxForce = nil,
@@ -698,6 +905,7 @@ function TerraLogic:onLoad(savegame)
         telemetryDistanceM = 0,
         telemetryVanillaDamage = 0,
         telemetryCurrentDamage = 0,
+        damageAnalysis = createDamageAnalysisState(),
         telemetryContinuousDamage = 0,
         telemetryActiveMs = 0,
         telemetrySpeedMultiplierTime = 0,
@@ -733,7 +941,6 @@ function TerraLogic:onLoad(savegame)
         stoneToolMode = "Not supported",
         stoneSurfaceFactor = 0,
         stoneGenerationFactor = 0,
-        hiddenImpactFactor = 1,
         stoneModifier = nil,
         stoneFilter = nil,
         stoneMapId = nil,
@@ -751,6 +958,21 @@ function TerraLogic:onLoad(savegame)
         stoneScansLastSecond = 0,
         stoneExistingLevel = 0,
         stoneExistingCoverage = 0,
+        stoneEffectiveCoverage = 0,
+        stoneMapMinValue = 0,
+        stoneMapMaxValue = 0,
+        stoneLastVanillaAreaState = 0,
+        stoneLastFieldCoverage = 0,
+        stoneCoverageSmallPixels = 0,
+        stoneCoverageMediumPixels = 0,
+        stoneCoverageBigPixels = 0,
+        stoneCoverageTotalPixels = 0,
+        stoneVisibleExposure = {small = 0, medium = 0, big = 0},
+        stoneVisibleThreshold = {
+            small = drawExponentialThreshold(),
+            medium = drawExponentialThreshold(),
+            big = drawExponentialThreshold()
+        },
         stoneGeneratedLevelDelta = 0,
         stoneGeneratedWeightedHaLastScan = 0,
         lastStoneEventSource = "none",
@@ -939,7 +1161,6 @@ function TerraLogic:getOverSpeedStoneMapContext()
         and profile.surface * getRuntimeBalanceMultiplier("stoneSurface") or 0
     spec.stoneGenerationFactor = profile ~= nil
         and profile.generated * getRuntimeBalanceMultiplier("stoneGenerated") or 0
-    spec.hiddenImpactFactor = 1
     spec.stoneSystemActive = false
 
     if not TerraLogic.STONE_INTERACTION_ENABLED then
@@ -959,7 +1180,7 @@ function TerraLogic:getOverSpeedStoneMapContext()
         spec.stoneSystemStatus = "Map has no stone layer"
         return nil
     end
-    if profile == nil then
+    if profile == nil or spec.impactVanillaEnabled ~= true then
         spec.stoneSystemStatus = "Tool has no stone profile"
         return nil
     end
@@ -970,11 +1191,18 @@ function TerraLogic:getOverSpeedStoneMapContext()
         return nil
     end
 
-    -- Keep the hidden-impact share stable when only real stone damage is
-    -- switched off for an A/B test. This makes tlStones independent from
-    -- tlImpacts instead of silently increasing abstract impacts.
-    spec.hiddenImpactFactor = (profile.hidden or 1)
-        * getRuntimeBalanceMultiplier("stoneHidden")
+    -- GIANTS exposes the density range that the Vanilla stone picker accepts.
+    -- Values outside it are internal/invisible map states and must not create
+    -- visible-stone exposure.
+    local minValue, maxValue = mission.stoneSystem:getMinMaxValues()
+    minValue = math.floor(tonumber(minValue) or 0)
+    maxValue = math.floor(tonumber(maxValue) or 0)
+    if minValue <= 0 or maxValue < minValue then
+        minValue, maxValue = 2, 4
+    end
+    spec.stoneMapMinValue = minValue
+    spec.stoneMapMaxValue = maxValue
+
     spec.stoneSystemActive = true
     if TerraLogicMain ~= nil and TerraLogicMain.stoneImpactsEnabled == false then
         spec.stoneSystemStatus = "Map active; damage disabled by tlStones"
@@ -983,13 +1211,9 @@ function TerraLogic:getOverSpeedStoneMapContext()
 
     local visibleStoneModel = TerraLogicSettings ~= nil
         and TerraLogicSettings:getVisibleStoneDamageModel() or "terraLogic"
-    local vanillaHandlesVisibleStones =
-        TerraLogic.VANILLA_VISIBLE_STONE_CLASSES[
-            spec.implementClassKey] == true
-    if visibleStoneModel ~= "terraLogic" or vanillaHandlesVisibleStones then
+    if visibleStoneModel ~= "terraLogic" then
         spec.visibleStoneDamageModel = visibleStoneModel
-        spec.visibleStoneDamageSource = vanillaHandlesVisibleStones
-            and "Vanilla (not duplicated)" or "Vanilla device list"
+        spec.visibleStoneDamageSource = "Vanilla device list"
         spec.stoneSystemStatus = spec.visibleStoneDamageSource
         return nil
     end
@@ -1017,26 +1241,84 @@ function TerraLogic:getOverSpeedStoneAreaState(workArea)
     local xs, _, zs = getWorldTranslation(workArea.start)
     local xw, _, zw = getWorldTranslation(workArea.width)
     local xh, _, zh = getWorldTranslation(workArea.height)
+
+    -- The stone map contains non-zero housekeeping values outside fields.
+    -- Field stones are a field mechanic, so reject those values before they
+    -- enter the exposure accumulator.
+    local fieldPixels, fieldTotalPixels = 0, 0
+    if FSDensityMapUtil ~= nil and FSDensityMapUtil.getFieldDensity ~= nil then
+        local _, sampledFieldPixels, sampledTotalPixels =
+            FSDensityMapUtil.getFieldDensity(xs, zs, xw, zw, xh, zh)
+        fieldPixels = math.max(tonumber(sampledFieldPixels) or 0, 0)
+        fieldTotalPixels = math.max(tonumber(sampledTotalPixels) or 0, 0)
+    end
+    local spec = self.spec_terraLogic
+    spec.stoneLastFieldCoverage = fieldTotalPixels > 0
+        and math.clamp(fieldPixels / fieldTotalPixels, 0, 1) or 0
+    if FSDensityMapUtil ~= nil and FSDensityMapUtil.getStoneArea ~= nil then
+        spec.stoneLastVanillaAreaState = math.max(tonumber(
+            FSDensityMapUtil.getStoneArea(xs, zs, xw, zw, xh, zh)) or 0, 0)
+    else
+        spec.stoneLastVanillaAreaState = 0
+    end
+
+    if fieldPixels <= 0 then
+        return {
+            weightedPixels = 0,
+            stonePixels = 0,
+            totalPixels = fieldTotalPixels,
+            smallPixels = 0,
+            mediumPixels = 0,
+            bigPixels = 0,
+            width = math.sqrt((xw - xs) * (xw - xs) + (zw - zs) * (zw - zs))
+        }
+    end
+
     modifier:setParallelogramWorldCoords(
         xs, zs, xw, zw, xh, zh, DensityCoordType.POINT_POINT_POINT
     )
-    -- The Vanilla map uses 2/3/4 for visible small/medium/large stones. States
-    -- 1/5/6 are internal cleared/regrowth states and must not count as visible
-    -- contacts. Normalize the visible states to weights 1/2/3.
+    -- Map the collectable StoneSystem range to small/medium/large. This is the
+    -- same range Vanilla supplies to its stone picker, avoiding hard-coded
+    -- assumptions about the density values used by a map.
     local weightedPixels, stonePixels, totalPixels = 0, 0, 0
-    for stoneState = 2, 4 do
-        filter:setValueCompareParams(DensityValueCompareType.EQUAL, stoneState)
-        local _, matchingPixels, sampledPixels = modifier:executeGet(filter)
-        matchingPixels = tonumber(matchingPixels) or 0
-        weightedPixels = weightedPixels
-            + matchingPixels * (stoneState - 1)
-        stonePixels = stonePixels + matchingPixels
-        totalPixels = math.max(totalPixels, tonumber(sampledPixels) or 0)
+    local smallPixels, mediumPixels, bigPixels = 0, 0, 0
+    local minimumStoneState = math.floor(tonumber(spec.stoneMapMinValue) or 2)
+    local maximumStoneState = math.floor(tonumber(spec.stoneMapMaxValue) or 4)
+    local middleStoneState = math.floor(
+        (minimumStoneState + maximumStoneState) * 0.5 + 0.5)
+    local visibleStates = {
+        {value = minimumStoneState, tier = "small", weight = 1},
+        {value = middleStoneState, tier = "medium", weight = 2},
+        {value = maximumStoneState, tier = "big", weight = 3}
+    }
+    local sampledStates = {}
+    for _, stateData in ipairs(visibleStates) do
+        if sampledStates[stateData.value] ~= true then
+            sampledStates[stateData.value] = true
+            filter:setValueCompareParams(
+                DensityValueCompareType.EQUAL, stateData.value)
+            local _, matchingPixels, sampledPixels = modifier:executeGet(filter)
+            matchingPixels = tonumber(matchingPixels) or 0
+            weightedPixels = weightedPixels
+                + matchingPixels * stateData.weight
+            stonePixels = stonePixels + matchingPixels
+            totalPixels = math.max(totalPixels, tonumber(sampledPixels) or 0)
+            if stateData.tier == "small" then
+                smallPixels = matchingPixels
+            elseif stateData.tier == "medium" then
+                mediumPixels = matchingPixels
+            else
+                bigPixels = matchingPixels
+            end
+        end
     end
     return {
         weightedPixels = tonumber(weightedPixels) or 0,
         stonePixels = tonumber(stonePixels) or 0,
         totalPixels = tonumber(totalPixels) or 0,
+        smallPixels = smallPixels,
+        mediumPixels = mediumPixels,
+        bigPixels = bigPixels,
         width = math.sqrt((xw - xs) * (xw - xs) + (zw - zs) * (zw - zs))
     }
 end
@@ -1047,8 +1329,29 @@ function TerraLogic:processOverSpeedStoneArea(superFunc, workArea, dt)
     local lastScan = spec.stoneWorkAreaScanTimes[workArea]
     local elapsedMs = lastScan ~= nil and math.max(now - lastScan, 0) or dt
     local modEnabled = TerraLogicMain == nil or TerraLogicMain.enabled ~= false
+    local contactActive = false
+    if spec.isGroundTool then
+        contactActive = self:getIsOverSpeedGroundContactActive()
+    elseif spec.impactVanillaEnabled == true then
+        -- The processing callback itself proves that a pickup/surface WorkArea
+        -- is being evaluated. Retain only the physical work-position guards so
+        -- raised or switched-off forage tools cannot hit map stones.
+        contactActive = true
+        if self.getIsImplementChainLowered ~= nil
+            and not self:getIsImplementChainLowered(true) then
+            contactActive = false
+        end
+        if contactActive and self.getIsLowered ~= nil
+            and self:getIsLowered() == false then
+            contactActive = false
+        end
+        if contactActive and self.spec_turnOnVehicle ~= nil
+            and self.getIsTurnedOn ~= nil and not self:getIsTurnedOn() then
+            contactActive = false
+        end
+    end
     local scanDue = self.isServer and modEnabled
-        and self:getIsOverSpeedGroundContactActive()
+        and contactActive
         and (lastScan == nil or elapsedMs >= TerraLogic.STONE_SCAN_INTERVAL_MS)
 
     local before = nil
@@ -1065,11 +1368,6 @@ function TerraLogic:processOverSpeedStoneArea(superFunc, workArea, dt)
         return realArea, area, processedAreas
     end
 
-    local after = self:getOverSpeedStoneAreaState(workArea)
-    if after == nil then
-        return realArea, area, processedAreas
-    end
-
     local profile = self:getOverSpeedStoneToolProfile()
     local speed = math.abs(self:getLastSpeed(true) or 0)
     local rated = tonumber(spec.ratedSpeed) or 0
@@ -1077,20 +1375,35 @@ function TerraLogic:processOverSpeedStoneArea(superFunc, workArea, dt)
         return realArea, area, processedAreas
     end
 
-    local speedEnergy = (speed / rated) ^ 2
-    local severity = tonumber(spec.impactSeverityFactor) or 1
-    local elapsedSeconds = math.max(elapsedMs, dt) / 1000
-    local travelledAreaHa = speed / 3.6 * elapsedSeconds
-        * math.max(before.width, 0) / 10000
-    local existingDensity = before.totalPixels > 0
-        and before.weightedPixels / before.totalPixels or 0
-    local existingCoverage = before.totalPixels > 0
-        and before.stonePixels / before.totalPixels or 0
-    local existingWeightedHa = travelledAreaHa * existingDensity
+    local impactEnergy = self:getStoneImpactEnergy(speed)
+    if impactEnergy <= 0 then
+        return realArea, area, processedAreas
+    end
 
-    local generatedWeightedPixels = math.max(
-        after.weightedPixels - before.weightedPixels, 0
-    )
+    -- WorkAreas only contribute a local composition sample here. Damage is
+    -- resolved once in onUpdateTick from width x travelled distance, so any
+    -- overlap between WorkAreas cannot multiply the swept area.
+    local totalPixels = math.max(before.totalPixels or 0, 0)
+    if totalPixels > 0 then
+        spec.stoneCoverageSmallPixels =
+            (spec.stoneCoverageSmallPixels or 0)
+            + math.max(before.smallPixels or 0, 0)
+        spec.stoneCoverageMediumPixels =
+            (spec.stoneCoverageMediumPixels or 0)
+            + math.max(before.mediumPixels or 0, 0)
+        spec.stoneCoverageBigPixels =
+            (spec.stoneCoverageBigPixels or 0)
+            + math.max(before.bigPixels or 0, 0)
+        spec.stoneCoverageTotalPixels =
+            (spec.stoneCoverageTotalPixels or 0) + totalPixels
+    end
+
+    -- Stones created by this pass must not damage the tool retroactively.
+    -- Keep the old generation telemetry, but only the pre-work state enters
+    -- visible impact exposure.
+    local after = self:getOverSpeedStoneAreaState(workArea)
+    local generatedWeightedPixels = after ~= nil and math.max(
+        after.weightedPixels - before.weightedPixels, 0) or 0
     local generatedWeightedHa = 0
     if generatedWeightedPixels > 0 and g_currentMission.getFruitPixelsToSqm ~= nil then
         generatedWeightedHa = MathUtil.areaToHa(
@@ -1101,61 +1414,161 @@ function TerraLogic:processOverSpeedStoneArea(superFunc, workArea, dt)
 
     local visibleStoneModel = TerraLogicSettings ~= nil
         and TerraLogicSettings:getVisibleStoneDamageModel() or "terraLogic"
-    local classKey = spec.implementClassKey
-    local vanillaHandlesVisibleStones =
-        TerraLogic.VANILLA_VISIBLE_STONE_CLASSES[classKey] == true
     local useExtendedVisibleDamage = visibleStoneModel == "terraLogic"
-        and not vanillaHandlesVisibleStones
-    local surfaceDamage = existingWeightedHa
-        * TerraLogic.STONE_SURFACE_DAMAGE_PER_WEIGHTED_HA
-        * (useExtendedVisibleDamage and (spec.stoneSurfaceFactor or 0) or 0)
-        * severity * speedEnergy
-    local generatedDamage = generatedWeightedHa
-        * TerraLogic.STONE_GENERATED_DAMAGE_PER_WEIGHTED_HA
-        * (useExtendedVisibleDamage and (spec.stoneGenerationFactor or 0) or 0)
-        * severity * speedEnergy
-    local rawStoneDamage = math.max(surfaceDamage + generatedDamage, 0)
-    local stoneDamage = math.min(rawStoneDamage, TerraLogic.STONE_DAMAGE_MAX_PER_SCAN)
-    if rawStoneDamage > stoneDamage and rawStoneDamage > 0 then
-        local capScale = stoneDamage / rawStoneDamage
-        surfaceDamage = surfaceDamage * capScale
-        generatedDamage = generatedDamage * capScale
-    end
-
-    spec.stoneExistingLevel = before.stonePixels > 0
-        and before.weightedPixels / before.stonePixels or 0
-    spec.stoneExistingCoverage = existingCoverage
+        and spec.impactVanillaEnabled == true
     spec.stoneGeneratedLevelDelta = generatedWeightedPixels
     spec.stoneGeneratedWeightedHaLastScan = generatedWeightedHa
     spec.visibleStoneDamageModel = visibleStoneModel
-    spec.visibleStoneDamageSource = vanillaHandlesVisibleStones
-        and "Vanilla (not duplicated)"
-        or (useExtendedVisibleDamage and "TerraLogic extended" or "No visible damage")
+    spec.visibleStoneDamageSource = useExtendedVisibleDamage
+        and "TerraLogic local exposure" or "No visible damage"
     spec.stoneScanCountWindow = (spec.stoneScanCountWindow or 0) + 1
-    spec.stoneExistingWeightedHaWindow = (spec.stoneExistingWeightedHaWindow or 0)
-        + existingWeightedHa
     spec.stoneGeneratedWeightedHaWindow = (spec.stoneGeneratedWeightedHaWindow or 0)
         + generatedWeightedHa
-    spec.stoneSurfaceDamageWindow = (spec.stoneSurfaceDamageWindow or 0) + surfaceDamage
-    spec.stoneGeneratedDamageWindow = (spec.stoneGeneratedDamageWindow or 0) + generatedDamage
-
-    if stoneDamage > 0 and self.addDamageAmount ~= nil then
-        self:addDamageAmount(stoneDamage)
-        spec.telemetryCurrentDamage = (spec.telemetryCurrentDamage or 0) + stoneDamage
-        local balanceTest = spec.balanceTest
-        if balanceTest ~= nil and balanceTest.active == true then
-            balanceTest.stoneSurfaceDamage = (balanceTest.stoneSurfaceDamage or 0)
-                + surfaceDamage
-            balanceTest.stoneGeneratedDamage = (balanceTest.stoneGeneratedDamage or 0)
-                + generatedDamage
-        end
-        spec.lastStoneEventSource = generatedDamage > surfaceDamage
-            and "generated" or (generatedDamage > 0 and "surface + generated" or "surface")
-        spec.lastStoneEventDamage = stoneDamage
-        spec.lastStoneEventGameTime = now
-    end
 
     return realArea, area, processedAreas
+end
+
+-- Consumes all WorkArea samples once for the vehicle tick. WorkArea geometry
+-- supplies the stone mix, while frameAreaHa supplies the only swept-area
+-- budget. Exponential exposure thresholds provide patch-based random contacts
+-- without iterating individual density-map pixels in Lua.
+function TerraLogic.processVisibleStoneExposure(self, frameAreaHa, currentSpeed)
+    local spec = self.spec_terraLogic
+    if spec == nil then
+        return
+    end
+
+    local smallPixels = math.max(spec.stoneCoverageSmallPixels or 0, 0)
+    local mediumPixels = math.max(spec.stoneCoverageMediumPixels or 0, 0)
+    local bigPixels = math.max(spec.stoneCoverageBigPixels or 0, 0)
+    local totalPixels = math.max(spec.stoneCoverageTotalPixels or 0, 0)
+    spec.stoneCoverageSmallPixels = 0
+    spec.stoneCoverageMediumPixels = 0
+    spec.stoneCoverageBigPixels = 0
+    spec.stoneCoverageTotalPixels = 0
+
+    if totalPixels <= 0 then
+        spec.stoneExistingLevel = 0
+        spec.stoneExistingCoverage = 0
+        spec.stoneEffectiveCoverage = 0
+        return
+    end
+
+    local stonePixels = smallPixels + mediumPixels + bigPixels
+    local stoneCoverage = math.clamp(stonePixels / totalPixels, 0, 1)
+    local effectiveStoneCoverage = math.clamp(
+        stoneCoverage / TerraLogic.STONE_VISIBLE_DENSITY_REFERENCE, 0, 1)
+    local weightedDensity = math.max(
+        (smallPixels + mediumPixels * 2 + bigPixels * 3) / totalPixels,
+        0)
+    spec.stoneExistingCoverage = stoneCoverage
+    spec.stoneEffectiveCoverage = effectiveStoneCoverage
+    spec.stoneExistingLevel = stonePixels > 0
+        and (smallPixels + mediumPixels * 2 + bigPixels * 3) / stonePixels
+        or 0
+
+    local sweptAreaHa = math.max(tonumber(frameAreaHa) or 0, 0)
+    if sweptAreaHa <= 0 or stonePixels <= 0 then
+        return
+    end
+    spec.stoneExistingWeightedHaWindow =
+        (spec.stoneExistingWeightedHaWindow or 0)
+        + sweptAreaHa * weightedDensity
+
+    local visibleStoneModel = TerraLogicSettings ~= nil
+        and TerraLogicSettings:getVisibleStoneDamageModel() or "terraLogic"
+    local surfaceFactor = visibleStoneModel == "terraLogic"
+        and spec.impactVanillaEnabled == true
+        and math.max(tonumber(spec.stoneSurfaceFactor) or 0, 0) or 0
+    local impactEnergy = self:getStoneImpactEnergy(currentSpeed)
+    if surfaceFactor <= 0 or impactEnergy <= 0
+        or self.isServer ~= true or self.addDamageAmount == nil then
+        return
+    end
+
+    local severity = tonumber(spec.impactSeverityFactor) or 1
+    local sensitivity = tonumber(spec.impactSensitivityFactor) or 1
+    local exposure = spec.stoneVisibleExposure
+    local thresholds = spec.stoneVisibleThreshold
+    if exposure == nil or thresholds == nil then
+        exposure = {small = 0, medium = 0, big = 0}
+        thresholds = {
+            small = drawExponentialThreshold(),
+            medium = drawExponentialThreshold(),
+            big = drawExponentialThreshold()
+        }
+        spec.stoneVisibleExposure = exposure
+        spec.stoneVisibleThreshold = thresholds
+    end
+
+    local eventCount = 0
+    local now = g_currentMission ~= nil and g_currentMission.time or 0
+
+    for _, stoneTier in ipairs(TerraLogic.STONE_VISIBLE_TIER_ORDER) do
+        local matchingPixels = stoneTier == "small" and smallPixels
+            or (stoneTier == "medium" and mediumPixels or bigPixels)
+        -- Preserve the detected small/medium/big composition, but scale the
+        -- total contact density against a visually saturated Vanilla layer.
+        local tierShare = math.clamp(matchingPixels / stonePixels, 0, 1)
+        local coveredHa = sweptAreaHa * effectiveStoneCoverage * tierShare
+        local rate = TerraLogic.STONE_VISIBLE_EVENTS_PER_COVERED_HA[stoneTier]
+            or 0
+        exposure[stoneTier] = (exposure[stoneTier] or 0)
+            + coveredHa * rate * surfaceFactor
+        thresholds[stoneTier] = thresholds[stoneTier]
+            or drawExponentialThreshold()
+
+        while exposure[stoneTier] >= thresholds[stoneTier]
+            and eventCount < TerraLogic.STONE_VISIBLE_MAX_EVENTS_PER_TICK do
+            exposure[stoneTier] = exposure[stoneTier] - thresholds[stoneTier]
+            thresholds[stoneTier] = drawExponentialThreshold()
+            eventCount = eventCount + 1
+
+            local impactTier = chooseVisibleImpactTier(stoneTier)
+            local maximumDamage = getImpactTierMaximumDamage(
+                TerraLogic.IMPACT_TIERS[impactTier], impactEnergy,
+                severity, sensitivity)
+            local impactDamage = maximumDamage
+                * getVisibleHitSeverityFactor()
+            local damageBeforeEvent = self.getDamageAmount ~= nil
+                and (tonumber(self:getDamageAmount()) or 0) or nil
+            self:addDamageAmount(impactDamage)
+            local appliedDamage = damageBeforeEvent ~= nil
+                and math.min(impactDamage,
+                    math.max(1 - damageBeforeEvent, 0))
+                or impactDamage
+
+            addDamageAnalysisValue(spec,
+                TerraLogic.STONE_VISIBLE_ANALYSIS_KEYS[stoneTier], appliedDamage)
+            addDamageAnalysisValue(spec, "mapExisting", appliedDamage)
+            local analysis = spec.damageAnalysis
+            if analysis ~= nil then
+                local countKey = stoneTier == "small" and "mapSmallCount"
+                    or (stoneTier == "medium"
+                        and "mapMediumCount" or "mapBigCount")
+                analysis[countKey] = (analysis[countKey] or 0) + 1
+                local resultCountKey = impactTier == "small"
+                    and "mapImpactSmallCount"
+                    or (impactTier == "medium"
+                        and "mapImpactMediumCount" or "mapImpactBigCount")
+                analysis[resultCountKey] =
+                    (analysis[resultCountKey] or 0) + 1
+            end
+            spec.stoneSurfaceDamageWindow =
+                (spec.stoneSurfaceDamageWindow or 0) + appliedDamage
+            spec.telemetryCurrentDamage =
+                (spec.telemetryCurrentDamage or 0) + appliedDamage
+            local balanceTest = spec.balanceTest
+            if balanceTest ~= nil and balanceTest.active == true then
+                balanceTest.stoneSurfaceDamage =
+                    (balanceTest.stoneSurfaceDamage or 0) + appliedDamage
+            end
+            spec.lastStoneEventSource = string.format(
+                "surface %s -> %s impact", stoneTier, impactTier)
+            spec.lastStoneEventDamage = appliedDamage
+            spec.lastStoneEventGameTime = now
+        end
+    end
 end
 
 -- Runs Vanilla cultivation first, then records quality only for changed ground.
@@ -2558,21 +2971,30 @@ local function getDropoutLedgerWorkArea(vehicle, entry)
 end
 
 function TerraLogic:processMowerArea(superFunc, workArea, dt)
-    return self:processSurfacePatchDropoutArea(
-        superFunc, workArea, dt, "mowerPatch"
-    )
+    local function processDropoutArea(vehicle, area, deltaTime)
+        return vehicle:processSurfacePatchDropoutArea(
+            superFunc, area, deltaTime, "mowerPatch")
+    end
+    return self:processOverSpeedStoneArea(
+        processDropoutArea, workArea, dt)
 end
 
 function TerraLogic:processWindrowerArea(superFunc, workArea, dt)
-    return self:processSurfacePatchDropoutArea(
-        superFunc, workArea, dt, "windrowerPatch"
-    )
+    local function processDropoutArea(vehicle, area, deltaTime)
+        return vehicle:processSurfacePatchDropoutArea(
+            superFunc, area, deltaTime, "windrowerPatch")
+    end
+    return self:processOverSpeedStoneArea(
+        processDropoutArea, workArea, dt)
 end
 
 function TerraLogic:processTedderArea(superFunc, workArea, dt)
-    return self:processSurfacePatchDropoutArea(
-        superFunc, workArea, dt, "tedderPatch"
-    )
+    local function processDropoutArea(vehicle, area, deltaTime)
+        return vehicle:processSurfacePatchDropoutArea(
+            superFunc, area, deltaTime, "tedderPatch")
+    end
+    return self:processOverSpeedStoneArea(
+        processDropoutArea, workArea, dt)
 end
 
 function TerraLogic:processBalerArea(superFunc, workArea, dt)
@@ -2587,9 +3009,12 @@ function TerraLogic:processBalerArea(superFunc, workArea, dt)
         end
         return pickedUpLiters, totalLiters
     end
-    local pickedUpLiters, totalLiters = self:processSurfacePatchDropoutArea(
-        processPickupArea, workArea, dt, "balerPatch"
-    )
+    local function processDropoutArea(vehicle, area, deltaTime)
+        return vehicle:processSurfacePatchDropoutArea(
+            processPickupArea, area, deltaTime, "balerPatch")
+    end
+    local pickedUpLiters, totalLiters = self:processOverSpeedStoneArea(
+        processDropoutArea, workArea, dt)
     if lastFillEffectType ~= nil and self.spec_baler ~= nil then
         self.spec_baler.fillEffectType = lastFillEffectType
     end
@@ -2600,9 +3025,12 @@ function TerraLogic:processBalerArea(superFunc, workArea, dt)
 end
 
 function TerraLogic:processForageWagonArea(superFunc, workArea, dt)
-    return self:processSurfacePatchDropoutArea(
-        superFunc, workArea, dt, "loaderWagonPatch"
-    )
+    local function processDropoutArea(vehicle, area, deltaTime)
+        return vehicle:processSurfacePatchDropoutArea(
+            superFunc, area, deltaTime, "loaderWagonPatch")
+    end
+    return self:processOverSpeedStoneArea(
+        processDropoutArea, workArea, dt)
 end
 
 -- Mechanical impact failures use the same WorkArea segmentation as seed and
@@ -5325,21 +5753,30 @@ function TerraLogic:updateOverSpeedImplementClass()
     spec.workDepthCm = implementClass ~= nil and implementClass.work ~= nil
         and implementClass.work.depthCm or 0
     spec.draftDepthResponse = TerraLogic.getDraftDepthResponse(spec.workDepthCm)
-    spec.impactDepthFactor = implementClass ~= nil and implementClass.impacts ~= nil
-        and implementClass.impacts.depthFactor or 1
-    spec.impactStoneProtection = implementClass ~= nil
+    spec.impactDepthFactor = TerraLogic.getImpactDepthFactor(spec.workDepthCm)
+    spec.impactUndergroundEnabled = implementClass ~= nil
         and implementClass.impacts ~= nil
-        and implementClass.impacts.stoneProtection == true
-    spec.impactMediumDamageFactor = implementClass ~= nil
+        and implementClass.impacts.underground == true
+    spec.impactVanillaEnabled = implementClass ~= nil
         and implementClass.impacts ~= nil
-        and implementClass.impacts.stoneProtection == true
-        and implementClass.impacts.mediumDamageFactor or 1
+        and implementClass.impacts.vanilla == true
+    spec.impactUsesWorkSpeed = implementClass ~= nil
+        and implementClass.impacts ~= nil
+        and implementClass.impacts.workSpeed == true
+    spec.impactUsesRotation = implementClass ~= nil
+        and implementClass.impacts ~= nil
+        and implementClass.impacts.rotation == true
+    spec.impactOverspeedOnly = implementClass ~= nil
+        and implementClass.impacts ~= nil
+        and implementClass.impacts.overspeedOnly == true
+    spec.impactSensitivity, spec.impactSensitivityFactor =
+        resolveImpactSensitivity(self, classKey, implementClass)
     spec.additionalDraftEnabled = implementClass ~= nil and implementClass.draft ~= nil
         and implementClass.draft.enabled == true
     spec.additionalDraftScale = implementClass ~= nil and implementClass.draft ~= nil
         and implementClass.draft.overspeedScale or 0
-    spec.implementAbrasionFactor = implementClass ~= nil and implementClass.wear ~= nil
-        and implementClass.wear.abrasionFactor or 0
+    spec.implementAbrasionFactor = TerraLogic.getAbrasionDepthFactor(
+        spec.workDepthCm)
     spec.wearModel = implementClass ~= nil and implementClass.wear ~= nil
         and implementClass.wear.model or "soil"
     spec.yieldWeight = implementClass ~= nil and implementClass.yield ~= nil
@@ -5690,9 +6127,8 @@ function TerraLogic:updateOverSpeedSoilData(dt)
         and TerraLogicMain.precisionFarmingMode or "auto"
     spec.resistanceMultiplier = 1
     spec.abrasionMultiplier = 1
-    spec.impactFrequencyFactor = 1
     spec.impactSeverityFactor = 1
-    spec.impactSoilSource = "Neutral fallback"
+    spec.impactSoilSource = "Depth-based frequency"
     spec.resistanceSource = "Vanilla"
     spec.abrasionSource = "Vanilla"
 
@@ -5838,9 +6274,7 @@ function TerraLogic:updateOverSpeedSoilData(dt)
         spec.resistanceMultiplier = soilData.resistance
         spec.abrasionMultiplier = soilData.abrasion
         if hasFieldSoilData then
-            spec.impactFrequencyFactor = soilData.impactFrequency
             spec.impactSeverityFactor = soilData.impactSeverity
-            spec.impactSoilSource = "Precision Farming"
         end
         spec.resistanceSource = "Precision Farming"
         spec.abrasionSource = "Precision Farming"
@@ -6050,9 +6484,35 @@ function TerraLogic:getWorkingSpeedRatio()
     return currentSpeed / spec.optimalSpeed, currentSpeed
 end
 
+local function getVanillaDamageWithSelectedStoneModel(self, superFunc, dt)
+    local spec = self.spec_terraLogic
+    local visibleStoneModel = TerraLogicSettings ~= nil
+        and TerraLogicSettings:getVisibleStoneDamageModel() or "terraLogic"
+    local modEnabled = TerraLogicMain == nil or TerraLogicMain.enabled ~= false
+    local stoneSpecName = spec ~= nil
+        and TerraLogic.VANILLA_STONE_SPEC_BY_CLASS[spec.implementClassKey]
+        or nil
+    local stoneSpec = stoneSpecName ~= nil and self[stoneSpecName] or nil
+    if not modEnabled or visibleStoneModel ~= "terraLogic"
+        or spec == nil or spec.impactVanillaEnabled ~= true
+        or stoneSpec == nil or stoneSpec.stoneLastState == nil then
+        return superFunc(self, dt)
+    end
+
+    -- getWearMultiplier reads this state synchronously inside superFunc. It is
+    -- restored immediately, so Vanilla WorkArea state, visuals and networking
+    -- remain untouched; only the duplicate wear multiplier is omitted.
+    local savedState = stoneSpec.stoneLastState
+    stoneSpec.stoneLastState = 0
+    local vanillaDamage = superFunc(self, dt)
+    stoneSpec.stoneLastState = savedState
+    return vanillaDamage
+end
+
 -- Replaces active-work wear with the configured speed, soil and age model.
 function TerraLogic:updateDamageAmount(superFunc, dt)
-    local vanillaDamage = math.max(tonumber(superFunc(self, dt)) or 0, 0)
+    local vanillaDamage = math.max(tonumber(
+        getVanillaDamageWithSelectedStoneModel(self, superFunc, dt)) or 0, 0)
 
     local speedRatio = self:getWorkingSpeedRatio()
     if speedRatio == nil
@@ -6077,7 +6537,7 @@ function TerraLogic:updateDamageAmount(superFunc, dt)
     local implementFactor = math.clamp(
         tonumber(spec.implementAbrasionFactor) or 0,
         0,
-        1
+        TerraLogic.ABRASION_DEPTH_MAX_FACTOR
     )
     local soilFactor = math.max(tonumber(spec.abrasionMultiplier) or 1, 0)
     local baselineAbrasionMultiplier, abrasiveLoad =
@@ -6123,6 +6583,40 @@ function TerraLogic:updateDamageAmount(superFunc, dt)
         vanillaDamage
             + policyAdjustment + abrasionAdjustment + speedAdjustment,
         0)
+
+    -- Split the final continuous damage without feeding anything back into the
+    -- wear calculation. Positive excess over the same-speed baseline is shown
+    -- as overspeed wear; the remaining baseline is divided by the configured
+    -- general/abrasive shares. Surface tools do not use PF soil abrasion.
+    local remainingDamageCapacity = self.getDamageAmount ~= nil
+        and math.max(1 - (tonumber(self:getDamageAmount()) or 0), 0)
+        or currentDamage
+    local analysisScale = currentDamage > 0
+        and math.min(currentDamage, remainingDamageCapacity) / currentDamage or 0
+    local damageBeforeSpeed = math.max(
+        vanillaDamage + policyAdjustment + abrasionAdjustment, 0)
+    local overspeedDamage = math.max(currentDamage - damageBeforeSpeed, 0)
+        * analysisScale
+    local baselineDamage = math.max(
+        currentDamage - math.max(currentDamage - damageBeforeSpeed, 0), 0)
+        * analysisScale
+    if spec.wearModel == "surface" then
+        addDamageAnalysisValue(spec, "generalWear", baselineDamage)
+    else
+        local generalWeight = math.max(1 - TerraLogic.WEAR_ABRASIVE_SHARE, 0)
+        local abrasiveWeight = math.max(
+            TerraLogic.WEAR_ABRASIVE_SHARE * abrasiveLoad, 0)
+        local totalWeight = generalWeight + abrasiveWeight
+        if totalWeight > 0 then
+            addDamageAnalysisValue(spec, "generalWear",
+                baselineDamage * generalWeight / totalWeight)
+            addDamageAnalysisValue(spec, "soilAbrasion",
+                baselineDamage * abrasiveWeight / totalWeight)
+        else
+            addDamageAnalysisValue(spec, "generalWear", baselineDamage)
+        end
+    end
+    addDamageAnalysisValue(spec, "overspeedWear", overspeedDamage)
 
     spec.xmlWearRateFactor = xmlWearRateFactor
     spec.xmlWearDurationMinutes = actualWearRate > 0
@@ -6259,10 +6753,16 @@ function TerraLogic:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSel
         speedRatio = nil
     end
     spec.telemetryElapsedMs = (spec.telemetryElapsedMs or 0) + dt
+    if self.isServer and spec.damageAnalysis ~= nil then
+        spec.damageAnalysis.elapsedMs =
+            (spec.damageAnalysis.elapsedMs or 0) + dt
+    end
     if speedRatio ~= nil then
         local distanceM = currentSpeed / 3.6 * (dt / 1000)
         local workingWidth = self:getOverSpeedWorkingWidth()
         local frameAreaHa = distanceM * workingWidth / 10000
+        TerraLogic.processVisibleStoneExposure(
+            self, frameAreaHa, currentSpeed)
         if physicalDropoutsEnabled and spec.impactDropoutProfile ~= nil then
             local activeState = spec.impactDropoutState
             local failedFraction = activeState ~= nil
@@ -6396,6 +6896,12 @@ function TerraLogic:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSel
             end
         end
         spec.telemetryDistanceM = (spec.telemetryDistanceM or 0) + distanceM
+        if self.isServer and spec.damageAnalysis ~= nil then
+            spec.damageAnalysis.workingMs =
+                (spec.damageAnalysis.workingMs or 0) + dt
+            spec.damageAnalysis.distanceM =
+                (spec.damageAnalysis.distanceM or 0) + distanceM
+        end
         local draftMultiplier, speedMultiplier = self:getOverSpeedBalanceFactors(speedRatio)
         local abrasion = getEffectiveAbrasionMultiplier(spec)
         local effectiveTotalMultiplier = tonumber(spec.lastContinuousDamageMultiplier)
@@ -6484,9 +6990,35 @@ function TerraLogic:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSel
                 local randomFactor = TerraLogic.IMPACT_RANDOM_MIN_FACTOR
                     + (1 - TerraLogic.IMPACT_RANDOM_MIN_FACTOR) * math.random()
                 local impactDamage = maximumImpactDamage * randomFactor
+                local damageBeforeEvent = self.getDamageAmount ~= nil
+                    and (tonumber(self:getDamageAmount()) or 0) or nil
                 self:addDamageAmount(impactDamage)
+                local appliedImpactDamage = damageBeforeEvent ~= nil
+                    and math.min(impactDamage,
+                        math.max(1 - damageBeforeEvent, 0))
+                    or impactDamage
                 spec.telemetryCurrentDamage = (spec.telemetryCurrentDamage or 0) + impactDamage
                 spec.randomImpactDamageWindow = (spec.randomImpactDamageWindow or 0) + impactDamage
+                local analysis = spec.damageAnalysis
+                if impactTier == "small" then
+                    addDamageAnalysisValue(spec, "undergroundSmall", appliedImpactDamage)
+                    if analysis ~= nil then
+                        analysis.undergroundSmallCount =
+                            (analysis.undergroundSmallCount or 0) + 1
+                    end
+                elseif impactTier == "medium" then
+                    addDamageAnalysisValue(spec, "undergroundMedium", appliedImpactDamage)
+                    if analysis ~= nil then
+                        analysis.undergroundMediumCount =
+                            (analysis.undergroundMediumCount or 0) + 1
+                    end
+                else
+                    addDamageAnalysisValue(spec, "undergroundBig", appliedImpactDamage)
+                    if analysis ~= nil then
+                        analysis.undergroundBigCount =
+                            (analysis.undergroundBigCount or 0) + 1
+                    end
+                end
                 local balanceTest = spec.balanceTest
                 if balanceTest ~= nil and balanceTest.active == true then
                     balanceTest.randomImpactDamage = (balanceTest.randomImpactDamage or 0)
@@ -6554,7 +7086,7 @@ function TerraLogic:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSel
                 spec.lastImpactDamage = impactDamage
                 spec.lastImpactGameTime = g_currentMission ~= nil and g_currentMission.time or 0
                 TerraLogicLogging.debug(
-                    "[FS25_TerraLogic] Impact spike: vehicle=%s tier=%s depth=%.0fcm depthFactor=%.2f speed=%.1f rated=%.1f energy=%.2f excess=%.2f soilFreq=%.2f soilSeverity=%.2f damage=%.1f%% risk=%.2f events/ha",
+                    "[FS25_TerraLogic] Impact spike: vehicle=%s tier=%s depth=%.0fcm depthFactor=%.2f speed=%.1f rated=%.1f energy=%.2f soilSeverity=%.2f sensitivity=%s(x%.2f) damage=%.1f%% risk=%.2f events/ha",
                     self.getName ~= nil and self:getName() or tostring(self.configFileName),
                     impactTier,
                     spec.workDepthCm or 0,
@@ -6562,15 +7094,19 @@ function TerraLogic:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSel
                     currentSpeed,
                     spec.ratedSpeed,
                     impactEnergy,
-                    excessImpactEnergy,
-                    spec.impactFrequencyFactor or 1,
                     spec.impactSeverityFactor or 1,
+                    spec.impactSensitivity or "none",
+                    spec.impactSensitivityFactor or 1,
                     impactDamage * 100,
                     eventsPerHa
                 )
             end
         end
     else
+        if self.isServer then
+            -- Never carry the final sample of an old pass into a later pass.
+            TerraLogic.processVisibleStoneExposure(self, 0, 0)
+        end
         spec.impactRiskEventsPerHa = 0
         spec.impactEnergy = 0
         spec.excessImpactEnergy = 0
@@ -6832,6 +7368,18 @@ function TerraLogic:getOverSpeedDebugData()
                 nil))
     end
 
+    local damageAnalysis = spec.damageAnalysis or createDamageAnalysisState()
+    local damageAnalysisTotal =
+        (damageAnalysis.generalWear or 0)
+        + (damageAnalysis.soilAbrasion or 0)
+        + (damageAnalysis.overspeedWear or 0)
+        + (damageAnalysis.undergroundSmall or 0)
+        + (damageAnalysis.undergroundMedium or 0)
+        + (damageAnalysis.undergroundBig or 0)
+        + (damageAnalysis.mapSmall or 0)
+        + (damageAnalysis.mapMedium or 0)
+        + (damageAnalysis.mapBig or 0)
+
     return {
         name = self.getName ~= nil and self:getName() or "Implement",
         speed = speed,
@@ -6849,10 +7397,30 @@ function TerraLogic:getOverSpeedDebugData()
         workDepthCm = spec.workDepthCm or 0,
         draftDepthResponse = spec.draftDepthResponse or 0,
         impactDepthFactor = spec.impactDepthFactor or 1,
-        impactStoneProtection = spec.impactStoneProtection == true,
-        impactMediumDamageFactor = spec.impactMediumDamageFactor or 1,
+        impactUndergroundEnabled = spec.impactUndergroundEnabled == true,
+        impactVanillaEnabled = spec.impactVanillaEnabled == true,
+        impactUsesWorkSpeed = spec.impactUsesWorkSpeed == true,
+        impactUsesRotation = spec.impactUsesRotation == true,
+        impactOverspeedOnly = spec.impactOverspeedOnly == true,
+        impactSensitivity = spec.impactSensitivity or "none",
+        impactSensitivityFactor = spec.impactSensitivityFactor or 1,
+        undergroundVisibleStoneFactor = spec.impactVanillaEnabled == true
+            and getAreVanillaStonesActive()
+            and TerraLogic.IMPACT_UNDERGROUND_WITH_VISIBLE_STONES_FACTOR or 1,
         implementAbrasionFactor = spec.implementAbrasionFactor or 0,
         wearModel = spec.wearModel or "soil",
+        damageAnalysis = damageAnalysis,
+        damageAnalysisTotal = damageAnalysisTotal,
+        stoneVisibleResultSmallCount =
+            damageAnalysis.mapImpactSmallCount or 0,
+        stoneVisibleResultMediumCount =
+            damageAnalysis.mapImpactMediumCount or 0,
+        stoneVisibleResultBigCount =
+            damageAnalysis.mapImpactBigCount or 0,
+        damageAnalysisVisibleStoneExact = spec.impactVanillaEnabled == true
+            and (TerraLogicSettings == nil
+                or TerraLogicSettings:getVisibleStoneDamageModel()
+                    == "terraLogic"),
         abrasiveShare = TerraLogic.WEAR_ABRASIVE_SHARE,
         abrasiveLoad = abrasiveLoad,
         baselineAbrasionMultiplier = effectiveAbrasion,
@@ -6929,9 +7497,8 @@ function TerraLogic:getOverSpeedDebugData()
         impactRiskEventsPerKm = spec.impactRiskEventsPerKm or 0,
         expectedRandomImpactDamagePerHectare =
             spec.expectedRandomImpactDamagePerHectare or 0,
-        soilImpactEventsPerHa = TerraLogic.IMPACT_BASE_EVENTS_PER_HA
-            * (spec.impactFrequencyFactor or 1),
-        impactFrequencyFactor = spec.impactFrequencyFactor or 1,
+        impactReferenceDepthCm = TerraLogic.IMPACT_REFERENCE_DEPTH_CM,
+        soilImpactEventsPerHa = TerraLogic.IMPACT_BASE_EVENTS_PER_HA,
         impactSeverityFactor = spec.impactSeverityFactor or 1,
         impactSoilSource = spec.impactSoilSource or "Neutral fallback",
         impactEnergy = spec.impactEnergy or 1,
@@ -7026,12 +7593,31 @@ function TerraLogic:getOverSpeedDebugData()
         lastImpactSecondsAgo = lastImpactSecondsAgo,
         stoneSystemActive = spec.stoneSystemActive == true,
         stoneSystemStatus = spec.stoneSystemStatus or "unknown",
+        visibleStoneDamageSource = spec.visibleStoneDamageSource or "not checked",
         stoneToolMode = spec.stoneToolMode or "unknown",
+        stoneMapMinValue = spec.stoneMapMinValue or 0,
+        stoneMapMaxValue = spec.stoneMapMaxValue or 0,
+        stoneLastVanillaAreaState = spec.stoneLastVanillaAreaState or 0,
+        stoneLastFieldCoveragePercent =
+            (spec.stoneLastFieldCoverage or 0) * 100,
         stoneSurfaceFactor = spec.stoneSurfaceFactor or 0,
         stoneGenerationFactor = spec.stoneGenerationFactor or 0,
-        hiddenImpactFactor = spec.hiddenImpactFactor or 1,
         stoneExistingLevel = spec.stoneExistingLevel or 0,
         stoneExistingCoveragePercent = (spec.stoneExistingCoverage or 0) * 100,
+        stoneEffectiveCoveragePercent =
+            (spec.stoneEffectiveCoverage or 0) * 100,
+        stoneVisibleExposureSmall = spec.stoneVisibleExposure ~= nil
+            and (spec.stoneVisibleExposure.small or 0) or 0,
+        stoneVisibleExposureMedium = spec.stoneVisibleExposure ~= nil
+            and (spec.stoneVisibleExposure.medium or 0) or 0,
+        stoneVisibleExposureBig = spec.stoneVisibleExposure ~= nil
+            and (spec.stoneVisibleExposure.big or 0) or 0,
+        stoneVisibleThresholdSmall = spec.stoneVisibleThreshold ~= nil
+            and (spec.stoneVisibleThreshold.small or 0) or 0,
+        stoneVisibleThresholdMedium = spec.stoneVisibleThreshold ~= nil
+            and (spec.stoneVisibleThreshold.medium or 0) or 0,
+        stoneVisibleThresholdBig = spec.stoneVisibleThreshold ~= nil
+            and (spec.stoneVisibleThreshold.big or 0) or 0,
         stoneGeneratedLevelDelta = spec.stoneGeneratedLevelDelta or 0,
         stoneGeneratedWeightedHaLastScan = spec.stoneGeneratedWeightedHaLastScan or 0,
         stoneExistingWeightedHaLastSecond = spec.stoneExistingWeightedHaLastSecond or 0,
@@ -7057,7 +7643,6 @@ function TerraLogic:getOverSpeedDebugData()
         randomDamageRuntimeMultiplier = getRuntimeBalanceMultiplier("randomDamage"),
         stoneSurfaceRuntimeMultiplier = getRuntimeBalanceMultiplier("stoneSurface"),
         stoneGeneratedRuntimeMultiplier = getRuntimeBalanceMultiplier("stoneGenerated"),
-        stoneHiddenRuntimeMultiplier = getRuntimeBalanceMultiplier("stoneHidden"),
         seedQuality = liveSeedQuality,
         seedWorkQuality = liveSeedWorkQuality,
         seedYieldPenalty = liveSeedYieldPenalty,
