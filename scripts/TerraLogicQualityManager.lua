@@ -6,13 +6,13 @@
     Unauthorized copying, modification, or redistribution is prohibited
     except where expressly permitted by the copyright owner.
 
-    Source fingerprint: TMW-TL-QUAL-1.200274
+    Source fingerprint: TMW-TL-QUAL-1.200275
 ]]
 
 TerraLogicQualityManager = {}
 OverSpeedQualityManager = TerraLogicQualityManager
 -- Numeric source signature only; it is deliberately excluded from gameplay math.
-TerraLogicQualityManager.SOURCE_FINGERPRINT = 1.200274
+TerraLogicQualityManager.SOURCE_FINGERPRINT = 1.200275
 
 TerraLogicQualityManager.CELL_SIZE = 4
 TerraLogicQualityManager.CHUNK_SIZE = 32
@@ -1769,7 +1769,7 @@ end
 function TerraLogicQualityManager:getCellAtWorldPosition(x, z, fallbackX, fallbackZ)
     local ix, iz = getCellIndex(x), getCellIndex(z)
     if g_currentMission == nil or g_currentMission:getIsServer() then
-        return self:getPackedCell(ix, iz)
+        return self:getPackedCell(ix, iz), false
     end
     local key = tostring(ix) .. ":" .. tostring(iz)
     local cached = self.clientCells[key]
@@ -1784,18 +1784,24 @@ function TerraLogicQualityManager:getCellAtWorldPosition(x, z, fallbackX, fallba
             self.nextClientRequestTime = now + 1000
         end
     end
-    return cached ~= false and cached or nil
+    -- A missing cache entry means that the client is waiting for this exact
+    -- cell. `false` is different: the server has answered and confirmed that
+    -- no stored TerraLogic quality exists there. Exposing that distinction lets
+    -- the HUD bridge network latency without retaining stale field data after
+    -- an authoritative empty response.
+    if cached == nil then return nil, true end
+    return cached ~= false and cached or nil, false
 end
 
 function TerraLogicQualityManager:getSummaryAtWorldPosition(x, z, fallbackX, fallbackZ)
     -- The quality box describes the land under the player, not the camera
     -- crosshair or an averaged neighbouring footprint.
-    local cell = self:getCellAtWorldPosition(x, z)
-    if cell == nil then return nil end
+    local cell, requestPending = self:getCellAtWorldPosition(x, z)
+    if cell == nil then return nil, nil, requestPending == true end
     local entries = self:getGroupedEntriesFromCell(cell)
     local sum, count = 0, #entries
     for _, entry in ipairs(entries) do sum = sum + entry.quality end
-    return count > 0 and sum / count or nil, entries
+    return count > 0 and sum / count or nil, entries, false
 end
 
 function TerraLogicQualityManager:getGroupedEntriesFromCell(cell)

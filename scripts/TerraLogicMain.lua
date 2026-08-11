@@ -6,13 +6,13 @@
     Unauthorized copying, modification, or redistribution is prohibited
     except where expressly permitted by the copyright owner.
 
-    Source fingerprint: TMW-TL-MAIN-1.200218
+    Source fingerprint: TMW-TL-MAIN-1.200220
 ]]
 
 TerraLogicMain = {}
 OverSpeedDamageMain = TerraLogicMain
 -- Numeric source signature only; it is deliberately excluded from gameplay math.
-TerraLogicMain.SOURCE_FINGERPRINT = 1.200218
+TerraLogicMain.SOURCE_FINGERPRINT = 1.200220
 
 local MOD_NAME = g_currentModName
 local MOD_DIR = g_currentModDirectory
@@ -1545,23 +1545,43 @@ local function getSpeedHudWorkQualityComponent(implement)
     elseif implement.spec_mulcher ~= nil then
         return "mulch"
     end
-    -- Mowers, tedders, windrowers, stone pickers, mechanical weeders,
-    -- balers and loader wagons have physical consequences only. They must not
-    -- present a synthetic quality percentage or a permanent "Quality: -" row.
+    -- Remaining supported tools use only visible mechanical consequences. The
+    -- HUD resolves those through their physical dropout profile below instead
+    -- of pretending that they write agronomic quality into field chunks.
     return nil
 end
 
-local function getIsSpeedHudImplementWritingQuality(implement, currentSpeed)
+local function getSpeedHudPhysicalQualityProfile(implement)
+    local spec = implement ~= nil and implement.spec_terraLogic or nil
+    local profileName = spec ~= nil and spec.dropoutProfile or nil
+    local profile = profileName ~= nil and TerraLogicDropoutManager ~= nil
+        and TerraLogicDropoutManager:getProfile(profileName) or nil
+    -- Staged seed and application profiles already use their stored Work
+    -- Quality component. Only surface-island profiles need a synthetic HUD
+    -- value derived from their expected mechanically missed share.
+    return profile ~= nil and profile.enabled == true
+        and profile.patternType == "surfaceIslands" and profileName or nil
+end
+
+local function getIsSpeedHudQualityActive(
+        implement, currentSpeed, qualityComponent, physicalProfile)
     local spec = implement ~= nil and implement.spec_terraLogic or nil
     if spec == nil or (tonumber(currentSpeed) or 0) < 0.5 then
         return false
     end
-    if spec.qualityWorkActive == true then return true end
-    -- Same-frame listen-server fallback before the synchronized flag reaches
-    -- the HUD. This timestamp is set only after at least one cell was accepted.
+    local usesStoredQuality = qualityComponent ~= nil
+    if usesStoredQuality and spec.qualityWorkActive == true then return true end
+    if physicalProfile ~= nil and spec.actualWorkActive == true then return true end
+    -- Same-frame listen-server fallbacks before the synchronized flags reach
+    -- the HUD. These timestamps are set only after accepted chunk work or
+    -- actual physical material/ground processing respectively.
     local now = g_currentMission ~= nil and (g_currentMission.time or 0) or 0
-    return spec.lastQualityWorkTime ~= nil
-        and now - spec.lastQualityWorkTime <= 500
+    if usesStoredQuality then
+        return spec.lastQualityWorkTime ~= nil
+            and now - spec.lastQualityWorkTime <= 500
+    end
+    return physicalProfile ~= nil and spec.lastActualWorkTime ~= nil
+        and now - spec.lastActualWorkTime <= 500
 end
 
 function TerraLogicMain:getSpeedHudWorkQuality(implement, currentSpeed)
@@ -1573,6 +1593,32 @@ function TerraLogicMain:getSpeedHudWorkQuality(implement, currentSpeed)
     -- jump back to 100% on already optimal ground.
     return select(1, TerraLogicQualityManager:getWorkQualityModel(
         implement, currentSpeed, component, nil))
+end
+
+function TerraLogicMain:getSpeedHudPhysicalWorkQuality(
+        implement, currentSpeed, profileName)
+    local spec = implement ~= nil and implement.spec_terraLogic or nil
+    if spec == nil or profileName == nil
+        or TerraLogicDropoutManager == nil then
+        return nil
+    end
+    local physicalDropoutsEnabled = TerraLogicSettings == nil
+        or TerraLogicSettings.getPhysicalDropoutsEnabled == nil
+        or TerraLogicSettings:getPhysicalDropoutsEnabled()
+    if not physicalDropoutsEnabled then
+        return 1
+    end
+    local failureFraction =
+        TerraLogicDropoutManager:getSurfacePatchFailureFraction(
+            profileName,
+            currentSpeed,
+            tonumber(spec.ratedSpeed) or 0
+        )
+    -- This is deliberately an expected execution quality, not persisted field
+    -- quality. It uses the exact same target curve as the WorkArea dropout
+    -- adapter, so pickup material left behind and the displayed percentage
+    -- move together without frame-to-frame lane-selection flicker.
+    return math.clamp(1 - (tonumber(failureFraction) or 0), 0, 1)
 end
 
 local function getSpeedHudScaledPixels(widthPx, heightPx)
@@ -1714,15 +1760,39 @@ function TerraLogicMain:drawSpeedHud()
     local realSpeed = tonumber(spec.safeSpeed)
         or tonumber(spec.optimalSpeed) or shopSpeed
     if shopSpeed <= 0 then return end
-    local isWritingQuality = getIsSpeedHudImplementWritingQuality(
-        implement, currentSpeed)
+    local qualityComponent = getSpeedHudWorkQualityComponent(implement)
+    local physicalQualityProfile =
+        getSpeedHudPhysicalQualityProfile(implement)
+    local isQualityActive = getIsSpeedHudQualityActive(
+        implement, currentSpeed, qualityComponent, physicalQualityProfile)
+    -- Multiplayer work confirmation can briefly toggle at a quality-cell or PF
+    -- soil boundary. Keep the last active state for a short HUD-only grace
+    -- period while the same implement remains work-ready and moving. Stopping,
+    -- raising or switching the tool off still produces "Work quality: -"
+    -- immediately.
+    if isQualityActive then
+        self.speedHudQualityGraceImplement = implement
+        self.speedHudQualityActiveUntil = now + 1200
+    elseif currentSpeed >= 0.5
+        and self.speedHudQualityGraceImplement == implement
+        and now <= (self.speedHudQualityActiveUntil or 0)
+        and getIsSpeedHudImplementReady(implement, true) then
+        isQualityActive = true
+    end
     local qualityTextEnabled = TerraLogicSettings == nil
         or TerraLogicSettings.showQualityText ~= false
-    local hasStoredWorkQuality = qualityTextEnabled
-        and getSpeedHudWorkQualityComponent(implement) ~= nil
-    local quality = hasStoredWorkQuality and isWritingQuality
-        and self:getSpeedHudWorkQuality(implement, currentSpeed) or nil
-    local showUnavailableQuality = hasStoredWorkQuality and quality == nil
+    local hasDisplayedWorkQuality = qualityTextEnabled
+        and (qualityComponent ~= nil or physicalQualityProfile ~= nil)
+    local quality = nil
+    if hasDisplayedWorkQuality and isQualityActive then
+        if qualityComponent ~= nil then
+            quality = self:getSpeedHudWorkQuality(implement, currentSpeed)
+        else
+            quality = self:getSpeedHudPhysicalWorkQuality(
+                implement, currentSpeed, physicalQualityProfile)
+        end
+    end
+    local showUnavailableQuality = hasDisplayedWorkQuality and quality == nil
     local showImplementCount = qualityTextEnabled
         and (activeImplementCount or 0) > 1
     local showSupplementalRow = renderText ~= nil
@@ -1914,8 +1984,32 @@ function TerraLogicMain:drawQualityHud()
     if box == nil then return end
     local x, z, fallbackX, fallbackZ = getHudWorldPosition(nil)
     if x == nil then return end
-    local quality, entries = TerraLogicQualityManager:getSummaryAtWorldPosition(
+    local quality, entries, requestPending =
+        TerraLogicQualityManager:getSummaryAtWorldPosition(
         x, z, fallbackX, fallbackZ)
+    local now = g_currentMission ~= nil and (g_currentMission.time or 0) or 0
+    if quality ~= nil and entries ~= nil and #entries > 0 then
+        self.lastQualityHudSummary = {
+            quality = quality,
+            entries = entries,
+            x = x,
+            z = z,
+            time = now
+        }
+    elseif requestPending == true and self.lastQualityHudSummary ~= nil then
+        local cached = self.lastQualityHudSummary
+        local dx, dz = x - cached.x, z - cached.z
+        local maximumBridgeDistance =
+            (TerraLogicQualityManager.CELL_SIZE or 4) * 2
+        if now - cached.time <= 1500
+            and dx * dx + dz * dz <= maximumBridgeDistance * maximumBridgeDistance then
+            quality, entries = cached.quality, cached.entries
+        end
+    elseif requestPending ~= true then
+        -- An authoritative empty cell must remove the preceding field's box;
+        -- only a still-pending multiplayer request may use the short bridge.
+        self.lastQualityHudSummary = nil
+    end
     if quality == nil then
         local implement = self:getDebugImplement()
         local isActivePlow = implement ~= nil and implement.spec_plow ~= nil
