@@ -21,6 +21,8 @@ local SPEC_NAME = "terraLogic"
 TerraLogicMain.debugEnabled = false
 TerraLogicMain.debugMode = "overview"
 TerraLogicMain.NORMALIZED_REFERENCE_WIDTH_M = 3.00
+TerraLogicMain.SPEED_HUD_VEHICLE_NAME_DELAY_MS = 5000
+TerraLogicMain.SPEED_HUD_FADE_DURATION_MS = 500
 TerraLogicMain.DEBUG_VIEWS = {
     overview = true,
     wear = true,
@@ -1756,14 +1758,33 @@ local function getSpeedHudDefaultTextPixels()
         and tonumber(HUDElement.TEXT_SIZE.DEFAULT_TEXT) or 14
 end
 
-local function setSpeedHudConditionTextColor(conditionDamage)
+local function setSpeedHudConditionTextColor(conditionDamage, alpha)
+    alpha = math.clamp(tonumber(alpha) or 1, 0, 1)
     if conditionDamage >= 0.90 then
-        setTextColor(1, 0.18, 0.10, 1)
+        setTextColor(1, 0.18, 0.10, alpha)
     elseif conditionDamage >= 0.75 then
-        setTextColor(1, 0.4287, 0.0006, 1)
+        setTextColor(1, 0.4287, 0.0006, alpha)
     else
-        setTextColor(1, 0.82, 0.18, 1)
+        setTextColor(1, 0.82, 0.18, alpha)
     end
+end
+
+local function updateSpeedHudFade(self, now, shouldShow)
+    local alpha = math.clamp(
+        tonumber(self.speedHudFadeAlpha) or 0, 0, 1)
+    local lastTime = tonumber(self.speedHudFadeLastTime) or now
+    local elapsed = math.max(now - lastTime, 0)
+    local duration = math.max(
+        tonumber(TerraLogicMain.SPEED_HUD_FADE_DURATION_MS) or 0, 0)
+    local step = duration > 0 and elapsed / duration or 1
+    if shouldShow then
+        alpha = math.min(alpha + step, 1)
+    else
+        alpha = math.max(alpha - step, 0)
+    end
+    self.speedHudFadeAlpha = alpha
+    self.speedHudFadeLastTime = now
+    return alpha
 end
 
 -- Creates reusable overlays once; no textures are allocated during rendering.
@@ -1812,13 +1833,20 @@ function TerraLogicMain:deleteSpeedHudOverlays()
     self.speedHudOverlays = nil
 end
 
-function TerraLogicMain:renderSpeedHudBackground(x, y, width, height)
+function TerraLogicMain:renderSpeedHudBackground(x, y, width, height, alpha)
     if not self:ensureSpeedHudOverlays() then return false end
     local state = self.speedHudOverlays
+    alpha = math.clamp(tonumber(alpha) or 1, 0, 1)
     local capWidth = select(1, getSpeedHudScaledPixels(10, 0))
     capWidth = math.min(capWidth, width * 0.25)
     local left, middle, right = state.background.left,
         state.background.middle, state.background.right
+    local background = HUD ~= nil and HUD.COLOR ~= nil
+        and HUD.COLOR.BACKGROUND or {0.01, 0.01, 0.01, 0.58}
+    for _, overlay in pairs(state.background) do
+        overlay:setColor(background[1], background[2], background[3],
+            (background[4] or 1) * alpha)
+    end
     left:setPosition(x, y)
     left:setDimension(capWidth, height)
     middle:setPosition(x + capWidth, y)
@@ -1832,7 +1860,7 @@ function TerraLogicMain:renderSpeedHudBackground(x, y, width, height)
 end
 
 function TerraLogicMain:renderSpeedHudBar(
-        index, x, y, width, height, color, roundedLeft, roundedRight)
+        index, x, y, width, height, color, roundedLeft, roundedRight, alpha)
     local state = self.speedHudOverlays
     local bar = state ~= nil and state.bars[index] or nil
     if bar == nil or width <= 0 then return false end
@@ -1844,7 +1872,9 @@ function TerraLogicMain:renderSpeedHudBar(
     bar:setMiddlePart(nil,
         math.max(width - leftWidth - rightWidth, 0), height)
     bar:setRightPart(nil, rightWidth, height)
-    bar:setColor(color[1], color[2], color[3], color[4])
+    alpha = math.clamp(tonumber(alpha) or 1, 0, 1)
+    bar:setColor(color[1], color[2], color[3],
+        (color[4] or 1) * alpha)
     bar:setPosition(x, y)
     bar:render()
     return true
@@ -1855,16 +1885,25 @@ function TerraLogicMain:drawSpeedHud()
     if self.enabled == false or g_localPlayer == nil then return end
     local hudMode = TerraLogicSettings ~= nil
         and TerraLogicSettings.speedHudMode or "dynamic"
-    if hudMode == "off" then return end
     local now = g_currentMission.time or 0
+    if hudMode == "off" then
+        self.speedHudFadeAlpha = 0
+        self.speedHudFadeLastTime = now
+        return
+    end
     local vehicle = g_localPlayer:getCurrentVehicle()
     if self.speedHudVehicle ~= vehicle then
         self.speedHudVehicle = vehicle
-        self.speedHudVehicleNameHiddenUntil = vehicle ~= nil and now + 5000 or 0
+        self.speedHudVehicleNameHiddenUntil = vehicle ~= nil
+            and now + TerraLogicMain.SPEED_HUD_VEHICLE_NAME_DELAY_MS or 0
         self.speedHudImplement = nil
         self.speedHudOptimalSince = nil
+        self.speedHudFadeAlpha = 0
+        self.speedHudFadeLastTime = now
     end
     if vehicle == nil or drawFilledRect == nil or not getIsGameHudVisible() then
+        self.speedHudFadeAlpha = 0
+        self.speedHudFadeLastTime = now
         return
     end
 
@@ -1873,11 +1912,22 @@ function TerraLogicMain:drawSpeedHud()
     -- where applicable, switched on. It does not require a positive density-
     -- map result, so balers remain stable over sparse windrows. Always mode
     -- intentionally keeps recognized attached tools visible in every state.
-    local implement, activeImplementCount = self:getSpeedHudImplement(
+    local requestedImplement, activeImplementCount = self:getSpeedHudImplement(
         hudMode == "dynamic", currentSpeed)
+    local implement = requestedImplement
+    if implement == nil and hudMode == "dynamic"
+        and (self.speedHudFadeAlpha or 0) > 0 then
+        -- Keep the last eligible attached tool available for the short fade
+        -- after it is raised or switched off. Gameplay readiness still
+        -- controls the target visibility and Work Quality state.
+        implement, activeImplementCount = self:getSpeedHudImplement(
+            false, currentSpeed)
+    end
     if implement == nil then
         self.speedHudImplement = nil
         self.speedHudOptimalSince = nil
+        self.speedHudFadeAlpha = 0
+        self.speedHudFadeLastTime = now
         return
     end
     local spec = implement.spec_terraLogic
@@ -1960,9 +2010,13 @@ function TerraLogicMain:drawSpeedHud()
     else
         self.speedHudOptimalSince = nil
     end
-    if (hudMode == "dynamic"
-            and now < (self.speedHudVehicleNameHiddenUntil or 0))
-        or hideForOptimalSpeed then
+    local vehicleNameFinished =
+        now >= (self.speedHudVehicleNameHiddenUntil or 0)
+    local shouldShowSpeedHud = requestedImplement ~= nil
+        and vehicleNameFinished and not hideForOptimalSpeed
+    local speedHudAlpha = updateSpeedHudFade(
+        self, now, shouldShowSpeedHud)
+    if speedHudAlpha <= 0 then
         return
     end
 
@@ -2016,10 +2070,10 @@ function TerraLogicMain:drawSpeedHud()
     -- fallback for HUD replacement mods which remove these shared classes.
     local boxX = centreX - boxWidth * 0.5
     local nativeStyle = self:renderSpeedHudBackground(
-        boxX, boxY, boxWidth, boxHeight)
+        boxX, boxY, boxWidth, boxHeight, speedHudAlpha)
     if not nativeStyle then
         drawFilledRect(boxX, boxY, boxWidth, boxHeight,
-            0.01, 0.01, 0.01, 0.58)
+            0.01, 0.01, 0.01, 0.58 * speedHudAlpha)
     end
     local blue = {0.0097, 0.4287, 0.6445, 1}
     local green = HUD ~= nil and HUD.COLOR ~= nil and HUD.COLOR.ACTIVE
@@ -2027,36 +2081,39 @@ function TerraLogicMain:drawSpeedHud()
     local orange = {1, 0.4287, 0.0006, 1}
     if nativeStyle then
         self:renderSpeedHudBar(1, x, y, math.max(realX - x, 0),
-            height, blue, true, false)
+            height, blue, true, false, speedHudAlpha)
         self:renderSpeedHudBar(2, realX, y,
-            math.max(shopX - realX, 0), height, green, false, false)
+            math.max(shopX - realX, 0), height, green, false, false,
+            speedHudAlpha)
         self:renderSpeedHudBar(3, shopX, y,
-            math.max(x + width - shopX, 0), height, orange, false, true)
+            math.max(x + width - shopX, 0), height, orange, false, true,
+            speedHudAlpha)
     else
         drawFilledRect(x, y, math.max(realX - x, 0), height,
-            blue[1], blue[2], blue[3], blue[4])
+            blue[1], blue[2], blue[3], blue[4] * speedHudAlpha)
         drawFilledRect(realX, y, math.max(shopX - realX, 0), height,
-            green[1], green[2], green[3], green[4])
+            green[1], green[2], green[3],
+            (green[4] or 1) * speedHudAlpha)
         drawFilledRect(shopX, y, math.max(x + width - shopX, 0), height,
-            orange[1], orange[2], orange[3], orange[4])
+            orange[1], orange[2], orange[3], orange[4] * speedHudAlpha)
     end
     drawFilledRect(realX - 0.00054, y - 0.00214,
-        0.00108, height + 0.00428, 0.85, 0.92, 1, 1)
+        0.00108, height + 0.00428, 0.85, 0.92, 1, speedHudAlpha)
     drawFilledRect(shopX - 0.00054, y - 0.00214,
-        0.00108, height + 0.00428, 1, 0.82, 0.18, 1)
+        0.00108, height + 0.00428, 1, 0.82, 0.18, speedHudAlpha)
     -- An out-of-range marker remains clamped to the appropriate edge and
     -- blinks, signalling that the real speed lies beyond the zoomed scale.
     local markerVisible = not markerOutside
         or math.floor(now / 300) % 2 == 0
     if markerVisible then
         drawFilledRect(markerX - 0.0008, y - 0.00374,
-            0.0016, height + 0.00748, 1, 1, 1, 1)
+            0.0016, height + 0.00748, 1, 1, 1, speedHudAlpha)
     end
 
     if showSupplementalRow and renderText ~= nil then
         local _, size = getSpeedHudScaledPixels(0, qualityTextPixels)
         setTextBold(false)
-        setTextColor(1, 1, 1, 1)
+        setTextColor(1, 1, 1, speedHudAlpha)
         -- Fixed anchors keep changing percentages and tool counts stable.
         if quality ~= nil then
             local roundedQuality = math.floor(
@@ -2067,19 +2124,19 @@ function TerraLogicMain:drawSpeedHud()
                     "terraLogic_speedHudQualityBroken",
                     "Work quality (broken): %d %%")
                 label = string.format(format, roundedQuality)
-                setSpeedHudConditionTextColor(conditionDamage)
+                setSpeedHudConditionTextColor(conditionDamage, speedHudAlpha)
             elseif conditionDamage >= 0.90 then
                 local format = TerraLogicQualityManager:getText(
                     "terraLogic_speedHudQualityDamaged",
                     "Work quality (damaged): %d %%")
                 label = string.format(format, roundedQuality)
-                setSpeedHudConditionTextColor(conditionDamage)
+                setSpeedHudConditionTextColor(conditionDamage, speedHudAlpha)
             elseif conditionDamage >= 0.75 then
                 local format = TerraLogicQualityManager:getText(
                     "terraLogic_speedHudQualityWorn",
                     "Work quality (worn): %d %%")
                 label = string.format(format, roundedQuality)
-                setSpeedHudConditionTextColor(conditionDamage)
+                setSpeedHudConditionTextColor(conditionDamage, speedHudAlpha)
             else
                 local format = TerraLogicQualityManager:getText(
                     "terraLogic_speedHudQuality", "Work quality: %d %%")
@@ -2087,31 +2144,31 @@ function TerraLogicMain:drawSpeedHud()
             end
             setTextAlignment(RenderText.ALIGN_LEFT)
             renderText(x, y + height + textGap, size, label)
-            setTextColor(1, 1, 1, 1)
+            setTextColor(1, 1, 1, speedHudAlpha)
         elseif showUnavailableQuality then
             local label
             if conditionDamage >= 0.9995 then
                 label = TerraLogicQualityManager:getText(
                     "terraLogic_speedHudQualityBrokenUnavailable",
                     "Work quality (broken): -")
-                setSpeedHudConditionTextColor(conditionDamage)
+                setSpeedHudConditionTextColor(conditionDamage, speedHudAlpha)
             elseif conditionDamage >= 0.90 then
                 label = TerraLogicQualityManager:getText(
                     "terraLogic_speedHudQualityDamagedUnavailable",
                     "Work quality (damaged): -")
-                setSpeedHudConditionTextColor(conditionDamage)
+                setSpeedHudConditionTextColor(conditionDamage, speedHudAlpha)
             elseif conditionDamage >= 0.75 then
                 label = TerraLogicQualityManager:getText(
                     "terraLogic_speedHudQualityWornUnavailable",
                     "Work quality (worn): -")
-                setSpeedHudConditionTextColor(conditionDamage)
+                setSpeedHudConditionTextColor(conditionDamage, speedHudAlpha)
             else
                 label = TerraLogicQualityManager:getText(
                     "terraLogic_speedHudQualityUnavailable", "Work quality: -")
             end
             setTextAlignment(RenderText.ALIGN_LEFT)
             renderText(x, y + height + textGap, size, label)
-            setTextColor(1, 1, 1, 1)
+            setTextColor(1, 1, 1, speedHudAlpha)
         end
         if showImplementCount then
             local countFormat = TerraLogicQualityManager:getText(
@@ -2122,6 +2179,7 @@ function TerraLogicMain:drawSpeedHud()
             renderText(x + width, y + height + textGap, size, countLabel)
         end
         setTextAlignment(RenderText.ALIGN_LEFT)
+        setTextColor(1, 1, 1, 1)
     end
 end
 
