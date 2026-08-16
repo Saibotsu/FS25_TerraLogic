@@ -39,7 +39,7 @@ Working too fast can leave visible mistakes behind. The faster you drive, the mo
 
 Additional Features:
 - Poor Work Quality from plowing gradually recovers over successive growth cycles, reflecting the soil's natural regeneration.
-- Poorly established grass gradually recovers over multiple growth cycles, allowing yield to slowly return as unsown gaps gradually close.
+- Poorly established grass gradually recovers over multiple growth cycles, allowing yield to slowly return as small unsown gaps gradually close.
 - Optional Visible Field Effects can be disabled for improved performance. Implements whose economic balance relies solely on Visible Field Effects regain their original speed limits.
 - Supports Precision Farming, including realistic draft behaviour and application simulation.
 - Supports More Realistic with selectable draft calculation.
