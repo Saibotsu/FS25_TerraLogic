@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<l10n>
+    <elements>
+        <e k="terraLogic_workQualityTitle" v="WORK QUALITY" />
+        <e k="terraLogic_workQualityPlow" v="Plowing" />
+        <e k="terraLogic_workQualitySoil" v="Tillage" />
+        <e k="terraLogic_workQualityCultivate" v="Cultivating" />
+        <e k="terraLogic_workQualitySeed" v="Seeding" />
+        <e k="terraLogic_workQualityFertilizer" v="Fertilizing" />
+        <e k="terraLogic_workQualityLime" v="Liming" />
+        <e k="terraLogic_workQualityHerbicide" v="Weed control" />
+        <e k="terraLogic_workQualityRoller" v="Rolling" />
+        <e k="terraLogic_workQualityMulch" v="Mulching" />
+        <e k="terraLogic_workQualityMower" v="Mowing" />
+        <e k="terraLogic_workQualityYieldFactor" v="TerraLogic yield factor (after PF/Vanilla)" />
+        <e k="terraLogic_workQualityRemainingVanilla" v="Remaining yield from Vanilla" />
+        <e k="terraLogic_workQualityRemainingPF" v="Remaining yield from Precision Farming" />
+        <e k="terraLogic_speedHudQuality" v="Work quality: %d %%" />
+        <e k="terraLogic_speedHudQualityWear" v="Work quality: %d %% | Wear: -%d %%" />
+        <e k="terraLogic_speedHudQualityWorn" v="Work quality (worn): %d %%" />
+        <e k="terraLogic_speedHudQualityWornUnavailable" v="Work quality (worn): -" />
+        <e k="terraLogic_speedHudQualityDamaged" v="Work quality (damaged): %d %%" />
+        <e k="terraLogic_speedHudQualityDamagedUnavailable" v="Work quality (damaged): -" />
+        <e k="terraLogic_speedHudQualityBroken" v="Work quality (broken): %d %%" />
+        <e k="terraLogic_speedHudQualityBrokenUnavailable" v="Work quality (broken): -" />
+        <e k="terraLogic_speedHudQualityUnavailable" v="Work quality: -" />
+        <e k="terraLogic_speedHudActiveImplements" v="%d tools" />
+        <e k="terraLogic_settingSection" v="TERRALOGIC" />
+        <e k="terraLogic_settingDraftTitle" v="Draft model" />
+        <e k="terraLogic_settingDraftTooltip" v="Selects which mod calculates implement draft. In multiplayer, only server admins can change this setting." />
+        <e k="terraLogic_settingDraftTerraLogic" v="TerraLogic" />
+        <e k="terraLogic_settingDraftMR" v="More Realistic" />
+        <e k="terraLogic_settingPhysicalDropoutsTitle" v="Physical work dropouts" />
+        <e k="terraLogic_settingPhysicalDropoutsTooltip" v="Allows overspeed to leave real untreated or unworked spots. When disabled, affected implements keep their shop speed limit and full Work Quality remains active where applicable. In multiplayer, only server admins can change this setting." />
+        <e k="terraLogic_settingVisibleStonesTitle" v="Visible-stone damage" />
+        <e k="terraLogic_settingVisibleStonesTooltip" v="Vanilla uses only the base-game device classes. TerraLogic also adds visible-stone damage to overlooked ground tools without doubling Vanilla damage. This setting does not affect stones hidden below the surface. In multiplayer, only server admins can change it." />
+        <e k="terraLogic_settingVisibleStonesVanilla" v="Vanilla" />
+        <e k="terraLogic_settingVisibleStonesTerraLogic" v="TerraLogic extended" />
+        <e k="terraLogic_settingQualityTextTitle" v="Show quality and number of detected implements" />
+        <e k="terraLogic_settingQualityTextTooltip" v="Shows live work quality and, when multiple implements are active, their number above the speed bar." />
+        <e k="terraLogic_settingHudModeTitle" v="Speed display" />
+        <e k="terraLogic_settingHudModeTooltip" v="Dynamic hides the display in the optimal range and shows it after cruise-control changes." />
+        <e k="terraLogic_settingHudDynamic" v="Dynamic" />
+        <e k="terraLogic_settingHudAlways" v="Always on" />
+        <e k="terraLogic_settingHudOff" v="Off" />
+        <e k="terraLogic_settingConditionWarningsTitle" v="Implement condition warnings" />
+        <e k="terraLogic_settingConditionWarningsTooltip" v="Shows a short warning when an activated implement reaches severe wear or damage." />
+        <e k="terraLogic_settingDamageWarningsTitle" v="Damage warnings" />
+        <e k="terraLogic_settingDamageWarningsTooltip" v="Shows warnings for severe stone impacts and continuous damage above 5% per hectare." />
+        <e k="terraLogic_settingConditionWarningTimeoutTitle" v="Condition warning interval" />
+        <e k="terraLogic_settingConditionWarningTimeoutTooltip" v="Minimum time before the 75% and 90% warnings may appear again. Off shows the strongest applicable warning on every activation." />
+        <e k="terraLogic_settingWarningTimeoutOff" v="Off" />
+        <e k="terraLogic_settingWarningTimeout1" v="1 minute" />
+        <e k="terraLogic_settingWarningTimeout2" v="2 minutes" />
+        <e k="terraLogic_settingWarningTimeout5" v="5 minutes" />
+        <e k="terraLogic_conditionWarning75" v="Severe implement wear - Work quality is reduced. Repair is recommended." />
+        <e k="terraLogic_conditionWarning90" v="Implement badly damaged - Work quality is severely reduced." />
+        <e k="terraLogic_conditionWarning100" v="Implement broken - Repair is required before it can be used." />
+        <e k="terraLogic_stoneImpactWarning" v="Severe stone impact!Lower speeds reduce impact damage." />
+        <e k="terraLogic_highDamagePerHectareWarning" v="High implement damage rate! Reduce speed and watch for rocky conditions." />
+        <e k="terraLogic_settingOn" v="On" />
+        <e k="terraLogic_consoleMowerQualityStatus" v="TerraLogic mower work quality: %s (physical dropouts remain active)" />
+        <e k="terraLogic_consoleMowerQualityHelp" v="Mower work quality: tlMowerQuality [on|off]" />
+        <e k="terraLogic_consoleMowerQualityUsage" v="TerraLogic usage: tlMowerQuality [on|off]" />
+        <e k="terraLogic_consoleServerOnly" v="TerraLogic: this command must be executed on the server or host" />
+        <e k="terraLogic_settingOff" v="Off" />
+    </elements>
+</l10n>

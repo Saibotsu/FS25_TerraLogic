@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<l10n>
+    <elements>
+        <e k="terraLogic_workQualityTitle" v="ARBEITSQUALITÄT" />
+        <e k="terraLogic_workQualityPlow" v="Pflügen" />
+        <e k="terraLogic_workQualitySoil" v="Bodenbearbeitung" />
+        <e k="terraLogic_workQualityCultivate" v="Grubbern" />
+        <e k="terraLogic_workQualitySeed" v="Aussaat" />
+        <e k="terraLogic_workQualityFertilizer" v="Düngung" />
+        <e k="terraLogic_workQualityLime" v="Kalkung" />
+        <e k="terraLogic_workQualityHerbicide" v="Unkrautbekämpfung" />
+        <e k="terraLogic_workQualityRoller" v="Walzen" />
+        <e k="terraLogic_workQualityMulch" v="Mulchen" />
+        <e k="terraLogic_workQualityMower" v="Mähen" />
+        <e k="terraLogic_workQualityYieldFactor" v="TerraLogic-Ertragsfaktor (nach PF/Vanilla)" />
+        <e k="terraLogic_workQualityRemainingVanilla" v="Verbleibender Ertrag von Vanilla" />
+        <e k="terraLogic_workQualityRemainingPF" v="Verbleibender Ertrag von Precision Farming" />
+        <e k="terraLogic_speedHudQuality" v="Arbeitsqualität: %d %%" />
+        <e k="terraLogic_speedHudQualityWear" v="Arbeitsqualität: %d %% | Verschleiß: -%d %%" />
+        <e k="terraLogic_speedHudQualityWorn" v="Arbeitsqualität (verschlissen): %d %%" />
+        <e k="terraLogic_speedHudQualityWornUnavailable" v="Arbeitsqualität (verschlissen): -" />
+        <e k="terraLogic_speedHudQualityDamaged" v="Arbeitsqualität (beschädigt): %d %%" />
+        <e k="terraLogic_speedHudQualityDamagedUnavailable" v="Arbeitsqualität (beschädigt): -" />
+        <e k="terraLogic_speedHudQualityBroken" v="Arbeitsqualität (defekt): %d %%" />
+        <e k="terraLogic_speedHudQualityBrokenUnavailable" v="Arbeitsqualität (defekt): -" />
+        <e k="terraLogic_speedHudQualityUnavailable" v="Arbeitsqualität: -" />
+        <e k="terraLogic_speedHudActiveImplements" v="%d Geräte" />
+        <e k="terraLogic_settingSection" v="TERRALOGIC" />
+        <e k="terraLogic_settingDraftTitle" v="Zugkraftmodell" />
+        <e k="terraLogic_settingDraftTooltip" v="Legt fest, welcher Mod den Gerätezugwiderstand berechnet. Im Multiplayer kann dies nur ein Server-Admin ändern." />
+        <e k="terraLogic_settingDraftTerraLogic" v="TerraLogic" />
+        <e k="terraLogic_settingDraftMR" v="More Realistic" />
+        <e k="terraLogic_settingPhysicalDropoutsTitle" v="Physikalische Arbeitsaussetzer" />
+        <e k="terraLogic_settingPhysicalDropoutsTooltip" v="Erlaubt bei zu hoher Geschwindigkeit echte unbehandelte oder unbearbeitete Stellen. Beim Deaktivieren behalten betroffene Geräte ihr Shop-Speedlimit; die volle Arbeitsqualitätswertung bleibt, sofern vorhanden, aktiv. Im Multiplayer kann dies nur ein Server-Admin ändern." />
+        <e k="terraLogic_settingVisibleStonesTitle" v="Schaden durch sichtbare Steine" />
+        <e k="terraLogic_settingVisibleStonesTooltip" v="Vanilla verwendet nur die Geräteklassen des Grundspiels. TerraLogic ergänzt sichtbaren Steinschaden auch bei nicht berücksichtigten Bodengeräten, ohne Vanilla-Schaden zu verdoppeln. Diese Einstellung beeinflusst keine Steine unter der Bodenoberfläche. Im Multiplayer kann sie nur ein Server-Admin ändern." />
+        <e k="terraLogic_settingVisibleStonesVanilla" v="Vanilla" />
+        <e k="terraLogic_settingVisibleStonesTerraLogic" v="TerraLogic erweitert" />
+        <e k="terraLogic_settingQualityTextTitle" v="Qualität und Anzahl erkannter Geräte anzeigen" />
+        <e k="terraLogic_settingQualityTextTooltip" v="Zeigt die aktuelle Arbeitsqualität und bei mehreren aktiven Geräten deren Anzahl oberhalb des Geschwindigkeitsbalkens." />
+        <e k="terraLogic_settingHudModeTitle" v="Geschwindigkeitsanzeige" />
+        <e k="terraLogic_settingHudModeTooltip" v="Dynamisch blendet die Anzeige nach drei Sekunden im optimalen Bereich aus und nach Tempomatänderungen wieder ein." />
+        <e k="terraLogic_settingHudDynamic" v="Dynamisch" />
+        <e k="terraLogic_settingHudAlways" v="Immer an" />
+        <e k="terraLogic_settingHudOff" v="Aus" />
+        <e k="terraLogic_settingConditionWarningsTitle" v="Warnungen zum Gerätezustand" />
+        <e k="terraLogic_settingConditionWarningsTooltip" v="Zeigt beim Aktivieren eines stark verschlissenen oder beschädigten Geräts eine kurze Warnung." />
+        <e k="terraLogic_settingDamageWarningsTitle" v="Schadenswarnungen" />
+        <e k="terraLogic_settingDamageWarningsTooltip" v="Zeigt Warnungen bei starken Steinaufprallen und bei mehr als 5 % dauerhaftem Schaden pro Hektar." />
+        <e k="terraLogic_settingConditionWarningTimeoutTitle" v="Intervall der Zustandswarnungen" />
+        <e k="terraLogic_settingConditionWarningTimeoutTooltip" v="Mindestzeit, bevor die Warnungen bei 75 % und 90 % erneut erscheinen dürfen. Aus zeigt bei jeder Aktivierung die höchste zutreffende Warnstufe." />
+        <e k="terraLogic_settingWarningTimeoutOff" v="Aus" />
+        <e k="terraLogic_settingWarningTimeout1" v="1 Minute" />
+        <e k="terraLogic_settingWarningTimeout2" v="2 Minuten" />
+        <e k="terraLogic_settingWarningTimeout5" v="5 Minuten" />
+        <e k="terraLogic_conditionWarning75" v="Starker Geräteverschleiß - Die Arbeitsqualität ist reduziert. Eine Reparatur wird empfohlen." />
+        <e k="terraLogic_conditionWarning90" v="Gerät stark beschädigt - Die Arbeitsqualität ist stark reduziert." />
+        <e k="terraLogic_conditionWarning100" v="Gerät defekt - Vor der weiteren Verwendung ist eine Reparatur erforderlich." />
+        <e k="terraLogic_stoneImpactWarning" v="Starker Steinaufprall! Niedrigere Geschwindigkeiten reduzieren den Aufprallschaden." />
+        <e k="terraLogic_highDamagePerHectareWarning" v="Hohe Schadensrate am Gerät! Geschwindigkeit reduzieren und auf steinige Bedingungen achten." />
+        <e k="terraLogic_settingOn" v="An" />
+        <e k="terraLogic_consoleMowerQualityStatus" v="TerraLogic Mähwerk-Arbeitsqualität: %s (physische Dropouts bleiben aktiv)" />
+        <e k="terraLogic_consoleMowerQualityHelp" v="Mähwerk-Arbeitsqualität: tlMowerQuality [on|off]" />
+        <e k="terraLogic_consoleMowerQualityUsage" v="TerraLogic Verwendung: tlMowerQuality [on|off]" />
+        <e k="terraLogic_consoleServerOnly" v="TerraLogic: Dieser Befehl muss auf dem Server oder Host ausgeführt werden" />
+        <e k="terraLogic_settingOff" v="Aus" />
+    </elements>
+</l10n>
