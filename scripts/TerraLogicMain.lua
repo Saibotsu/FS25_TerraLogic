@@ -300,27 +300,21 @@ function TerraLogicMain:handleConditionWarningActivation(implement)
     -- reached, more severe tier to warn immediately on its next activation.
     if damage >= 0.9995 then
         self:showConditionWarning("terraLogic_conditionWarning100",
-            "Implement wear: 100 %\nThe implement is defective and must be repaired.")
+            "Implement broken\nRepair is required before it can be used.")
     elseif damage >= 0.90 then
         if repeatEveryActivation
             or now >= (spec.conditionWarningNext90Time or 0) then
             self:showConditionWarning("terraLogic_conditionWarning90",
-                "Implement wear: 90 %\nFailure is imminent. Repair is urgently recommended.")
+                "Implement badly damaged\nWork quality is severely reduced.")
             spec.conditionWarningNext90Time = now + timeout
         end
     elseif damage >= 0.75 then
         if repeatEveryActivation
             or now >= (spec.conditionWarningNext75Time or 0) then
             self:showConditionWarning("terraLogic_conditionWarning75",
-                "Implement wear: 75 %\nRepair is recommended. Wear is reducing work quality.")
+                "Severe implement wear\nWork quality is reduced. Repair is recommended.")
             spec.conditionWarningNext75Time = now + timeout
         end
-    elseif damage >= 0.50
-        and (repeatEveryActivation
-            or spec.conditionWarning50Shown ~= true) then
-        self:showConditionWarning("terraLogic_conditionWarning50",
-            "Implement wear: 50 %\nWear is now reducing work quality.")
-        spec.conditionWarning50Shown = true
     end
 end
 
@@ -2068,7 +2062,19 @@ function TerraLogicMain:drawSpeedHud()
             local roundedQuality = math.floor(
                 math.clamp(quality, 0, 1) * 100 + 0.5)
             local label
-            if conditionDamage >= 0.50 then
+            if conditionDamage >= 0.9995 then
+                local format = TerraLogicQualityManager:getText(
+                    "terraLogic_speedHudQualityBroken",
+                    "Work quality (broken): %d %%")
+                label = string.format(format, roundedQuality)
+                setSpeedHudConditionTextColor(conditionDamage)
+            elseif conditionDamage >= 0.90 then
+                local format = TerraLogicQualityManager:getText(
+                    "terraLogic_speedHudQualityDamaged",
+                    "Work quality (damaged): %d %%")
+                label = string.format(format, roundedQuality)
+                setSpeedHudConditionTextColor(conditionDamage)
+            elseif conditionDamage >= 0.75 then
                 local format = TerraLogicQualityManager:getText(
                     "terraLogic_speedHudQualityWorn",
                     "Work quality (worn): %d %%")
@@ -2084,7 +2090,17 @@ function TerraLogicMain:drawSpeedHud()
             setTextColor(1, 1, 1, 1)
         elseif showUnavailableQuality then
             local label
-            if conditionDamage >= 0.50 then
+            if conditionDamage >= 0.9995 then
+                label = TerraLogicQualityManager:getText(
+                    "terraLogic_speedHudQualityBrokenUnavailable",
+                    "Work quality (broken): -")
+                setSpeedHudConditionTextColor(conditionDamage)
+            elseif conditionDamage >= 0.90 then
+                label = TerraLogicQualityManager:getText(
+                    "terraLogic_speedHudQualityDamagedUnavailable",
+                    "Work quality (damaged): -")
+                setSpeedHudConditionTextColor(conditionDamage)
+            elseif conditionDamage >= 0.75 then
                 label = TerraLogicQualityManager:getText(
                     "terraLogic_speedHudQualityWornUnavailable",
                     "Work quality (worn): -")

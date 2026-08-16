@@ -22,6 +22,7 @@ Core Features:
 - Working speed directly influences draft, abrasion, implement wear, Work Quality and final harvest yield.
 - Dynamic HUD showing the recommended working-speed range and, optionally, the achieved Work Quality.
 - Realistic underground stone impacts. Damage depends on working speed, stone size, implement type and real-world protection systems such as auto-reset plow bodies.
+- Realistic surface-stone damage based on stone size and implement design, including individual behaviour for ground-contact and rotating components.
 - Realistic draft forces and soil-dependent abrasion. Precision Farming soil types influence both draft resistance and implement wear.
 
 Visible Field Effects:
@@ -62,6 +63,7 @@ Hauptfeatures:
 - Arbeitsgeschwindigkeit beeinflusst Zugkraft, Abrasion, Verschleiß, Work Quality und den späteren Ertrag.
 - Dynamisches HUD mit empfohlenem Arbeitsgeschwindigkeitsbereich und optionaler Anzeige der erreichten Work Quality.
 - Realistische Schäden durch simulierte unterirdische Steine. Die Schadenshöhe hängt von Geschwindigkeit, Steingröße, Gerätetyp und realistischen Schutzmechanismen wie automatisch auslösenden Pflugkörpern ab.
+- Realistischer Schaden durch Oberflächensteine abhängig von Steingröße und Gerätekonstruktion, einschließlich individuellem Verhalten von bodenführenden und rotierenden Bauteilen.
 - Realistische Zugkräfte und bodenabhängige Abrasion. Bei Precision Farming beeinflussen die verschiedenen Bodenarten sowohl den Zugkraftbedarf als auch den Verschleiß.
 
 Visible Field Effects:
@@ -165,6 +167,22 @@ https://github.com/Saibotsu/FS25_TerraLogic]]></de>
             <en>Work quality (worn): -</en>
             <de>Arbeitsqualit&#228;t (verschlissen): -</de>
         </text>
+        <text name="terraLogic_speedHudQualityDamaged">
+            <en>Work quality (damaged): %d %%</en>
+            <de>Arbeitsqualit&#228;t (besch&#228;digt): %d %%</de>
+        </text>
+        <text name="terraLogic_speedHudQualityDamagedUnavailable">
+            <en>Work quality (damaged): -</en>
+            <de>Arbeitsqualit&#228;t (besch&#228;digt): -</de>
+        </text>
+        <text name="terraLogic_speedHudQualityBroken">
+            <en>Work quality (broken): %d %%</en>
+            <de>Arbeitsqualit&#228;t (defekt): %d %%</de>
+        </text>
+        <text name="terraLogic_speedHudQualityBrokenUnavailable">
+            <en>Work quality (broken): -</en>
+            <de>Arbeitsqualit&#228;t (defekt): -</de>
+        </text>
         <text name="terraLogic_speedHudQualityUnavailable">
             <en>Work quality: -</en>
             <de>Arbeitsqualit&#228;t: -</de>
@@ -250,8 +268,8 @@ https://github.com/Saibotsu/FS25_TerraLogic]]></de>
             <de>Warnungen zum Ger&#228;tezustand</de>
         </text>
         <text name="terraLogic_settingConditionWarningsTooltip">
-            <en>Shows a short warning when an activated implement is badly worn. The work-quality display is not affected.</en>
-            <de>Zeigt beim Aktivieren eines stark verschlissenen Ger&#228;ts eine kurze Warnung. Die Arbeitsqualit&#228;tsanzeige bleibt davon unber&#252;hrt.</de>
+            <en>Shows a short warning when an activated implement reaches severe wear or damage.</en>
+            <de>Zeigt beim Aktivieren eines stark verschlissenen oder besch&#228;digten Ger&#228;ts eine kurze Warnung.</de>
         </text>
         <text name="terraLogic_settingDamageWarningsTitle">
             <en>Damage warnings</en>
@@ -285,21 +303,17 @@ https://github.com/Saibotsu/FS25_TerraLogic]]></de>
             <en>5 minutes</en>
             <de>5 Minuten</de>
         </text>
-        <text name="terraLogic_conditionWarning50">
-            <en>Implement wear: 50% - Wear is now gradually reducing work quality.</en>
-            <de>Ger&#228;teverschlei&#223;: 50% - Der Verschlei&#223; verringert ab jetzt allmählich die Arbeitsqualit&#228;t.</de>
-        </text>
         <text name="terraLogic_conditionWarning75">
-            <en>Implement wear: 75% - Repair is recommended. Wear is reducing work quality.</en>
-            <de>Ger&#228;teverschlei&#223;: 75% - Eine Reparatur wird empfohlen. Der Verschlei&#223; verringert die Arbeitsqualit&#228;t.</de>
+            <en>Severe implement wear - Work quality is reduced. Repair is recommended.</en>
+            <de>Starker Ger&#228;teverschlei&#223; - Die Arbeitsqualit&#228;t ist reduziert. Eine Reparatur wird empfohlen.</de>
         </text>
         <text name="terraLogic_conditionWarning90">
-            <en>Implement wear: 90% - Failure is imminent. Repair is urgently recommended.</en>
-            <de>Ger&#228;teverschlei&#223;: 90% - Ein Ger&#228;teausfall droht. Eine Reparatur wird dringend empfohlen.</de>
+            <en>Implement badly damaged - Work quality is severely reduced.</en>
+            <de>Ger&#228;t stark besch&#228;digt - Die Arbeitsqualit&#228;t ist stark reduziert.</de>
         </text>
         <text name="terraLogic_conditionWarning100">
-            <en>Implement wear: 100% - The implement is defective and must be repaired.</en>
-            <de>Ger&#228;teverschlei&#223;: 100% - Das Ger&#228;t ist defekt und muss repariert werden.</de>
+            <en>Implement broken - Repair is required before it can be used.</en>
+            <de>Ger&#228;t defekt - Vor der weiteren Verwendung ist eine Reparatur erforderlich.</de>
         </text>
         <text name="terraLogic_stoneImpactWarning">
             <en>Severe stone impact!Lower speeds reduce impact damage.</en>

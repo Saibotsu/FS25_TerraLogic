@@ -657,6 +657,7 @@ function TerraLogic.registerFunctions(vehicleType)
     SpecializationUtil.registerFunction(vehicleType, "getOverSpeedApplicationQuality", TerraLogic.getOverSpeedApplicationQuality)
     SpecializationUtil.registerFunction(vehicleType, "getIsOverSpeedApplicationActive", TerraLogic.getIsOverSpeedApplicationActive)
     SpecializationUtil.registerFunction(vehicleType, "refreshOverSpeedWorkAreaProcessingFunctions", TerraLogic.refreshOverSpeedWorkAreaProcessingFunctions)
+    SpecializationUtil.registerFunction(vehicleType, "getIsTerraLogicBroken", TerraLogic.getIsTerraLogicBroken)
 end
 
 function TerraLogic:getOverSpeedWearMultiplier(currentSpeed)
@@ -824,6 +825,27 @@ end
 function TerraLogic.registerOverwrittenFunctions(vehicleType)
     SpecializationUtil.registerOverwrittenFunction(vehicleType, "getSpeedLimit", TerraLogic.getSpeedLimit)
     SpecializationUtil.registerOverwrittenFunction(vehicleType, "updateDamageAmount", TerraLogic.updateDamageAmount)
+    if WorkArea ~= nil and SpecializationUtil.hasSpecialization(
+            WorkArea, vehicleType.specializations) then
+        SpecializationUtil.registerOverwrittenFunction(
+            vehicleType, "getIsWorkAreaActive", TerraLogic.getIsWorkAreaActive)
+    end
+    if TurnOnVehicle ~= nil and SpecializationUtil.hasSpecialization(
+            TurnOnVehicle, vehicleType.specializations) then
+        SpecializationUtil.registerOverwrittenFunction(
+            vehicleType, "getCanBeTurnedOn", TerraLogic.getCanBeTurnedOn)
+        SpecializationUtil.registerOverwrittenFunction(
+            vehicleType, "getTurnedOnNotAllowedWarning",
+            TerraLogic.getTurnedOnNotAllowedWarning)
+    end
+    if Attachable ~= nil and SpecializationUtil.hasSpecialization(
+            Attachable, vehicleType.specializations) then
+        SpecializationUtil.registerOverwrittenFunction(
+            vehicleType, "getAllowsLowering", TerraLogic.getAllowsLowering)
+        SpecializationUtil.registerOverwrittenFunction(
+            vehicleType, "actionControllerLowerImplementEvent",
+            TerraLogic.actionControllerLowerImplementEvent)
+    end
     if Plow ~= nil and SpecializationUtil.hasSpecialization(Plow, vehicleType.specializations) then
         SpecializationUtil.registerOverwrittenFunction(vehicleType, "processPlowArea", TerraLogic.processPlowArea)
     end
@@ -863,6 +885,71 @@ function TerraLogic.registerOverwrittenFunctions(vehicleType)
     if ForageWagon ~= nil and SpecializationUtil.hasSpecialization(ForageWagon, vehicleType.specializations) then
         SpecializationUtil.registerOverwrittenFunction(vehicleType, "processForageWagonArea", TerraLogic.processForageWagonArea)
     end
+end
+
+local function getBrokenConditionWarningText()
+    local fallback = "Implement broken - Repair is required before it can be used."
+    return TerraLogicQualityManager ~= nil
+        and TerraLogicQualityManager:getText(
+            "terraLogic_conditionWarning100", fallback) or fallback
+end
+
+function TerraLogic:getIsTerraLogicBroken()
+    local spec = self.spec_terraLogic
+    if TerraLogicMain ~= nil and TerraLogicMain.enabled == false then
+        return false
+    end
+    if spec == nil or spec.implementClassKey == nil
+        or self.getDamageAmount == nil then
+        return false
+    end
+    local threshold = TerraLogicQualityManager ~= nil
+        and tonumber(TerraLogicQualityManager.CONDITION_BROKEN_DAMAGE)
+        or 0.9995
+    return math.clamp(tonumber(self:getDamageAmount()) or 0, 0, 1)
+        >= threshold
+end
+
+function TerraLogic:getCanBeTurnedOn(superFunc)
+    if self:getIsTerraLogicBroken() then return false end
+    return superFunc(self)
+end
+
+function TerraLogic:getTurnedOnNotAllowedWarning(superFunc)
+    if self:getIsTerraLogicBroken() then
+        return getBrokenConditionWarningText()
+    end
+    return superFunc(self)
+end
+
+function TerraLogic:getAllowsLowering(superFunc)
+    if self.spec_turnOnVehicle == nil and self:getIsTerraLogicBroken() then
+        local isLowered = self.getIsLowered ~= nil
+            and self:getIsLowered() == true
+        if not isLowered then
+            return false, getBrokenConditionWarningText()
+        end
+    end
+    return superFunc(self)
+end
+
+function TerraLogic:actionControllerLowerImplementEvent(superFunc, direction)
+    if self.spec_turnOnVehicle == nil and (tonumber(direction) or 0) >= 0
+        and self:getIsTerraLogicBroken() then
+        if TerraLogicMain ~= nil
+            and TerraLogicMain.showConditionWarning ~= nil then
+            TerraLogicMain:showConditionWarning(
+                "terraLogic_conditionWarning100",
+                "Implement broken - Repair is required before it can be used.")
+        end
+        return false
+    end
+    return superFunc(self, direction)
+end
+
+function TerraLogic:getIsWorkAreaActive(superFunc, workArea)
+    if self:getIsTerraLogicBroken() then return false end
+    return superFunc(self, workArea)
 end
 
 -- Initializes per-vehicle runtime state without writing savegame data.
@@ -945,7 +1032,6 @@ function TerraLogic:onLoad(savegame)
         qualityWorkActive = false,
         lastQualityWorkTime = nil,
         conditionWarningWasActive = false,
-        conditionWarning50Shown = false,
         conditionWarningNext75Time = 0,
         conditionWarningNext90Time = 0,
         conditionWarningLastDamage = nil,
@@ -6801,8 +6887,7 @@ end
 
 local function didCrossConditionWarningThreshold(previousDamage, damage)
     if previousDamage == nil or damage <= previousDamage then return false end
-    return previousDamage < 0.50 and damage >= 0.50
-        or previousDamage < 0.75 and damage >= 0.75
+    return previousDamage < 0.75 and damage >= 0.75
         or previousDamage < 0.90 and damage >= 0.90
         or previousDamage < 0.9995 and damage >= 0.9995
 end
@@ -6863,11 +6948,10 @@ function TerraLogic:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSel
     self:updateOverSpeedPlowEffects()
     local conditionWarningDamage = self.getDamageAmount ~= nil
         and math.clamp(tonumber(self:getDamageAmount()) or 0, 0, 1) or 0
-    if conditionWarningDamage < 0.50 then
+    if conditionWarningDamage < 0.75 then
         -- A repair below the first warning threshold starts a fresh condition
         -- cycle. Old one-shot/cooldown state must not suppress warnings when
         -- this implement wears past the thresholds again later.
-        spec.conditionWarning50Shown = false
         spec.conditionWarningNext75Time = 0
         spec.conditionWarningNext90Time = 0
     end
@@ -6875,9 +6959,17 @@ function TerraLogic:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSel
     local crossedConditionWarningThreshold =
         didCrossConditionWarningThreshold(
             spec.conditionWarningLastDamage, conditionWarningDamage)
-    if conditionWarningActive
-        and (spec.conditionWarningWasActive ~= true
-            or crossedConditionWarningThreshold)
+    -- TurnOnVehicle may switch powered implements off immediately when they
+    -- reach complete damage. In that frame conditionWarningActive is already
+    -- false, although the implement was still working on the previous tick.
+    -- Preserve that transition so the broken warning is shown immediately.
+    local brokeWhileWorking = crossedConditionWarningThreshold
+        and conditionWarningDamage >= 0.9995
+        and spec.conditionWarningWasActive == true
+    if (brokeWhileWorking
+        or (conditionWarningActive
+            and (spec.conditionWarningWasActive ~= true
+                or crossedConditionWarningThreshold)))
         and TerraLogicMain ~= nil
         and TerraLogicMain.handleConditionWarningActivation ~= nil then
         TerraLogicMain:handleConditionWarningActivation(self)
@@ -6891,6 +6983,28 @@ function TerraLogic:onUpdateTick(dt, isActiveForInput, isActiveForInputIgnoreSel
         spec.damageWarningGeneralPending = false
     else
         showPendingDamageWarning(self, spec)
+    end
+
+    -- Complete condition failure is authoritative on the server. Powered
+    -- implements are switched off, while passive tools are raised. The common
+    -- WorkArea guard also prevents one final processing frame while the
+    -- animation or network state catches up.
+    if self.isServer and self:getIsTerraLogicBroken() then
+        if self.spec_turnOnVehicle ~= nil and self.setIsTurnedOn ~= nil
+            and self.getIsTurnedOn ~= nil and self:getIsTurnedOn() then
+            self:setIsTurnedOn(false)
+        elseif self.spec_turnOnVehicle == nil and self.getIsLowered ~= nil
+            and self:getIsLowered() == true
+            and self.getAttacherVehicle ~= nil then
+            local attacherVehicle = self:getAttacherVehicle()
+            local jointDescIndex = attacherVehicle ~= nil
+                and attacherVehicle.getAttacherJointIndexFromObject ~= nil
+                and attacherVehicle:getAttacherJointIndexFromObject(self) or nil
+            if jointDescIndex ~= nil
+                and attacherVehicle.setJointMoveDown ~= nil then
+                attacherVehicle:setJointMoveDown(jointDescIndex, false, false)
+            end
+        end
     end
 
     local modEnabled = TerraLogicMain == nil or TerraLogicMain.enabled ~= false
