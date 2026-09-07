@@ -975,8 +975,8 @@ function TerraLogicGrassGapManager:save()
     end
 end
 
-function TerraLogicGrassGapManager:delete()
-    self:save()
+function TerraLogicGrassGapManager:delete(saveFirst)
+    if saveFirst == true then self:save() end
     if g_messageCenter ~= nil then g_messageCenter:unsubscribeAll(self) end
     self.chunks, self.chunkKeys, self.growthJob = {}, {}, nil
     self.passGapScanCache = {}

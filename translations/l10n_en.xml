@@ -1,9 +1,27 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <l10n>
     <elements>
+        <e k="terraLogic_fa_planner_ui_resilienceImpact" v="Resilience impact" />
+        <e k="terraLogic_fa_planner_ui_continuityImpact" v="Continuity impact" />
+        <e k="terraLogic_fa_impact_strong" v="Strong" />
+        <e k="terraLogic_fa_impact_medium" v="Medium" />
+        <e k="terraLogic_fa_impact_low" v="Low" />
+        <e k="terraLogic_fa_impact_none" v="None" />
+        <e k="terraLogic_fa_planner_help_resilienceImpact" v="Describes how strongly this implement affects soil resilience. Soil resilience is the ability of the soil structure to resist later compaction. Soil condition, settings and worked area determine the actual change." />
+        <e k="terraLogic_fa_planner_help_continuityImpact" v="Describes how strongly this implement disturbs biological continuity. Biological continuity describes how long roots, pores and soil life have been able to develop undisturbed. After a disturbance, natural recovery is initially slower. The longer the soil then remains undisturbed, the more these structures can support natural recovery and the buildup of soil resilience. The stronger the disturbance, the longer it takes to regain the full recovery rate. Soil condition, settings and worked area determine the actual change." />
+        <e k="terraLogic_mapUpdateTitle" v="Soil map updates" />
+        <e k="terraLogic_mapUpdateGentle" v="Normal (default)" />
+        <e k="terraLogic_mapUpdateFast" v="Fast" />
+        <e k="terraLogic_mapUpdateHelp" v="Controls how quickly soil maps are updated in singleplayer and multiplayer. Fast uses more processing power and, in multiplayer, more network traffic. Choose Fast if your PC or server has enough capacity; choose Normal if performance suffers. In multiplayer, this setting applies to all players and can be changed by the server admin during play. Soil calculations and yield are unchanged." />
+        <e k="terraLogic_tutorialModeGuided" v="Introduction and contextual tips" />
+        <e k="terraLogic_tutorialModeContext" v="Contextual tips only" />
+        <e k="terraLogic_tutorialLibraryAction" v="Open" />
+        <e k="terraLogic_tutorialLibraryTitle" v="Tutorial library" />
+        <e k="terraLogic_tutorialLibraryTooltip" v="Open the learner after leaving this menu. Browse all topics, even with automatic tutorials off. Your reading position is saved." />
         <e k="terraLogic_workQualityTitle" v="WORK QUALITY" />
+        <e k="terraLogic_localWorkQualityTitle" v="LOCAL WORK QUALITY" />
         <e k="terraLogic_workQualityPlow" v="Plowing" />
-        <e k="terraLogic_workQualitySoil" v="Tillage" />
+        <e k="terraLogic_workQualitySoil" v="Soil condition" />
         <e k="terraLogic_workQualityCultivate" v="Cultivating" />
         <e k="terraLogic_workQualitySeed" v="Seeding" />
         <e k="terraLogic_workQualityFertilizer" v="Fertilizing" />
@@ -12,9 +30,10 @@
         <e k="terraLogic_workQualityRoller" v="Rolling" />
         <e k="terraLogic_workQualityMulch" v="Mulching" />
         <e k="terraLogic_workQualityMower" v="Mowing" />
-        <e k="terraLogic_workQualityYieldFactor" v="TerraLogic yield factor (after PF/Vanilla)" />
-        <e k="terraLogic_workQualityRemainingVanilla" v="Remaining yield from Vanilla" />
-        <e k="terraLogic_workQualityRemainingPF" v="Remaining yield from Precision Farming" />
+        <e k="terraLogic_workQualityYieldFactor" v="TerraLogic yield potential" />
+        <e k="terraLogic_workQualityFinalYieldFactor" v="Final yield potential" />
+        <e k="terraLogic_workQualityRemainingVanilla" v="Yield after base-game conditions" />
+        <e k="terraLogic_workQualityRemainingPF" v="Yield after Precision Farming conditions" />
         <e k="terraLogic_speedHudQuality" v="Work quality: %d %%" />
         <e k="terraLogic_speedHudQualityWear" v="Work quality: %d %% | Wear: -%d %%" />
         <e k="terraLogic_speedHudQualityWorn" v="Work quality (worn): %d %%" />
@@ -26,43 +45,835 @@
         <e k="terraLogic_speedHudQualityUnavailable" v="Work quality: -" />
         <e k="terraLogic_speedHudActiveImplements" v="%d tools" />
         <e k="terraLogic_settingSection" v="TERRALOGIC" />
-        <e k="terraLogic_settingDraftTitle" v="Draft model" />
-        <e k="terraLogic_settingDraftTooltip" v="Selects which mod calculates implement draft. In multiplayer, only server admins can change this setting." />
+        <e k="terraLogic_settingDraftTitle" v="Pulling resistance calculation" />
+        <e k="terraLogic_settingDraftTooltip" v="Selects whether TerraLogic or More Realistic adjusts the power required to pull implements through the soil. In multiplayer, only server admins can change this setting." />
         <e k="terraLogic_settingDraftTerraLogic" v="TerraLogic" />
         <e k="terraLogic_settingDraftMR" v="More Realistic" />
-        <e k="terraLogic_settingPhysicalDropoutsTitle" v="Physical work dropouts" />
-        <e k="terraLogic_settingPhysicalDropoutsTooltip" v="Allows overspeed to leave real untreated or unworked spots. When disabled, affected implements keep their shop speed limit and full Work Quality remains active where applicable. In multiplayer, only server admins can change this setting." />
+        <e k="terraLogic_settingSoilDevelopmentTitle" v="Soil resilience development" />
+        <e k="terraLogic_settingSoilDevelopmentTooltip" v="Controls the pace of long-term resilience development. Biological gains and losses caused by soil disturbance use the same 1x, 4x or 8x scale, so the intended balance between farming systems remains unchanged. Natural recovery of compaction, tilth and evenness is not accelerated. In multiplayer, only server admins can change this setting." />
+        <e k="terraLogic_settingSoilDevelopmentRealistic" v="Realistic (1x)" />
+        <e k="terraLogic_settingSoilDevelopmentNormal" v="4x" />
+        <e k="terraLogic_settingSoilDevelopmentFast" v="Normal (8x)" />
+        <e k="terraLogic_settingSoilDevelopmentAccelerated" v="Accelerated (4x)" />
         <e k="terraLogic_settingVisibleStonesTitle" v="Visible-stone damage" />
-        <e k="terraLogic_settingVisibleStonesTooltip" v="Vanilla uses only the base-game device classes. TerraLogic also adds visible-stone damage to overlooked ground tools without doubling Vanilla damage. This setting does not affect stones hidden below the surface. In multiplayer, only server admins can change it." />
-        <e k="terraLogic_settingVisibleStonesVanilla" v="Vanilla" />
-        <e k="terraLogic_settingVisibleStonesTerraLogic" v="TerraLogic extended" />
-        <e k="terraLogic_settingQualityTextTitle" v="Show quality and number of detected implements" />
-        <e k="terraLogic_settingQualityTextTooltip" v="Shows live work quality and, when multiple implements are active, their number above the speed bar." />
+        <e k="terraLogic_settingVisibleStonesTooltip" v="The base game applies visible-stone damage only to certain machines. TerraLogic can extend this damage to additional ground-contact implements without applying the same impact twice. Stones hidden below the surface are unaffected. In multiplayer, only server admins can change this setting." />
+        <e k="terraLogic_settingVisibleStonesVanilla" v="Base game" />
+        <e k="terraLogic_settingVisibleStonesTerraLogic" v="Extended stone damage" />
         <e k="terraLogic_settingHudModeTitle" v="Speed display" />
-        <e k="terraLogic_settingHudModeTooltip" v="Dynamic hides the display in the optimal range and shows it after cruise-control changes." />
+        <e k="terraLogic_settingHudModeTooltip" v="Dynamic shows the display whenever a tool is ready, keeps it visible in the blue and red speed zones, and fades it after three seconds in the nominal green range. Cruise-speed changes and warnings show it again. Always visible also keeps it on for raised or switched-off recognized tools. Off also hides TerraLogic warnings." />
         <e k="terraLogic_settingHudDynamic" v="Dynamic" />
-        <e k="terraLogic_settingHudAlways" v="Always on" />
+        <e k="terraLogic_settingHudAlways" v="Always visible" />
         <e k="terraLogic_settingHudOff" v="Off" />
-        <e k="terraLogic_settingConditionWarningsTitle" v="Implement condition warnings" />
-        <e k="terraLogic_settingConditionWarningsTooltip" v="Shows a short warning when an activated implement reaches severe wear or damage." />
-        <e k="terraLogic_settingDamageWarningsTitle" v="Damage warnings" />
-        <e k="terraLogic_settingDamageWarningsTooltip" v="Shows warnings for severe stone impacts and continuous damage above 5% per hectare." />
-        <e k="terraLogic_settingConditionWarningTimeoutTitle" v="Condition warning interval" />
-        <e k="terraLogic_settingConditionWarningTimeoutTooltip" v="Minimum time before the 75% and 90% warnings may appear again. Off shows the strongest applicable warning on every activation." />
-        <e k="terraLogic_settingWarningTimeoutOff" v="Off" />
-        <e k="terraLogic_settingWarningTimeout1" v="1 minute" />
-        <e k="terraLogic_settingWarningTimeout2" v="2 minutes" />
-        <e k="terraLogic_settingWarningTimeout5" v="5 minutes" />
+        <e k="terraLogic_settingWarningDurationTitle" v="Warning display duration" />
+        <e k="terraLogic_settingWarningDurationTooltip" v="Sets how many seconds each message remains readable in the TerraLogic HUD before the next queued message appears. This is a local setting and does not affect other players." />
+        <e k="terraLogic_settingSoilMinimapZoomTitle" v="Soil map minimap zoom" />
+        <e k="terraLogic_settingSoilMinimapZoomTooltip" v="Automatically enlarges the minimap while a TerraLogic soil map is active via ALT+T. This is a local setting and does not affect other players." />
+        <e k="terraLogic_settingDamageWarningsTitle" v="Stone-impact warnings" />
+        <e k="terraLogic_settingDamageWarningsTooltip" v="Shows severe surface and underground stone impacts in the TerraLogic HUD warning display." />
         <e k="terraLogic_conditionWarning75" v="Severe implement wear - Work quality is reduced. Repair is recommended." />
         <e k="terraLogic_conditionWarning90" v="Implement badly damaged - Work quality is severely reduced." />
         <e k="terraLogic_conditionWarning100" v="Implement broken - Repair is required before it can be used." />
-        <e k="terraLogic_stoneImpactWarning" v="Severe stone impact!Lower speeds reduce impact damage." />
+        <e k="terraLogic_stoneImpactWarning" v="Severe stone impact! Lower speeds reduce impact damage." />
         <e k="terraLogic_highDamagePerHectareWarning" v="High implement damage rate! Reduce speed and watch for rocky conditions." />
         <e k="terraLogic_settingOn" v="On" />
-        <e k="terraLogic_consoleMowerQualityStatus" v="TerraLogic mower work quality: %s (physical dropouts remain active)" />
+        <e k="terraLogic_consoleMowerQualityStatus" v="TerraLogic mower work quality: %s (physical missed areas remain active)" />
         <e k="terraLogic_consoleMowerQualityHelp" v="Mower work quality: tlMowerQuality [on|off]" />
         <e k="terraLogic_consoleMowerQualityUsage" v="TerraLogic usage: tlMowerQuality [on|off]" />
         <e k="terraLogic_consoleServerOnly" v="TerraLogic: this command must be executed on the server or host" />
         <e k="terraLogic_settingOff" v="Off" />
+        <e k="input_TERRALOGIC_TOGGLE_SOIL_DISPLAY" v="Cycle TerraLogic field display" />
+        <e k="input_TERRALOGIC_CYCLE_SOIL_DISPLAY_BACK" v="Cycle TerraLogic field display backward" />
+        <e k="input_TERRALOGIC_SHOW_SOIL_SURFACE" v="Show surface compaction map" />
+        <e k="input_TERRALOGIC_SHOW_SOIL_DEEP" v="Show deep compaction map" />
+        <e k="input_TERRALOGIC_SHOW_SOIL_TILTH" v="Show tilth map" />
+        <e k="input_TERRALOGIC_SHOW_SOIL_EVENNESS" v="Show evenness map" />
+        <e k="input_TERRALOGIC_SHOW_SOIL_RESILIENCE" v="Show resilience map" />
+        <e k="terraLogic_soilTitle" v="SOIL CONDITION" />
+        <e k="terraLogic_localSoilTitle" v="LOCAL SOIL CONDITION" />
+        <e k="terraLogic_soilSurface" v="Surface compaction" />
+        <e k="terraLogic_soilDeep" v="Deep compaction" />
+        <e k="terraLogic_soilSurfaceHud" v="Surface compaction" />
+        <e k="terraLogic_soilDeepHud" v="Deep compaction" />
+        <e k="terraLogic_soilAggregate" v="Tilth" />
+        <e k="terraLogic_soilEvenness" v="Evenness" />
+        <e k="terraLogic_soilResilience" v="Soil resilience" />
+        <e k="terraLogic_soilStatePoor" v="poor" />
+        <e k="terraLogic_soilStateFair" v="fair" />
+        <e k="terraLogic_soilStateGood" v="good" />
+        <e k="terraLogic_soilTilthCoarse" v="coarse" />
+        <e k="terraLogic_soilTilthOptimal" v="optimal" />
+        <e k="terraLogic_soilTilthFine" v="fine" />
+        <e k="terraLogic_soilScaleBad" v="0 bad" />
+        <e k="terraLogic_soilScaleGood" v="100 good" />
+        <e k="terraLogic_soilTilthScaleCoarse" v="0 coarse" />
+        <e k="terraLogic_soilTilthScaleOptimal" v="50 opt." />
+        <e k="terraLogic_soilTilthScaleFine" v="100 fine" />
+        <e k="terraLogic_soilMapOff" v="Soil map: Off" />
+        <e k="terraLogic_soilMapSurface" v="Soil map: Surface compaction" />
+        <e k="terraLogic_soilMapDeep" v="Soil map: Deep compaction" />
+        <e k="terraLogic_soilMapAggregate" v="Soil map: Tilth" />
+        <e k="terraLogic_soilMapRoughness" v="Soil map: Evenness" />
+        <e k="terraLogic_soilMapResilience" v="Soil map: Resilience" />
+        <e k="terraLogic_settingMoistureYieldTitle" v="Soil moisture affects yield" />
+        <e k="terraLogic_settingMoistureYieldTooltip" v="Evaluates moisture during three growth periods and applies drought and waterlogging stress to yield. This setting applies to all players and can only be changed by a server admin in multiplayer." />
+        <e k="terraLogic_settingTutorialsTitle" v="TerraLogic tutorial" />
+        <e k="terraLogic_settingTutorialsTooltip" v="Choose introduction with contextual tips, contextual tips only, or no automatic cards. Cards never pause the game and stay until you close them. Read later in the tutorial library. Local to this player." />
+        <e k="terraLogic_settingTutorialReset" v="Reset tutorial" />
+        <e k="terraLogic_settingTutorialResetAction" v="Reset" />
+        <e k="terraLogic_settingTutorialResetTooltip" v="Restarts the introduction after leaving this menu, resets reading progress and enables introduction and contextual tips. Soil, field and vehicle data remain unchanged." />
+        <e k="terraLogic_settingTutorialResetConfirm" v="Would you like all TerraLogic guidance to appear again? Soil and field data will remain unchanged." />
+
+        <!-- TerraLogic handbook: ordered from first steps to detailed mechanics -->
+        <e k="terraLogic_help_category" v="TerraLogic" />
+        <e k="terraLogic_help_welcome_title" v="Welcome to TerraLogic" />
+        <e k="terraLogic_help_welcome_p1" v="TerraLogic expands Farming Simulator 25 with a dynamic, realistic soil simulation in which soil, weather, crops and machinery interact directly. Supported implements no longer have rigid working-speed limits. Implement type, construction, working speed and current soil conditions instead determine how an operation affects compaction, tilth, evenness, resilience and other soil properties. Those changes affect subsequent operations, machinery draft and crop growth. Each implement therefore gains its own realistic role: a plough loosens the topsoil but leaves a rough surface with coarse clods, while a following seeder must work with exactly that condition and may lose ground contact and leave unsown gaps at excessive speed or with unsuitable construction. Subsoilers, spaders, cultivators, shallow cultivators, disc harrows and power harrows are no longer merely different versions of the same game function; they affect the soil according to how they actually work. The soil also develops continuously. Soil type, moisture, temperature and frost influence draft, Work Quality, crop development, natural compaction relief and resilience. Surface and underground stones cause different wear and damage according to operation, machine design and speed. Living roots, perennial crops, cover crops and varied rotations support natural recovery over several years. TerraLogic therefore does not simulate one fixed sequence of operations: every decision changes the conditions for the next one." />
+        <e k="terraLogic_help_welcome_h2" v="Three ways to find answers" />
+        <e k="terraLogic_help_welcome_p2" v="The switchable minimap and local HUD show the current soil condition. The minimap presents the selected soil property across the field, while the information HUD at the lower right shows values directly at your position when on foot. TerraLogic Field Analysis evaluates an entire field, identifies possible problems and suggests useful actions. This handbook explains the underlying systems in detail and is always available under Help → TerraLogic." />
+        <e k="terraLogic_help_welcome_h3" v="The aim" />
+        <e k="terraLogic_help_welcome_p3" v="There is rarely only one correct approach in TerraLogic. Direct drilling, conventional tillage and occasional deep loosening can all work when they suit the current soil. The challenge is to recognize problems, choose an appropriate response and avoid creating new ones. Care for the soil, avoid heavy traffic with unnecessarily large tractors and account for moisture and frost to earn higher yields through careful management." />
+        <e k="terraLogic_help_welcome_h4" v="Official versions" />
+        <e k="terraLogic_help_welcome_p4" v="TerraLogic is officially released exclusively through ModHub and the TerraLogic GitHub repository at https://github.com/Saibotsu/FS25_TerraLogic. Versions on other download sites do not come from official sources and may be outdated, modified or incomplete. Download TerraLogic only from ModHub or GitHub for a safe and current version." />
+
+        <e k="terraLogic_help_displays_title" v="Soil maps and local displays" />
+        <e k="terraLogic_help_displays_p1" v="Soil maps show local differences: tire tracks, headlands, missed areas and differently worked zones remain visible beside one another. Locate affected areas on the map, then compare them with the field average in TerraLogic Field Analysis." />
+        <e k="terraLogic_help_displays_h2" v="ALT+T and the minimap" />
+        <e k="terraLogic_help_displays_p2" v="ALT+T cycles forward through surface compaction, deep compaction, tilth, evenness and resilience; CTRL+ALT+T cycles backward. CTRL+ALT+1 to 5 opens a map directly. Pressing the shortcut of the active map again disables it. Every binding can be changed in the control settings and assigned to a controller." />
+        <e k="terraLogic_help_displays_h3" v="The local HUD changes with the map" />
+        <e k="terraLogic_help_displays_p3" v="For compaction, 0 percent is loose and good while 100 percent is heavily compacted. High evenness and resilience are good. Tilth has its optimum near the middle: very low values mean coarse clods, very high values excessively fine or smeared soil. The detailed map gradients show the measured value; coloured text in Field Analysis instead rates its likely effect." />
+        <e k="terraLogic_help_displays_h4" v="Fields, created land and Precision Farming" />
+        <e k="terraLogic_help_displays_p4" v="TerraLogic initializes normal map fields to suit their starting condition and continues updating unowned NPC fields until they are bought. New field areas created with a plough also receive soil data and can be displayed. An active TerraLogic map temporarily replaces only Precision Farming's coloured overlay; Precision Farming itself remains active. Without Precision Farming, TerraLogic uses a balanced generic soil profile." />
+        <e k="terraLogic_help_displays_h5" v="Local field HUD" />
+        <e k="terraLogic_help_displays_p5" v="While standing on valid soil with a map active, the field-information HUD at the lower right shows all five values at your current position. Outside TerraLogic soil areas it shows dashes instead of invented local values. With the soil map disabled, it can show locally stored Work Quality since the last harvest. This display always describes the ground beneath you." />
+        <e k="terraLogic_help_displays_h6" v="Local patch or whole field?" />
+        <e k="terraLogic_help_displays_p6" v="One red tire track does not automatically justify working the whole field. Compare its extent on the map with the field average in Field Analysis. It is often better to avoid the lane later or treat it during an operation that was already planned than to make an extra full-field pass for one small area." />
+
+        <e k="terraLogic_help_soil_title" v="The five soil conditions" />
+        <e k="terraLogic_help_soil_p1" v="TerraLogic describes the soil through five properties: surface compaction, deep compaction, tilth, evenness and resilience. Each can change independently, so traffic lanes, headlands and the field centre may need different treatment." />
+        <e k="terraLogic_help_soil_h2" v="Surface and deep compaction" />
+        <e k="terraLogic_help_soil_p2" v="Surface compaction affects the worked upper layer and arises mainly from high ground contact pressure beneath tires and tracks, moisture and repeated traffic. Deep compaction describes subsoil damage and is driven more strongly by axle load and heavy repeated passes. A cultivator can loosen moderate topsoil compaction, whereas deep damage requires a subsoiler or a long period of favourable rooting and natural recovery. Warm summer conditions accelerate biological improvement, while freezing and thawing can loosen firm structures through frost action." />
+        <e k="terraLogic_help_soil_h3" v="Tilth" />
+        <e k="terraLogic_help_soil_p3" v="Tilth describes the size and condition of soil aggregates in cultivated ground. TerraLogic uses a scale from coarse clods at 0 percent through favourable crumb structure near 50 percent to excessively fine, smeared or pulverized soil at 100 percent. Higher is therefore not always better. Implements can break soil down more easily than rebuild lost aggregates, so repeated refinement can overwork an already good seedbed." />
+        <e k="terraLogic_help_soil_h4" v="Evenness" />
+        <e k="terraLogic_help_soil_p4" v="Evenness describes how level and consistent the field surface is. Ploughing and deep repair usually leave it rough; seedbed cultivators, disc or power harrows and rollers can level it. Seed openers, hoes, pickups and other ground-following tools need reliable contact. An uneven surface first lowers their safe working speed and quality; true misses appear only when the implement can no longer follow that ground at the driven speed." />
+        <e k="terraLogic_help_soil_h5" v="Resilience" />
+        <e k="terraLogic_help_soil_p5" v="Resilience describes the soil's long-term ability to withstand traffic and recover. High values reduce new compaction damage. Living roots, varied crop rotations, soil cover and undisturbed years improve it slowly, while intensive or repeated deep tillage can reduce it." />
+
+        <e k="terraLogic_help_traffic_title" v="Vehicle traffic and compaction" />
+        <e k="terraLogic_help_traffic_p1" v="Every tire and track crossing a field can change the soil, including combines, trailers and transport vehicles. TerraLogic uses the vehicle's continuously calculated wheel loads. Fuel, ballast, crop, slurry, seed, attached equipment and support wheels therefore alter the load during play; a full grain tank can leave a different result from an empty one." />
+        <e k="terraLogic_help_traffic_h2" v="Ground contact pressure above, axle load below" />
+        <e k="terraLogic_help_traffic_p2" v="Wheel load is the weight actually carried by one wheel; axle load combines the wheels on the same axle. High ground contact pressure mainly stresses the topsoil, while high axle load transfers stress deeper. The displayed ground contact pressure is not tire inflation pressure: TerraLogic estimates it from wheel load, tire width, tire diameter and footprint. Wide tires, suitably loaded duals and tracks spread weight better. A wider track gauge does not halve the load; it mainly changes where pressure zones overlap." />
+        <e k="terraLogic_help_traffic_h3" v="Soil condition changes the risk" />
+        <e k="terraLogic_help_traffic_p3" v="Wet soil compacts and deforms much more easily, while dry soil tolerates loads better. The first pass over loose soil usually has the greatest effect. Further passes along the same track add compaction but do not keep reaching fresh loose soil. Five separate tracks therefore affect more soil than five passes along one track. Fixed traffic lanes limit the affected area; they do not prevent further compaction within it. A fully loaded combine or trailer can therefore create severe local compaction although the field average still appears unremarkable." />
+        <e k="terraLogic_help_traffic_h4" v="Practical choices" />
+        <e k="terraLogic_help_traffic_p4" v="Use the lightest suitable vehicle, appropriate tires or tracks, sensible ballast and established lanes. With Precision Farming, permanent tramlines can be worthwhile because compaction occurs where no crop was sown. Do not drive across the field more often than the job requires, avoid overlapping tracks, unload heavy harvest and transport vehicles earlier and wait for drier conditions when risk is high. Care tires protect plants but their small footprint is worse for the soil than normal or extra-wide tires." />
+        <e k="terraLogic_help_traffic_h5" v="Tires also change the seedbed" />
+        <e k="terraLogic_help_traffic_p5" v="A tire pass can change more than compaction. At suitable moisture it may crumble coarse clods and smooth a rough surface; high ground contact pressure on dry soil can pulverize it, while wet traffic can form clods and ruts. Excessive wheel slip shears the upper soil, makes tilth too fine and leaves the surface uneven. Clearly damaging heavy traffic can also reduce resilience. It does not reset biological continuity: tillage interrupts that continuity, not simply driving over the soil." />
+
+        <e k="terraLogic_help_tillage_title" v="Choosing soil-working implements" />
+        <e k="terraLogic_help_tillage_p1" v="Soil-working implements do not reset a field to one universal ideal state. Each operation changes compaction, tilth and evenness in its own realistic way. Soil type, moisture, frost, wear and working speed determine the physical result. Choose an implement for the problem actually present and check the Planner before adding another pass." />
+        <e k="terraLogic_help_tillage_h2" v="Plough and subsoiler" />
+        <e k="terraLogic_help_tillage_p2" v="A plough strongly loosens the topsoil but leaves coarse clods and a rough surface and disturbs resilience. Ordinary seeders may then struggle to maintain ground contact; without levelling first, sowing speed may need to be reduced drastically to avoid gaps. A subsoiler is the main response to deep compaction. It usually works deeper than a plough and also disturbs the surface, though less severely because it does not invert the full profile. Neither result is an ideal seedbed for an ordinary seeder." />
+        <e k="terraLogic_help_tillage_h3" v="Cultivators" />
+        <e k="terraLogic_help_tillage_p3" v="A normal cultivator relieves moderate topsoil compaction, breaks coarse aggregates and levels the field. A shallow cultivator works similarly but is gentler because of its reduced depth and therefore relieves compaction less effectively. It is better suited to levelling and gentle refinement when reducing compaction is not the primary goal." />
+        <e k="terraLogic_help_tillage_h4" v="Disc harrow, power harrow and spader" />
+        <e k="terraLogic_help_tillage_p4" v="Disc and power harrows refine and level the seedbed; a power harrow creates an especially fine finish. Repeated passes can overwork soil that is already fine. A spader loosens and mixes strongly without reproducing every effect of a mouldboard plough and can provide limited deeper relief." />
+        <e k="terraLogic_help_tillage_h5" v="Conditions and speed" />
+        <e k="terraLogic_help_tillage_p5" v="Wet, cohesive soil can clump and smear; very dry soil can be hard or become too fine under intensive tillage. Frost makes penetration harder. Soil type, moisture and the previous condition therefore help determine an implement's result. Excess speed can reduce loosening and levelling and damage the structure. Another pass does not automatically improve everything: check tilth and evenness first. A suitable seedbed needs no extra tillage." />
+
+        <e k="terraLogic_help_seeding_title" v="Seedbed, seeding and rolling" />
+        <e k="terraLogic_help_seeding_p1" v="Good establishment needs suitable tilth, an even surface and reliable opener contact. Surface compaction, moisture, frost, excessive speed and implement wear can reduce seed placement quality. Under poor conditions TerraLogic can also create real unsown patches. Those missing plants remain visible and can only be corrected by reseeding. When soil conditions are unsuitable, reducing sowing speed may be necessary to avoid gaps." />
+        <e k="terraLogic_help_seeding_h2" v="Conventional and precision seeding" />
+        <e k="terraLogic_help_seeding_p2" v="Conventional seeders expect a prepared seedbed. Precision planters react especially strongly to unevenness and unsuitable tilth because individual seed placement must remain consistent. A level-looking field can still have compaction or an unsuitable aggregate size. Slowing down can eliminate ground-contact misses completely; any remaining placement or emergence deficit is retained in Sowing Quality." />
+        <e k="terraLogic_help_seeding_h3" v="Direct drilling" />
+        <e k="terraLogic_help_seeding_p3" v="Direct drills avoid full-width tillage and protect natural recovery when ploughing and cultivating are omitted, but they barely loosen compacted soil. Their design tolerates a rougher seedbed and retains a higher soil-safe speed than conventional or precision seeders. Severe compaction, unsuitable moisture, frost, wear and exceeding that safe speed can still reduce placement quality." />
+        <e k="terraLogic_help_seeding_h4" v="Rolling" />
+        <e k="terraLogic_help_seeding_p4" v="Field rollers can smooth and consolidate suitable soil before sowing too. After sowing, they can also improve seed-to-soil contact and recover the correctable share of soil-related placement losses where sowing quality has been recorded. They cannot replace missing seed or erase speed- and wear-related mistakes. An excessively fast roller loses uniform contact, especially on rough ground. Levelling, consolidation and seed-contact improvement then decline. Wet soil and unnecessary repeat passes can cause additional compaction." />
+
+        <e k="terraLogic_help_speed_title" v="Working speed and the Speed HUD" />
+        <e k="terraLogic_help_speed_p1" v="When you manually drive a supported machine, TerraLogic removes its fixed working-speed limit. This is freedom, not a new recommendation: you may try to plough at 20 km/h or run a baler faster than intended, but the machine, soil and result respond through increased wear, missed work or material left behind. AI helpers and unsupported machines retain their speed limits to preserve compatibility with mods such as CoursePlay." />
+        <e k="terraLogic_help_speed_h2" v="Reading the display at the bottom centre" />
+        <e k="terraLogic_help_speed_p2" v="The work HUD shows speed, Work Quality and load for ready, supported implements. A dash for Work Quality means no work is currently being evaluated. In Dynamic mode it fades after a short period of steady driving in the green range and reappears when speed changes or a warning occurs. Warning duration is adjustable. Green marks the implement's normal speed range, not guaranteed perfect work: soil, moisture, frost and wear may require a slower speed. With several implements, the slowest relevant implement determines the range." />
+        <e k="terraLogic_help_speed_h3" v="Work Quality and physical misses" />
+        <e k="terraLogic_help_speed_p3" v="Alongside unsuitable soil conditions, excessive speed can lower Work Quality and create real missed areas. Seeders may leave unsown patches, sprayers and spreaders untreated strips, and weeders or hoes may leave weeds standing. At extreme speed mechanical weed control may even damage the crop. Mowers, tedders, windrowers, balers and loader-wagon pickups can leave crop or swath material behind depending on field evenness." />
+        <e k="terraLogic_help_speed_h4" v="Working speed also changes the soil result" />
+        <e k="terraLogic_help_speed_p4" v="A faster pass does not merely reduce a general quality number. For soil-working equipment it changes how strongly each of the five soil conditions is affected. A plough may loosen less effectively while leaving the surface very rough and over-broken; cultivators and harrows may refine without loosening or levelling as intended; a subsoiler may fail to relieve the full depth. Every implement has its own response, shown as a forecast in the Planner." />
+        <e k="terraLogic_help_speed_h5" v="Time saved versus consequences" />
+        <e k="terraLogic_help_speed_p5" v="Working faster can save time, but increases power demand and wear for soil-engaging implements. Severe overload or stone impacts can cause additional damage. Watch load and warnings in the work HUD as well as Work Quality. More tractor power does not protect an implement from overload." />
+
+        <e k="terraLogic_help_draft_title" v="Pulling resistance and power demand" />
+        <e k="terraLogic_help_draft_p1" v="TerraLogic changes the draft of supported soil-engaging implements. Working width and depth are already represented by the base game's normal power requirement; TerraLogic adds field condition, temperature, moisture and current implement condition. When Precision Farming is active, its soil types also influence the power demand." />
+        <e k="terraLogic_help_draft_h2" v="Precision Farming soil types" />
+        <e k="terraLogic_help_draft_p2" v="With Precision Farming, loamy sand generally pulls most easily but increases wear through abrasive sand particles. Sandy loam is the neutral soil with moderate wear; loam needs more draft with slightly reduced wear; silty clay has the highest base resistance but the least wear. Differences become clearer with deep tools because more soil is moved. Without Precision Farming, TerraLogic uses a balanced default soil similar to sandy loam and the complete system remains active." />
+        <e k="terraLogic_help_draft_h3" v="The existing soil condition" />
+        <e k="terraLogic_help_draft_p3" v="Each implement reacts to the soil it actually works. A subsoiler responds strongly to deep compaction, a cultivator to compacted or cloddy upper soil, and a seed drill to surface compaction, coarse tilth and unevenness. This means two fields of the same soil type can require different pulling force after different traffic and cultivation histories." />
+        <e k="terraLogic_help_draft_h4" v="Moisture and frost" />
+        <e k="terraLogic_help_draft_p4" v="Very dry soil can harden and resist penetration; wet cohesive soil can pull heavily and smear instead of crumbling. Frozen water binds soil particles and sharply increases draft while penetration decreases." />
+        <e k="terraLogic_help_draft_h5" v="Worn working parts" />
+        <e k="terraLogic_help_draft_p5" v="Worn shares, points, discs and openers no longer enter or cut the soil as cleanly. TerraLogic therefore adds a modest pulling-resistance increase to worn ground tools while also reducing their achievable soil effect and Work Quality. The response depends on the implement type; a completely broken implement must be repaired before it can work." />
+        <e k="terraLogic_help_draft_h6" v="Speed and tractor choice" />
+        <e k="terraLogic_help_draft_p6" v="Above the listed working speed, suitable ground tools require increasingly more draft, with power demand rising roughly quadratically depending on the implement. A larger tractor can supply it, but its added weight and axle load may compact the field more strongly. Time saved may therefore cost part of the harvest through compaction. Choose sufficient power without unnecessary mass or ballast and compare draft with compaction risk in the Planner." />
+
+        <e k="terraLogic_help_weather_title" v="Moisture, temperature and frost" />
+        <e k="terraLogic_help_weather_p1" v="TerraLogic creates a slow-moving soil climate from rain, snow, evaporation and air temperature. Surface, root zone and deeper layers respond at different speeds: a short weather change reaches the surface first, while water and temperature below follow with a delay. Field work and plants therefore react to the actual soil condition, not merely to the weather icon." />
+        <e k="terraLogic_help_weather_h2" v="Surface and root-zone moisture" />
+        <e k="terraLogic_help_weather_p2" v="Surface moisture controls traffic sensitivity and the behaviour of shallow work. Root-zone moisture changes more slowly and represents water available during growth. With Precision Farming, the four soil textures respond differently; without it, a balanced generic soil is used." />
+        <e k="terraLogic_help_weather_h3" v="Soil temperature and frost" />
+        <e k="terraLogic_help_weather_p3" v="The topsoil follows air temperature more quickly than deeper layers. Frozen soil raises draft, reduces penetration and limits Work Quality for soil-engaging implements and seeders. Freeze-thaw cycles can provide a small amount of natural loosening through frost action." />
+        <e k="terraLogic_help_weather_h4" v="Weather and crop yield" />
+        <e k="terraLogic_help_weather_p4" v="Water supply during growth affects the eventual harvest. A late shower does not fully make up for a long dry spell. Conversely, a well-supplied crop does not lose all its earlier benefit merely because harvest day is dry. Weather-related yield losses remain limited because you cannot control rain and weather depends on the map. If its weather patterns do not suit your game, you can disable Soil moisture affects yield. Moisture and temperature still affect compaction, work quality, tillage and draft demand." />
+
+        <e k="terraLogic_help_recovery_title" v="Resilience and natural recovery" />
+        <e k="terraLogic_help_recovery_p1" v="Recovery occurs in two ways. Slow physical processes change compaction, tilth and evenness. Soil resilience instead represents long-term biological structure and resistance. Rising resilience makes future traffic less damaging." />
+        <e k="terraLogic_help_recovery_h2" v="Living roots and crop rotation" />
+        <e k="terraLogic_help_recovery_p2" v="Living crops support recovery. Alternating shallow- and deep-rooting crop groups works better than repeatedly growing the same crop or root pattern. Cover crops contribute further because their roots use the time between main crops. Perennial grass is especially valuable when it remains undisturbed for several years. Dead or withered plants no longer count as living cover. This also applies to oilseed radish once the game classifies it as withered. Residues are still useful, but are assessed differently from living roots. Any fertilization effect when incorporating the crop remains separate." />
+        <e k="terraLogic_help_recovery_h3" v="Rest and intervention" />
+        <e k="terraLogic_help_recovery_p3" v="Minimizing soil disturbance protects resilience, although severe compaction may still justify cultivation or subsoiling. In general, shallow-working implements disturb biological continuity less than deep or intensive tillage. A plough or spader loosens immediately, but also interrupts established pores and biological structure. Living roots rebuild this continuity gradually over about one crop year; resilience itself still develops over several seasons." />
+        <e k="terraLogic_help_recovery_h4" v="Recovery speed setting" />
+        <e k="terraLogic_help_recovery_p4" v="The 1x, 4x and 8x TerraLogic settings accelerate long-term resilience development for careers of different lengths. Natural physical recovery and direct root loosening remain deliberately limited, so even the fastest setting does not automatically remove compaction. Negative effects from heavy tillage also increase to keep the system balanced. Conserved soil, such as under direct drilling, builds resilience faster, while ploughs and cultivators disturb it more strongly at accelerated settings." />
+        <e k="terraLogic_help_recovery_h5" v="Crop residue and gradual repair" />
+        <e k="terraLogic_help_recovery_p5" v="A successful mulching pass leaves useful crop residue and provides a small one-time resilience benefit; repeatedly mulching the same place cannot create unlimited improvement. Tillage has no separate quality value that improves by itself: roots, weather, cover and later operations change the actual soil maps. Small gaps may gradually close only in perennial grass." />
+
+        <e k="terraLogic_help_work_title" v="Work Quality and missed areas" />
+        <e k="terraLogic_help_work_p1" v="A completed base-game field state does not automatically mean the work was performed well. TerraLogic stores locally how effective supported operations were. 'Not performed' is neutral." />
+        <e k="terraLogic_help_work_h2" v="What changes quality" />
+        <e k="terraLogic_help_work_p2" v="The important causes depend on the implement. Speed and wear affect nearly every supported operation; seeders additionally react to compaction, tilth, evenness, moisture and frost, while ground-guided tools react to soil condition. The Planner shows the best quality achievable at an appropriate speed so players can assess an operation under the current weather, temperature and moisture." />
+        <e k="terraLogic_help_work_h3" v="Physical missed areas" />
+        <e k="terraLogic_help_work_p3" v="Where the real working mechanism permits it, an implement can actually miss material or ground instead of receiving only a lower score. Poor seeding creates unsown patches; application tools can leave untreated areas; weeders and hoes leave weeds; pickups can leave swath material behind. That loss occurs immediately and is not deducted a second time from yield later. Tillage implements do not receive artificial random holes." />
+        <e k="terraLogic_help_work_h4" v="Stored results" />
+        <e k="terraLogic_help_work_p4" v="Seeding quality and selected application qualities remain stored in the affected field area and can influence the later harvest. The local HUD describes the soil beneath the player; Field Analysis averages the field and shows how much area was actually recorded." />
+        <e k="terraLogic_help_work_h5" v="Why physical misses are always part of the system" />
+        <e k="terraLogic_help_work_p5" v="Physical missed areas are a core consequence wherever a machine can genuinely leave seed, crop or material behind. They remain active so seeders, pickups and surface tools keep the same transparent balance in every savegame. Tillage tools do not receive artificial random holes: at absurd speed their effective ground engagement and persistent soil effect instead collapse smoothly." />
+
+        <e k="terraLogic_help_yield_title" v="How TerraLogic affects yield" />
+        <e k="terraLogic_help_yield_p1" v="The base game and Precision Farming first calculate their complete normal yield. TerraLogic then applies one continuous factor from 60% to 110% according to soil, water and fieldwork. Resilience helps maintain soil conditions but adds no direct yield bonus or penalty. Fertilizer, lime, weeds, crop bonuses and the Precision Farming environmental system are neither reset nor replaced." />
+        <e k="terraLogic_help_yield_h2" v="Soil and root development" />
+        <e k="terraLogic_help_yield_p2" v="Surface and deep compaction restrict root growth. Severe deep compaction can be particularly harmful and harder to repair. Soil conditions throughout growth matter, not just those on harvest day. Later loosening therefore does not simply undo growth losses that have already occurred." />
+        <e k="terraLogic_help_yield_h3" v="Water and field work" />
+        <e k="terraLogic_help_yield_p3" v="Water shortages or prolonged wetness can impair growth when Soil moisture affects yield is enabled. Stored sowing and application quality and supported harvest losses also contribute to the result. Resilience affects yield only indirectly: resilient soil is less vulnerable to new compaction. It provides no separate yield bonus or penalty. Missing plants produce no harvest, so these gaps fall outside the 60 percent floor." />
+        <e k="terraLogic_help_yield_h4" v="Reading the estimate" />
+        <e k="terraLogic_help_yield_p4" v="Field Analysis separates root development, water supply and field-work quality before showing Final Yield Potential. Around 100% preserves the already calculated base-game result; excellent management can reach 110%, while combined severe problems can reach 60%. This is a relative factor, not a promise of tonnes per hectare." />
+
+        <e k="terraLogic_help_damage_title" v="Wear, abrasion and stone damage" />
+        <e k="terraLogic_help_damage_p1" v="The base game mainly applies general operating wear and a limited stone response. TerraLogic keeps normal wear but expands it with working-speed stress, soil abrasion, actual contact with visible field stones and simulated stones below the surface. These causes are calculated separately so a severe impact feels different from gradual wear." />
+        <e k="terraLogic_help_damage_h2" v="Gradual wear and soil abrasion" />
+        <e k="terraLogic_help_damage_p2" v="Soil-engaging implements wear through friction with the ground. High pulling resistance, long working distances and abrasive soil increase wear. Worn implements may work less effectively and need more pulling power. Check their condition regularly and repair them in time." />
+        <e k="terraLogic_help_damage_h3" v="Visible field stones" />
+        <e k="terraLogic_help_damage_p3" v="Visible field stones can damage susceptible implements. Large stones, high speed and tools working close to the surface increase the risk. Uneven ground can make mowers more exposed, for example. A stone picker removes visible stones and reduces this risk. If field stones are disabled in the game settings, this damage source is absent; simulated underground stones are separate." />
+        <e k="terraLogic_help_damage_h4" v="Simulated stones below the surface" />
+        <e k="terraLogic_help_damage_p4" v="Not every damaging stone is visible on the surface. TerraLogic also simulates occasional underground stone impacts. Deep-working implements are more exposed than shallow tools. These impacts can occur even on a visibly stone-free field." />
+        <e k="terraLogic_help_damage_h5" v="Rotating parts and tool contact" />
+        <e k="terraLogic_help_damage_p5" v="Powered rotating tools can strike stones hard even at a low travel speed. Power harrows, spaders, mulchers and other rotating implements therefore respond differently from passive tines or shares. Slowing down does not reduce every damage risk equally for every implement." />
+        <e k="terraLogic_help_damage_h6" v="What happens at extreme speed" />
+        <e k="terraLogic_help_damage_p6" v="When a powerful tractor holds a ground-engaging draft tool far above its intended speed, both force and transferred power rise. Abrasion primarily increases up to the upper load reference; beyond it, severe structural damage grows progressively. Work Quality, visible misses and stone impacts remain separate consequences. The work HUD shows load, wear and the most important current warning." />
+        <e k="terraLogic_help_damage_h7" v="Stone settings" />
+        <e k="terraLogic_help_damage_p7" v="The visible-stone setting chooses between Farming Simulator 25's normal damage behaviour and TerraLogic's extended damage for additional suitable implements. Underground stones remain part of the simulation even where no visible stone layer exists. The separate stone-impact warning option controls only whether severe hits appear in the work HUD; it does not disable their damage." />
+
+        <e k="terraLogic_help_compat_title" v="Precision Farming, multiplayer and other mods" />
+        <e k="terraLogic_help_compat_p1" v="TerraLogic's core simulation works without Precision Farming. When Precision Farming is active, loamy sand, sandy loam, loam and silty clay alter moisture response, draft, traffic sensitivity and recovery." />
+        <e k="terraLogic_help_compat_h2" v="Multiplayer" />
+        <e k="terraLogic_help_compat_p2" v="In multiplayer, the server calculates soil changes, stores the field data and distributes the shared gameplay settings. Every player therefore receives the same soil result. Display choices, the handbook and tutorial progress remain personal and do not change another player's settings." />
+        <e k="terraLogic_help_compat_h3" v="Combination implements and special machines" />
+        <e k="terraLogic_help_compat_p3" v="For supported combinations, TerraLogic accounts for multiple operations, such as tillage and seeding or slurry application and incorporation. Not every special function of a modded implement is automatically recognized. Some self-propelled carrier systems retain their own speed limits." />
+        <e k="terraLogic_help_compat_h4" v="Using other mods" />
+        <e k="terraLogic_help_compat_p4" v="Other mods may change the same vehicle functions. If an implement behaves unexpectedly, report the issue in the official GitHub repository. Include the TerraLogic version, map, machine, active mods and steps to reproduce it. Attach the game log if possible. Additional test recordings are only needed when requested for diagnosis." />
+        <e k="terraLogic_help_compat_h5" v="More Realistic and pulling resistance" />
+        <e k="terraLogic_help_compat_p5" v="When More Realistic is installed, choose in the TerraLogic settings which mod controls pulling resistance. More Realistic uses its own draft model; TerraLogic uses the soil effects described here. If driving behaviour seems unusual, check this selection and possible conflicts between the mods." />
+
+        <e k="terraLogic_help_problems_title" v="Quick problem solver" />
+        <e k="terraLogic_help_problems_h1" v="Surface compaction is high" />
+        <e k="terraLogic_help_problems_p1" v="Check whether the problem is local or field-wide. Avoid more wet or repeated traffic. A normal cultivator can relieve moderate upper compaction; shallow tools provide less relief, while ploughing is a stronger but more disruptive choice." />
+        <e k="terraLogic_help_problems_h2" v="Deep compaction is high" />
+        <e k="terraLogic_help_problems_p2" v="Reduce axle loads and repeated tracks first. Use a subsoiler where deep repair is justified. A shallow cultivator, harrow or roller cannot repair deep compaction, and natural recovery is deliberately slow." />
+        <e k="terraLogic_help_problems_h3" v="Seeding quality is low" />
+        <e k="terraLogic_help_problems_p3" v="Check surface compaction, tilth, evenness, moisture, frost, speed and implement wear. Prepare only the property that is unsuitable. After sowing, a roller can rescue part of a seedbed-contact loss, but it cannot replace missing seed or correct overspeed and wear." />
+        <e k="terraLogic_help_problems_h4" v="Draft or damage is unusually high" />
+        <e k="terraLogic_help_problems_p4" v="Compare current moisture and temperature, soil type, compaction, tilth and speed in Field Analysis or the Planner. Inspect the implement for wear and consider hidden or visible stones. More engine power may keep the machine moving but does not remove the cause." />
+        <e k="terraLogic_help_problems_h5" v="Yield estimate is low" />
+        <e k="terraLogic_help_problems_p5" v="Open Work and Yield in Field Analysis. Compare root development, water supply and Work Quality to identify the main causes of loss. Then use Overview and Planner to choose suitable measures for the next operation. A few problematic wheel tracks do not automatically justify working the entire field." />
+
+        <e k="terraLogic_help_quick_title" v="Quick start: Your first field" />
+        <e k="terraLogic_help_quick_p1" v="You do not need to understand every number immediately. Start with one simple loop: inspect the field, choose a suitable implement, react to the work HUD and check the result afterwards. TerraLogic rewards a sensible decision more than one fixed machinery sequence." />
+        <e k="terraLogic_help_quick_h2" v="1. Check before working" />
+        <e k="terraLogic_help_quick_p2" v="Stand on the field, open the ESC menu and select the TerraLogic icon. Start with Overview and its recommendations, then check Weather and Effects. Look for the largest issue first: is only one traffic lane compacted, the whole seedbed rough, or the soil too wet or frozen? A small local issue rarely justifies an extra pass over the entire field." />
+        <e k="terraLogic_help_quick_h3" v="2. Choose the right implement" />
+        <e k="terraLogic_help_quick_p3" v="Treat only the problem that is actually present. A subsoiler addresses deep compaction, a cultivator works the topsoil and prepares a seedbed, and a harrow mainly refines and levels it. If the ground is already firm enough and even, direct drilling can avoid another pass and protect resilience over time." />
+        <e k="terraLogic_help_quick_h4" v="3. Work and check" />
+        <e k="terraLogic_help_quick_p4" v="Begin near the green speed range. If Work Quality falls or the HUD reports uneven, wet, dry or frozen soil, slow down and see whether the result improves. Mechanical load and wear explain risks to the implement. Afterwards, inspect the relevant soil map and later use Work Quality and Yield to see what was stored on the field." />
+        <e k="terraLogic_help_quick_example" v="After clean ploughing, the topsoil is loose but usually coarse and uneven. You can drill directly at low speed and avoid missed seed, but placement quality remains limited. A suitable cultivator or power harrow costs another pass, yet creates a more even seedbed and lets the seeder place seed better at normal speed. On an already even stubble field, a suitable direct drill may be the better choice without that extra operation." />
+
+        <e k="terraLogic_help_analysis_title" v="Understanding Field Analysis" />
+        <e k="terraLogic_help_analysis_p1" v="Field Analysis is the central evaluation of the field beneath you. Open the ESC menu and select the TerraLogic icon. Its five pages answer, in order: What condition is the soil in? Where was Work Quality or yield potential lost? What are weather and soil doing now? What would a selected implement do? Which actions make sense now or later?" />
+        <e k="terraLogic_help_analysis_h2" v="Overview: field average, not one tire track" />
+        <e k="terraLogic_help_analysis_p2" v="Overview averages only areas for which TerraLogic actually has soil data. Outside a field or a player-created soil area, dashes are shown. Area shares and colour ratings help distinguish a few traffic lanes from a widespread issue. Use the minimap as well, because an average cannot show where a problem lies." />
+        <e k="terraLogic_help_analysis_h3" v="Work Quality and Yield" />
+        <e k="terraLogic_help_analysis_p3" v="A dash for Work Quality means that operation was not recorded; it is neither good nor bad. Sowing and other stored qualities are evaluated together with their recorded coverage. Yield separates root development, water supply and field work. Losses use a minus sign, while final potential shows the multiplier later applied to yield already calculated by the base game or Precision Farming." />
+        <e k="terraLogic_help_analysis_h4" v="Weather, effects and Planner" />
+        <e k="terraLogic_help_analysis_p4" v="Weather and Effects shows surface and deeper temperatures, moisture, precipitation and consequences for the next operation. In Planner, choose an implement class and model on the left; an attached implement is selected automatically where possible. While seated, vehicle mass, implement mass, total mass, highest axle load and ground contact pressure remain visible. The forecast uses the same soil, weather and implement calculations as real work, but cannot predict additional turns, overlap or later repeated passes." />
+        <e k="terraLogic_help_analysis_h5" v="Using recommendations" />
+        <e k="terraLogic_help_analysis_p5" v="Current advice helps before or during the planned operation. Next operation describes a useful correction during the following job. Long term covers traffic, rotation, cover crops and resilience over several seasons. These are not a rigid task list: always consider whether enough of the field is affected to justify another pass." />
+        <e k="terraLogic_help_analysis_example" v="If the average shows 20 percent surface compaction but the map contains two red traffic lanes and otherwise healthy soil, full-width ploughing is not a sensible reaction. Reuse the lanes or treat them during the next operation that was already planned. If large parts are compacted and Planner predicts a clear improvement from cultivation, the additional pass is easier to justify." />
+
+        <e k="terraLogic_help_options_title" v="Settings and tutorial" />
+        <e k="terraLogic_help_options_p1" v="Find TerraLogic options in the normal game settings. Adjust the display, minimap zoom and tutorial to your preferences. In multiplayer, only server admins can change shared simulation settings. Saved settings are retained after a mod update." />
+        <e k="terraLogic_help_options_h2" v="Work HUD, warning duration and minimap" />
+        <e k="terraLogic_help_options_p2" v="Dynamic shows the work HUD when useful and fades it after stable work in the green range. Always visible also retains it for recognized but raised implements; Off hides TerraLogic warnings as well. Work Quality and recognized implement count are fixed parts of the HUD. Warning duration locally selects from 1 to 10 seconds for how long each queued message remains readable. Minimap zoom is also personal." />
+        <e k="terraLogic_help_options_h3" v="Tutorial and stone-impact warnings" />
+        <e k="terraLogic_help_options_p3" v="In guided mode, the tutorial introduces the basics before offering topics relevant to the current situation. Contextual mode skips the introductory soil map lessons. A short right-click enables the cursor only while a tutorial card or the topic index is visible. While it is active, neither the vehicle nor the on-foot camera responds to mouse movement. Right-click again or close the tutorial to release the cursor. Next and Back change pages; Got it completes a topic. The X closes the card without marking the topic as read, so it may appear again in a suitable situation. Cards remain open for reading while gameplay continues. Use Topics or the tutorial topic index in settings to revisit lessons at any time. Disabling or resetting tutorials changes neither soil nor field data. Stone-impact warnings report severe hits in the work HUD; disabling them does not prevent damage." />
+        <e k="terraLogic_help_options_h4" v="Shared gameplay settings" />
+        <e k="terraLogic_help_options_p4" v="Resilience development offers Realistic (1x), 4x and Normal (8x). The selected speed applies equally to biological gains and tillage losses, preserving the intended difference between intensive and reduced tillage. It does not accelerate the physical recovery of compaction, tilth or evenness. Soil moisture affects yield controls only the weather share of yield. Moisture still changes compaction, draft and Work Quality. Visible-stone damage selects the base-game or extended TerraLogic effect. If More Realistic is installed, the server can also choose which mod provides draft. Soil map updates offers Normal and Fast. Fast refreshes maps sooner but uses more processing power and, in multiplayer, more network traffic. The server admin can change this shared setting during play. Soil calculation accuracy and yield are unaffected." />
+        <e k="terraLogic_help_options_h5" v="Intentionally always active" />
+        <e k="terraLogic_help_options_p5" v="Soil states, Work Quality, recognized combination implements and physically plausible missed areas are core simulation features and have no off switch. This keeps machinery behaviour consistent between saves. Existing settings are retained after an update; new defaults do not overwrite a saved game." />
+
+        <!-- ================================================================ -->
+        <!-- Field Analysis: interface labels and formatted values -->
+        <!-- ================================================================ -->
+        <e k="ui_TerraLogicFieldAnalysis" v="TerraLogic Field Analysis" />
+        <e k="terraLogic_fa_ui_action" v="Action needed" />
+        <e k="terraLogic_fa_ui_advice" v="Actions" />
+        <e k="terraLogic_fa_ui_calculatedConsequences" v="Expected effects" />
+        <e k="terraLogic_fa_ui_caution" v="Use caution" />
+        <e k="terraLogic_fa_ui_criticalArea" v="%d%% of the checked field area needs attention" />
+        <e k="terraLogic_fa_ui_criticalLocal" v="Localized issue - %d%% of the field area" />
+        <e k="terraLogic_fa_ui_criticalNone" v="No critical area detected" />
+        <e k="terraLogic_fa_ui_criticalWidespread" v="Widespread issue - %d%% of the field area" />
+        <e k="terraLogic_fa_ui_crop" v="Crop at location" />
+        <e k="terraLogic_fa_ui_cropWater" v="Water supply during growth" />
+        <e k="terraLogic_fa_ui_currentAdvice" v="Current advice" />
+        <e k="terraLogic_fa_ui_deepCompaction" v="Deep compaction" />
+        <e k="terraLogic_fa_ui_deepTemperature" v="Temperature at 35 cm" />
+        <e k="terraLogic_fa_ui_deepYieldLoss" v="Yield loss from deep compaction" />
+        <e k="terraLogic_fa_ui_disabled" v="Disabled" />
+        <e k="terraLogic_fa_ui_evenness" v="Evenness" />
+        <e k="terraLogic_fa_ui_expectedYield" v="Yield estimate" />
+        <e k="terraLogic_fa_ui_fertilizing" v="Fertilizing" />
+        <e k="terraLogic_fa_ui_fieldCapacity" v="Field capacity surface / root zone" />
+        <e k="terraLogic_fa_ui_fieldScope" v="Field %d" />
+        <e k="terraLogic_fa_ui_fieldScopeUnknown" v="Field at current location" />
+        <e k="terraLogic_fa_ui_fieldScopeSection" v="Field %d - section" />
+        <e k="terraLogic_fa_ui_fieldScopeExtended" v="Field %d - extended" />
+        <e k="terraLogic_fa_ui_fieldScopeCreated" v="Created field" />
+        <e k="terraLogic_fa_ui_fieldScopeConnected" v="Connected fields %s" />
+        <e k="terraLogic_fa_ui_fieldworkHistory" v="Completed fieldwork" />
+        <e k="terraLogic_fa_ui_frozen" v="frozen" />
+        <e k="terraLogic_fa_ui_furtherActions" v="Further guidance" />
+        <e k="terraLogic_fa_ui_genericSoil" v="Generic soil (Precision Farming inactive)" />
+        <e k="terraLogic_fa_ui_good" v="Good" />
+        <e k="terraLogic_fa_ui_growthStage" v="Crop development check %d of 3 - %d completed" />
+        <e k="terraLogic_fa_ui_growthProgressRecorded" v="Current crop phase: %d of 3 | %d of 3 growth assessments recorded" />
+        <e k="terraLogic_fa_ui_growthProgressRecordedCoverage" v="Current crop phase: %d of 3 | %d of 3 assessments on %.0f%% of the crop area" />
+        <e k="terraLogic_fa_ui_growthProgressUpdating" v="Current crop phase: %d of 3 | Growth history is updating" />
+        <e k="terraLogic_fa_ui_growthProgressNone" v="Current crop phase: %d of 3 | No growth history recorded yet" />
+        <e k="terraLogic_fa_ui_ledgerFactor" v="Fieldwork yield factor" />
+        <e k="terraLogic_fa_ui_totalWorkQuality" v="Total work quality" />
+        <e k="terraLogic_fa_ui_liming" v="Liming" />
+        <e k="terraLogic_fa_ui_loading" v="Calculating field overview..." />
+        <e k="terraLogic_fa_ui_loam" v="Loam" />
+        <e k="terraLogic_fa_ui_loamySand" v="Loamy sand" />
+        <e k="terraLogic_fa_ui_localScope" v="Local area" />
+        <e k="terraLogic_fa_ui_longTerm" v="Long term" />
+        <e k="terraLogic_fa_ui_longTermAndResults" v="Long-term development and results" />
+        <e k="terraLogic_fa_ui_lossSources" v="Where yield potential was lost" />
+        <e k="terraLogic_fa_ui_meaning" v="What this means" />
+        <e k="terraLogic_fa_ui_mixedSoil" v="Mixed Precision Farming soil types" />
+        <e k="terraLogic_fa_ui_moistureFactor" v="Water supply during growth" />
+        <e k="terraLogic_fa_ui_moistureInitializing" v="The moisture simulation has only just started. Both depths may show the same value for a short time; they will separate as rain, drainage and drying begin to affect them differently." />
+        <e k="terraLogic_fa_ui_mulching" v="Mulching" />
+        <e k="terraLogic_fa_ui_nextOperation" v="Next operation" />
+        <e k="terraLogic_fa_ui_noCrop" v="No growing crop detected" />
+        <e k="terraLogic_fa_ui_noField" v="No TerraLogic field soil was found at this position." />
+        <e k="terraLogic_fa_ui_notRecorded" v="Not performed" />
+        <e k="terraLogic_fa_ui_now" v="Right now" />
+        <e k="terraLogic_fa_ui_nowAndNext" v="Current conditions and next operation" />
+        <e k="terraLogic_fa_ui_currentConditions" v="Before or during current work" />
+        <e k="terraLogic_fa_ui_currentWeather" v="Current weather" />
+        <e k="terraLogic_fa_ui_weatherDry" v="No precipitation" />
+        <e k="terraLogic_fa_ui_weatherRain" v="Rain %.0f%%" />
+        <e k="terraLogic_fa_ui_weatherSnow" v="Snow %.0f%%" />
+        <e k="terraLogic_fa_ui_weatherMixed" v="Sleet %.0f%%" />
+        <e k="terraLogic_fa_ui_operatingWindow" v="Current operating window" />
+        <e k="terraLogic_fa_ui_overall" v="Overall condition" />
+        <e k="terraLogic_fa_ui_overview" v="Overview" />
+        <e k="terraLogic_fa_ui_persistentSoil" v="Long-term soil condition" />
+        <e k="terraLogic_fa_ui_priorityActions" v="Priority actions" />
+        <e k="terraLogic_fa_ui_qualityDropoutFormat" v="%d%% quality / %.1f%% missed areas" />
+        <e k="terraLogic_fa_ui_recommendedActions" v="Recommended actions" />
+        <e k="terraLogic_fa_ui_recordedConsequences" v="Already included" />
+        <e k="terraLogic_fa_ui_recordedWork" v="Average Work Quality across the field" />
+        <e k="terraLogic_fa_ui_refresh" v="Refresh location" />
+        <e k="terraLogic_fa_ui_resilience" v="Resilience" />
+        <e k="terraLogic_fa_ui_biologicalContinuity" v="Biological continuity" />
+        <e k="terraLogic_fa_ui_continuityEstablished" v="Established" />
+        <e k="terraLogic_fa_ui_continuityRecovering" v="Recovering" />
+        <e k="terraLogic_fa_ui_continuityRebuilding" v="Rebuilding slowly" />
+        <e k="terraLogic_fa_ui_continuityInterrupted" v="Interrupted" />
+        <e k="terraLogic_fa_ui_riskElevated" v="Elevated" />
+        <e k="terraLogic_fa_ui_riskHigh" v="High" />
+        <e k="terraLogic_fa_ui_riskLow" v="Low" />
+        <e k="terraLogic_fa_ui_rolling" v="Rolling" />
+        <e k="terraLogic_fa_ui_rootFactor" v="Root development during growth" />
+        <e k="terraLogic_fa_ui_rootMoisture" v="Root-zone moisture" />
+        <e k="terraLogic_fa_ui_rootZone" v="Root development during growth" />
+        <e k="terraLogic_fa_ui_sandyLoam" v="Sandy loam" />
+        <e k="terraLogic_fa_ui_seeding" v="Seeding" />
+        <e k="terraLogic_fa_ui_seedingResult" v="Precision seeding result" />
+        <e k="terraLogic_fa_ui_seedingSuitability" v="Precision seeding now" />
+        <e k="terraLogic_fa_ui_seedingWindow" v="Seeding" />
+        <e k="terraLogic_fa_ui_siltyClay" v="Silty clay" />
+        <e k="terraLogic_fa_ui_soil" v="Soil" />
+        <e k="terraLogic_fa_ui_soilCondition" v="Soil condition" />
+        <e k="terraLogic_fa_ui_soilType" v="Soil type" />
+        <e k="terraLogic_fa_ui_storedWork" v="Completed fieldwork" />
+        <e k="terraLogic_fa_ui_suitable" v="Suitable" />
+        <e k="terraLogic_fa_ui_supportingWork" v="Other fieldwork results" />
+        <e k="terraLogic_fa_ui_surfaceCompaction" v="Surface compaction" />
+        <e k="terraLogic_fa_ui_surfaceMoisture" v="Topsoil moisture" />
+        <e k="terraLogic_fa_ui_surfaceTemperature" v="Surface temperature" />
+        <e k="terraLogic_fa_ui_surfaceYieldLoss" v="Yield loss from surface compaction" />
+        <e k="terraLogic_fa_ui_temperatureInitializing" v="The temperature simulation has only just started. Both depths may show the same value for a short time; the surface will begin reacting faster than the deeper soil as time passes." />
+        <e k="terraLogic_fa_ui_terraLogicShare" v="Final yield potential" />
+        <e k="terraLogic_fa_ui_tillageDraft" v="Pulling resistance" />
+        <e k="terraLogic_fa_ui_tillageEffect" v="Tillage effectiveness" />
+        <e k="terraLogic_fa_ui_tillageWindow" v="Tillage" />
+        <e k="terraLogic_fa_ui_tilth" v="Tilth" />
+        <e k="terraLogic_fa_ui_title" v="TerraLogic Field Analysis" />
+        <e k="terraLogic_fa_ui_topPriorityLong" v="Top long-term priority" />
+        <e k="terraLogic_fa_ui_topPriorityNext" v="Top priority for the next operation" />
+        <e k="terraLogic_fa_ui_topPriorityNow" v="Top priority now" />
+        <e k="terraLogic_fa_ui_trafficRisk" v="Compaction risk" />
+        <e k="terraLogic_fa_ui_trafficSensitivity" v="Traffic damage" />
+        <e k="terraLogic_fa_ui_unknownCrop" v="Unknown crop" />
+        <e k="terraLogic_fa_ui_unsuitable" v="Unsuitable" />
+        <e k="terraLogic_fa_ui_watch" v="Watch" />
+        <e k="terraLogic_fa_ui_waterHistory" v="Water supply during growth" />
+        <e k="terraLogic_fa_ui_weather" v="Weather" />
+        <e k="terraLogic_fa_ui_weatherNoForecast" v="This page shows the soil right now, not tomorrow's conditions. Check it again before starting work if the weather or time has changed." />
+        <e k="terraLogic_fa_ui_weatherState" v="Soil and weather state" />
+        <e k="terraLogic_fa_ui_weedControl" v="Weed control" />
+        <e k="terraLogic_fa_ui_work" v="Work quality" />
+        <e k="terraLogic_fa_ui_workability" v="Weather and workability" />
+        <e k="terraLogic_fa_ui_workQuality" v="Work quality" />
+        <e k="terraLogic_fa_ui_results" v="Work and Yield" />
+        <e k="terraLogic_fa_ui_conditions" v="Weather and Effects" />
+        <e k="terraLogic_fa_ui_currentEffects" v="What this means now" />
+        <e k="terraLogic_fa_ui_yield" v="Yield" />
+        <e k="terraLogic_fa_ui_yieldNotVanilla" v="This is not the final harvest amount. Visible seeding gaps, the later harvesting speed and other game systems can still change what reaches the trailer." />
+        <e k="terraLogic_fa_ui_yieldRelevantWork" v="Fieldwork included in this yield estimate" />
+        
+        <!-- Page explanations and notes -->
+        <e k="terraLogic_fa_note_overviewFooter" v="For compaction, lower values toward 0% are better; for evenness and soil resilience, higher values toward 100% are better. Tilth is balanced around 50%." />
+        <e k="terraLogic_fa_note_resultsWork" v="The quality of fieldwork recorded for this crop cycle. Operations not performed remain neutral." />
+        <e k="terraLogic_fa_note_resultsYield" v="These quality factors range up to 100%. Together, they determine the estimated yield compared with the same field without TerraLogic, including any Precision Farming effects. Very good conditions can allow up to 110%. The estimate develops as the crop grows." />
+        <e k="terraLogic_fa_note_resultsLosses" v="These values show the losses behind the estimate. Unsown patches further reduce the harvested amount because no crop grows there." />
+        <e k="terraLogic_fa_note_conditionsFooter" v="Check soil moisture and temperature before fieldwork: they affect the power needed, how well tools enter the soil and the risk of compaction." />
+        <e k="terraLogic_fa_condition_frost" v="Frozen soil increases draft and makes tool penetration less reliable." />
+        <e k="terraLogic_fa_condition_traffic" v="Current topsoil conditions multiply the traffic response by x%.2f." />
+        <e k="terraLogic_fa_condition_draft" v="Current soil conditions raise tillage draft to x%.2f." />
+        <e k="terraLogic_fa_condition_tillage" v="Tillage currently reaches only %d%% of its normal effect." />
+        <e k="terraLogic_fa_condition_seeding" v="A seeder at reference speed would achieve about %d%% placement quality with %.1f%% missed area." />
+        <e k="terraLogic_fa_condition_seedingActionSeedbed" v="Prepare a more even, suitably crumbled seedbed or slow down until the openers follow reliably." />
+        <e k="terraLogic_fa_condition_seedingActionSpeed" v="Reduce speed until the openers follow the surface reliably." />
+        <e k="terraLogic_fa_condition_seedingRollerHint" v="Rolling after sowing can recover part of soil-related placement loss, but it cannot replace missed seed." />
+        <e k="terraLogic_fa_condition_good" v="No material weather-related restriction is active here right now." />
+        <e k="terraLogic_fa_note_adviceNote" v="Recommendations are grouped by when they are useful: during current work, for the next operation or for long-term soil care. The most urgent advice comes first in each column." />
+        <e k="terraLogic_fa_note_criticalNote" v="The main value is the field average. The smaller line beneath it indicates whether small hotspots or larger areas are affected." />
+        <e k="terraLogic_fa_note_estimateNote" v="These values describe the field overall. A single wheel track or missed strip can still be better or worse than the displayed field value." />
+        <e k="terraLogic_fa_note_lossSourcesNote" v="Surface and deep compaction affect root development. Water supply describes the conditions experienced by the crop during earlier growth periods. The fieldwork value summarizes the quality of important operations. Missing seed and already visible untreated areas are handled separately." />
+        <e k="terraLogic_fa_note_notRecordedExplanation" v="Not performed means this operation has not been carried out during the current crop cycle. It is neutral and does not count as bad work." />
+        <e k="terraLogic_fa_note_refreshNote" v="Refresh location checks the field where your player is currently standing." />
+        <e k="terraLogic_fa_note_soilConsequenceNote" v="A recommendation appears only when the current condition is expected to noticeably affect yield, Work Quality, missed areas, pulling resistance or traffic damage." />
+        <e k="terraLogic_fa_note_soilOverviewNote" v="Compaction values show the actual compacted share, so lower is better. Evenness and resilience are better when higher. Tilth describes coarse-to-fine structure and is best around 50%." />
+        <e k="terraLogic_fa_note_supportingWorkExplanation" v="Weed control, rolling and mulching remain visible because their quality and visible results still matter." />
+        <e k="terraLogic_fa_note_weatherDetailNote" v="Field capacity is the moisture level this soil can hold well after excess water has drained. A value slightly above it is not immediately harmful, but traffic and tillage become increasingly risky as the soil approaches the wet range." />
+        <e k="terraLogic_fa_note_weatherNote" v="Use these values before entering the field: wet, dry or frozen soil can change traction, required power, tool penetration, Work Quality and the damage caused by traffic." />
+        <e k="terraLogic_fa_note_workNote" v="Not performed means that this job has not been carried out during the current crop cycle; it does not reduce yield. Rolling, mulching and weed control remain visible because their quality and direct effects can still matter." />
+        <e k="terraLogic_fa_note_yieldFormula" v="Final yield potential is TerraLogic's single 60-110% multiplier on the harvest already calculated by the base game and Precision Farming. Root development, water supply and fieldwork determine the result. Resilience has no direct yield multiplier. Serious problems block the upper range; physical missed plants remain additional because no crop exists there." />
+        <e k="terraLogic_fa_note_yieldOverviewNote" v="This is the crop potential currently left by TerraLogic. Fertilizing, pH, crop stages and other base-game or Precision Farming bonuses are handled separately by the game." />
+        <e k="terraLogic_fa_note_yieldWorkExplanation" v="Poor seeding, fertilizing or liming can lower final yield potential. Small mistakes have only a modest effect, while clearly unsuitable speed, poor implement condition or difficult soil conditions matter more." />
+        
+        <!-- Question-mark help texts -->
+        <e k="terraLogic_fa_help_currentValue" v="Current field value: %s" />
+        <e k="terraLogic_fa_help_deepGood" v="Deep compaction is low, so roots can reach deeper water and nutrients. Avoid creating new pressure at depth with heavy vehicles on wet ground. Pay particular attention to sufficiently dry soil during care traffic: narrow care tires protect the crop but their smaller contact area can increase localized compaction." />
+        <e k="terraLogic_fa_help_deepPoor" v="The deeper soil is compacted and restricts the root zone. A subsoiler can relieve it, but only when the soil is dry enough; deep work in wet soil can create new damage." />
+        <e k="terraLogic_fa_help_deepTemperatureFrozen" v="This is the temperature around 35 cm below the surface. It changes slowly and shows whether frost has reached the deeper root and tillage zone. That layer is currently frozen, so deep-working tools can require more draft and achieve less penetration and Work Quality." />
+        <e k="terraLogic_fa_help_deepTemperatureOpen" v="This is the temperature around 35 cm below the surface. It changes much more slowly than the topsoil and shows the longer-term thermal state of the root zone. The deeper layer is not frozen, although low temperatures can still slow biological recovery." />
+        <e k="terraLogic_fa_help_deepWatch" v="The deeper soil is not yet severely restricted, but its condition is below ideal. Heavy axle loads on wet ground can turn this into a lasting root-zone problem. Loosen deeply only when genuinely necessary and when the soil is dry enough, so natural recovery is not delayed." />
+        <e k="terraLogic_fa_help_evennessGood" v="The field is even, so precision implements can hold working depth and placement consistently. This supports good Work Quality and a steady, appropriate working speed." />
+        <e k="terraLogic_fa_help_evennessPoor" v="The field is uneven, so precision seeders cannot maintain depth and placement as consistently. Level the seedbed before precision work with a suitable implement such as a shallow cultivator. Rolling after sowing can recover some quality, although sowing well from the outset is always the more economical option." />
+        <e k="terraLogic_fa_help_evennessWatch" v="The field is reasonably even and normal work should still function well. There is room for improvement for precision seeders or high working speeds. If correction is genuinely needed, level the seedbed with a suitable cultivator; a soil roller after sowing can settle it further." />
+        <e k="terraLogic_fa_help_moistureDisabled" v="Weather-related yield effects are disabled in the settings. Soil moisture still changes compaction risk, draft, penetration and Work Quality for affected implements." />
+        <e k="terraLogic_fa_help_moistureDry" v="The root zone is dry. Prolonged drought can slightly reduce yield potential, while very dry surface soil may also increase draft and make penetration less consistent." />
+        <e k="terraLogic_fa_help_moistureGood" v="Water supply is currently within a useful range. TerraLogic simulates several growth periods, so one short shower or a dry month does not decide the harvest on its own." />
+        <e k="terraLogic_fa_help_moistureWet" v="The root zone is very wet. Prolonged waterlogging can slightly reduce yield potential, and wet surface soil is much more vulnerable to traffic and smearing." />
+        <e k="terraLogic_fa_help_resilienceGood" v="Soil resilience is strong and helps the structure withstand traffic. Keep it high with living roots, little soil disturbance and a varied crop rotation. Alternating shallow- and deep-rooted crops improves resilience faster, while perennial grass is especially effective over several seasons. Heavy vehicles and wet soil can still cause compaction." />
+        <e k="terraLogic_fa_help_resiliencePoor" v="Soil resilience is low, so vehicle traffic causes damage more easily. Avoid unnecessary driving and unnecessary soil disturbance, and retain living, non-withered crops. A varied rotation, cover crops and especially alternating shallow- and deep-rooted crops build resilience faster than sowing the same crop repeatedly. When tillage is needed, a shallower working depth usually disturbs the biological structure less." />
+        <e k="terraLogic_fa_help_resilienceWatch" v="Soil resilience is usable but not yet strong, so wet or heavy traffic can still cause damage fairly easily. Limit unnecessary driving and soil disturbance, retain living crops and use a varied rotation. Alternating shallow- and deep-rooted crops improves resilience faster, cover crops accelerate the process further, and perennial grass is especially beneficial when left undisturbed for several years. Shallow tillage generally disturbs the biological structure less than deep or intensive work." />
+        <e k="terraLogic_fa_help_continuityEstablished" v="The soil has remained largely undisturbed, so established pores, roots and biological structure can support natural recovery at their full rate. Biological continuity is disturbed mainly by soil-working tillage, not simply by every necessary trip across the field. In general, shallow working depth disturbs it less than deep or intensive tillage. Continuous living cover helps preserve this state." />
+        <e k="terraLogic_fa_help_continuityRecovering" v="Biological recovery activity is returning after earlier soil disturbance. Living roots and time rebuild it gradually. Avoid another deep or intensive tillage operation unless the soil condition genuinely requires it; a shallower operation usually interrupts less of the recovering structure." />
+        <e k="terraLogic_fa_help_continuityInterrupted" v="Recent deep or intensive tillage interrupted much of the established biological structure. The soil was loosened immediately, but natural recovery and new resilience gains are temporarily weaker. Shallower operations disturb continuity less. With living roots, full activity returns gradually over roughly one crop year." />
+        <e k="terraLogic_fa_help_valueContinuity" v="Biological continuity: %s" />
+        <e k="terraLogic_fa_help_rootGood" v="Soil conditions supported root development during the completed growth periods. Later traffic can still affect the remaining periods, so this value can change until harvest. Narrow care tires in particular may create more localized compaction through their smaller contact area, affecting crop growth and yield before harvest." />
+        <e k="terraLogic_fa_help_rootMoistureDry" v="The root zone holds less water than this soil normally provides well. A short dry phase is buffered, but repeated dry growth periods can slightly reduce the crop's final water-supply result. Soil type determines how quickly this deeper reserve fills and empties." />
+        <e k="terraLogic_fa_help_rootMoistureGood" v="The root zone currently holds a useful water reserve for the crop. This deeper layer changes more slowly than the surface, so it represents the water available across longer growth periods rather than the last shower alone." />
+        <e k="terraLogic_fa_help_rootMoistureWet" v="The root zone is very wet. Prolonged saturation can slightly reduce crop-water yield potential and makes deeper soil more vulnerable to heavy loads. Heavier soils generally remain in this state longer than sandy soils." />
+        <e k="terraLogic_fa_help_rootPoor" v="Compaction or unsuitable soil structure restricted root development during at least one growth period. TerraLogic averages all three periods, so one poor phase does not decide the whole harvest. Use a subsoiler only for confirmed deep compaction and a normal cultivator for meaningful, widespread surface compaction. Shallower tools such as shallow cultivators, disc harrows and power harrows mainly correct a coarse or uneven seedbed." />
+        <e k="terraLogic_fa_help_seedingGood" v="The seedbed and current conditions support consistent seed depth and placement. Stay within a suitable working speed and keep the seeder in good condition." />
+        <e k="terraLogic_fa_help_seedingPoor" v="The seedbed or weather conditions limit precise placement. Use a cultivator, shallow cultivator, disc harrow or power harrow only when tilth or evenness genuinely needs correction, and avoid sowing into very wet or frozen soil. A field roller after sowing improves soil contact but cannot replace missing plants." />
+        <e k="terraLogic_fa_help_seedingWatch" v="Seeding should still work, but either the seedbed or the current moisture is not ideal. A suitable speed and a well-maintained seeder keep the effect manageable; correct tilth or evenness only when the displayed field values show a real need." />
+        <e k="terraLogic_fa_help_soilGood" v="The soil is in a balanced overall condition. No single number guarantees a good crop, but the combined compaction, tilth, evenness and resilience currently provide a sound base for field work and root development." />
+        <e k="terraLogic_fa_help_soilPoor" v="Several soil properties are limiting the field at the same time. Open the individual values to see whether compaction, tilth, evenness or resilience needs attention before choosing the next operation." />
+        <e k="terraLogic_fa_help_soilWatch" v="The soil is usable, but one or more properties leave room for improvement. Check the individual values before choosing the next operation; careful traffic and a suitable field-work sequence can prevent a moderate issue from becoming restrictive." />
+        <e k="terraLogic_fa_help_surfaceGood" v="Surface compaction is low enough for a workable seedbed and early root growth. Keep axle loads and repeated passes under control, especially while the soil is wet." />
+        <e k="terraLogic_fa_help_surfaceMoistureDry" v="The topsoil is dry. Traffic is less likely to create wet-soil compaction, but ground-engaging tools may need more draft, penetrate less evenly and create a poorer finish when the surface becomes very hard or powdery." />
+        <e k="terraLogic_fa_help_surfaceMoistureGood" v="Topsoil moisture is in a workable middle range. Tillage and seeding can usually penetrate consistently without the exceptional smearing and compaction risk of wet soil. Weight, tyres, speed and the existing soil condition still matter." />
+        <e k="terraLogic_fa_help_surfaceMoistureWet" v="The topsoil is wet. Wheels compact it more strongly and tillage or seeding tools can smear the soil, lose penetration and reduce Work Quality. Let the surface drain and dry if the schedule allows." />
+        <e k="terraLogic_fa_help_surfacePoor" v="The surface soil is compacted enough to hinder seedbed formation and early roots. A normal cultivator can relieve moderate widespread compaction. Ploughs and spaders work more strongly but should be reserved for severe damage and a suitable crop plan; shallow cultivators, disc harrows and power harrows mainly finish the seedbed." />
+        <e k="terraLogic_fa_help_surfaceTemperatureFrozen" v="This is the temperature of the upper soil layer, which reacts relatively quickly to daytime weather. It is currently frozen, so ground-engaging and seeding tools need more draft, penetrate less reliably and can lose Work Quality. Wait for thawed soil before precision work." />
+        <e k="terraLogic_fa_help_surfaceTemperatureOpen" v="This is the temperature of the upper soil layer and therefore the best value for judging current field work. It follows changing air temperature faster than the deeper soil. The layer is not frozen; cold conditions can still slow biological recovery." />
+        <e k="terraLogic_fa_help_surfaceWatch" v="The topsoil is still workable, but compaction is becoming noticeable. The seedbed and young roots can still cope. Avoid repeated traffic in wet conditions. A shallow cultivator, disc harrow or power harrow can provide slight relief during seedbed preparation, but they do not replace the stronger loosening of a normal cultivator or plough." />
+        <e k="terraLogic_fa_help_tillageGood" v="Moisture and temperature currently allow tillage without additional difficulty from the weather. Soil type, compaction, tilth, evenness, speed and implement condition can still change the result." />
+        <e k="terraLogic_fa_help_tillagePoor" v="Current moisture or frost makes tillage unreliable. Tools may require more draft, penetrate less consistently or smear wet soil. Waiting usually produces a better result than adding another corrective pass." />
+        <e k="terraLogic_fa_help_tillageWatch" v="Tillage is possible, but the topsoil is very dry. Tools may require more draft and penetrate or crumble the soil less consistently. Work at an appropriate speed and avoid an extra corrective pass unless the result truly needs it." />
+        <e k="terraLogic_fa_help_tilthCoarse" v="Tilth is too coarse and cloddy for reliable seed depth and soil contact. A suitable cultivator or seedbed tool can refine it. The best range is around 50%; a higher number does not always mean better soil." />
+        <e k="terraLogic_fa_help_tilthCoarseWatch" v="Tilth is somewhat coarse but remains usable. Precision seeding may work a little less consistently; one pass with a seedbed cultivator, power harrow or suitable disc harrow can help if the crop and seeder require it, but avoid unnecessary overworking." />
+        <e k="terraLogic_fa_help_tilthFine" v="The soil is too finely broken up. It can form a crust after rain and compact again more easily. Avoid further refining passes with cultivators, disc harrows or power harrows. A plough can return the surface to a coarse structure, but also creates a rough finish and reduces resilience. Without a justified need to plough, living roots and natural processes are the gentler solution." />
+        <e k="terraLogic_fa_help_tilthFineWatch" v="Tilth is somewhat fine but still usable. Further intensive passes may offer little benefit and could move the soil toward a pulverized structure, so preserve the current seedbed unless the next implement genuinely needs a correction." />
+        <e k="terraLogic_fa_help_tilthGood" v="Tilth is within a useful, balanced range for this field. The displayed value is the actual scale from coarse to fine, with the ideal point near 50 percent." />
+        <e k="terraLogic_fa_help_trafficGood" v="Current moisture does not create an exceptional compaction risk. Vehicle weight, tyres, repeated passes and existing resilience still determine how strongly the soil changes." />
+        <e k="terraLogic_fa_help_trafficPoor" v="Wet or recently thawed soil is especially vulnerable to traffic. Do not drive across the field more often than the work requires, reduce axle load where practical and reuse existing traffic lanes. Firmly frozen soil is not treated like wet mud, but conditions can change quickly during thawing." />
+        <e k="terraLogic_fa_help_trafficWatch" v="Compaction risk is elevated, although the soil has not reached its wettest and most vulnerable state. Normal work is possible with care: reduce axle load where practical, use wide tires and avoid repeated passes over the same track." />
+        <e k="terraLogic_fa_help_valueAchievableQuality" v="Achievable work quality: %s" />
+        <e k="terraLogic_fa_help_valueDeepCompaction" v="Deep compaction: %s" />
+        <e k="terraLogic_fa_help_valueDraftFactor" v="Current pulling resistance: %s" />
+        <e k="terraLogic_fa_help_valueEvenness" v="Evenness: %s" />
+        <e k="terraLogic_fa_help_valueExpectedGaps" v="Expected missed areas: %s" />
+        <e k="terraLogic_fa_help_valueFinalYield" v="Final yield potential: %s" />
+        <e k="terraLogic_fa_help_valueOverallSoil" v="Combined soil condition: %s" />
+        <e k="terraLogic_fa_help_valueRecommendedSpeed" v="Recommended speed: %s" />
+        <e k="terraLogic_fa_help_valueRecordedQuality" v="Work Quality of the completed operation: %s" />
+        <e k="terraLogic_fa_help_valueResilience" v="Soil resilience: %s" />
+        <e k="terraLogic_fa_help_valueRootFactor" v="Root development during growth: %s" />
+        <e k="terraLogic_fa_help_valueRootMoisture" v="Current root-zone moisture: %s" />
+        <e k="terraLogic_fa_help_valueSeedbed" v="Current seedbed suitability: %s" />
+        <e k="terraLogic_fa_help_valueSoilEffect" v="Achievable soil effect: %s" />
+        <e k="terraLogic_fa_help_valueSurfaceCompaction" v="Surface compaction: %s" />
+        <e k="terraLogic_fa_help_valueTemperature" v="Current temperature: %s" />
+        <e k="terraLogic_fa_help_valueTilth" v="Tilth: %s" />
+        <e k="terraLogic_fa_help_valueTopsoilMoisture" v="Current topsoil moisture: %s" />
+        <e k="terraLogic_fa_help_valueWaterFactor" v="Water supply during growth: %s" />
+        <e k="terraLogic_fa_help_valueWorkFactor" v="Fieldwork included in the yield estimate: %s" />
+        <e k="terraLogic_fa_help_workFertilizer" v="This value shows how evenly fertilizer, manure or slurry was applied. Excess speed, poor implement condition and an uneven field can reduce distribution quality and leave untreated areas. Application equipment does not directly work the soil, but traffic from the vehicle and implement can still cause compaction. Small application errors have only a limited effect on final yield." />
+        <e k="terraLogic_fa_help_workGood" v="The important field operations completed so far achieved good Work Quality. Suitable speed, implement condition, soil and weather help keep this result high." />
+        <e k="terraLogic_fa_help_workNone" v="No yield-relevant work quality has been recorded on this field in the current crop cycle. Operations not performed are neutral and are not shown as 100%." />
+        <e k="terraLogic_fa_help_ledgerFactor" v="This is the retained yield share after the recorded fieldwork effects, not an average Work Quality. Each operation is converted through its own agronomic yield weight; therefore 89% seeding quality does not mean an 11% total yield loss." />
+        <e k="terraLogic_fa_help_workHerbicide" v="This value covers weed-control sprayers, weeders and hoes. Excess speed and poor condition can make treatment less reliable. Rain falling during foliar spraying can wash herbicide off before absorption; stored soil moisture by itself does not reduce chemical application quality. Mechanical weeders and hoes additionally react to soil condition and penetration." />
+        <e k="terraLogic_fa_help_workLime" v="This value records the distribution quality of lime spreaders. Excess speed or poor equipment condition can create uneven coverage and missed patches, so the intended pH correction is less reliable across the field. Lime and pH are still handled by the base game or Precision Farming; TerraLogic only records how well the application pass was performed." />
+        <e k="terraLogic_fa_help_workMulch" v="This value shows how evenly the mulcher processed crop residue. Excess speed, wear, poor ground contact and stones can leave unmulched areas or cause additional damage. Residue that was missed remains visible on the field." />
+        <e k="terraLogic_fa_help_workPoor" v="At least one important field operation was completed with reduced Work Quality. Its effect remains part of the harvest estimate. Open the individual operation to see whether speed, implement condition, soil or weather caused the problem." />
+        <e k="terraLogic_fa_help_workRoller" v="This value describes a soil roller pass after sowing. A suitable field roller can improve seed-to-soil contact and recover a limited share of correctable sowing quality, but it cannot restore missing seed or plants. Speed, roller condition, surface moisture and the existing tilth determine whether it settles the seedbed usefully or adds unnecessary compaction." />
+        <e k="terraLogic_fa_help_workSeed" v="The percentage is the recorded average seed-placement quality for sowing machines, direct drills and precision planters. Good, Watch or Action needed rates that value. If 'Roller +X.X' appears, X.X is the maximum number of quality points that a healthy field roller at recommended speed could still recover from correctable seedbed contact. A roller cannot repair missing plants or placement losses caused by excess speed, wear or frost. Poor evenness, unsuitable tilth and wet or dry soil can reduce placement quality and may also create physical seeding gaps." />
+        <e k="terraLogic_fa_help_yieldGood" v="The combined TerraLogic result is healthy. Excellent roots, water supply and fieldwork can raise the already calculated base-game or Precision Farming harvest as high as 110%, with either careful tillage or direct drilling. A serious weakness prevents that upper range instead of being hidden by another good value." />
+        <e k="terraLogic_fa_help_yieldPoor" v="The unified TerraLogic factor is below the base-game result. Root development, water supply and fieldwork show the cause. Yield from surviving plants is limited to a 40% TerraLogic loss; physical missed areas can reduce the field total further." />
+        
+        <!-- Recommended actions -->
+        <e k="terraLogic_fa_action_coarse" v="The tilth is coarse and cloddy, which can make seed placement uneven. A cultivator, shallow cultivator, power harrow or suitable disc harrow can break the clods without deep ploughing and help the seeder place seed more consistently." />
+        <e k="terraLogic_fa_action_cropWater" v="Water supply during growth has not always been ideal, so the crop has lost a small part of its potential. The weather cannot be controlled; avoid adding further stress through poor soil condition or unnecessary traffic." />
+        <e k="terraLogic_fa_action_cropWaterDynamic" v="Dry or waterlogged growth periods have reduced final yield potential by about %.1f%%. Earlier weather cannot be undone by fieldwork, so concentrate on avoiding additional soil and traffic stress." />
+        <e k="terraLogic_fa_action_deep" v="Deep compaction is restricting the root zone and makes water and nutrients harder to reach. Use a subsoiler selectively when the soil is neither wet nor frozen." />
+        <e k="terraLogic_fa_action_deepDynamic" v="Loosen the root zone: deep compaction currently costs about %.1f%% yield. Use a subsoiler when the soil is workable, neither wet nor frozen." />
+        <e k="terraLogic_fa_action_dryDynamic" v="The soil is very dry. This operation requires about x%.2f its normal pulling power and can achieve only %d%% of its usual soil-working result." />
+        <e k="terraLogic_fa_action_fine" v="The soil has become too finely broken up, which increases the risk of crusting after rain and renewed compaction. Avoid another refining pass with a cultivator, disc harrow or power harrow. Ploughing can restore a coarser structure, but it also leaves a rough surface and reduces resilience, so use it only when inversion already fits the crop plan." />
+        <e k="terraLogic_fa_action_frozen" v="The surface soil is frozen. Ploughs, cultivators, subsoilers and seeders penetrate less reliably and may leave an uneven result. Wait for thawed soil before using ground-engaging implements on this field." />
+        <e k="terraLogic_fa_action_frozenDynamic" v="Wait for thaw. Frozen soil raises tillage draft to x%.2f and leaves only %d%% penetration." />
+        <e k="terraLogic_fa_action_good" v="No urgent intervention is visible. Keep traffic gentle and continue the current field practice." />
+        <e k="terraLogic_fa_action_goodDynamic" v="The current consequences do not justify an additional corrective pass. Choose the next operation to suit the crop and avoid unnecessary traffic and heavy combinations." />
+        <e k="terraLogic_fa_action_heavyVehicleDynamic" v="The current combination is heavy for these conditions: up to %.1f t axle load and %.0f kPa ground contact pressure. Wet soil and low resilience make the resulting compaction worse. Reduce the load or reuse existing traffic lanes where possible." />
+        <e k="terraLogic_fa_action_overspeedDynamic" v="The active implement is running at %.0f%% of its rated speed. Overspeed adds wear and damage, can reduce Work Quality and create missed areas; ground tools also demand extra draft." />
+        <e k="terraLogic_fa_action_resilience" v="Soil resilience is low, so every new pass causes damage more easily. Limit traffic, retain living crops and use a varied rotation with cover crops. Alternating shallow- and deep-rooted crops builds resilience faster, while perennial grass also improves it especially well through continuously active roots." />
+        <e k="terraLogic_fa_action_resilienceDynamic" v="Build soil resilience with living crops, alternating shallow- and deep-rooted crops, cover crops or grass and less intensive tillage. The deeper the operation, the more strongly it disturbs resilience, so avoid unnecessary ploughing and subsoiling." />
+        <e k="terraLogic_fa_action_resilienceWatchDynamic" v="Soil resilience is moderate. An annually varied rotation with crops that root at different depths, cover crops, perennial grass and reduced tillage makes future traffic less damaging." />
+        <e k="terraLogic_fa_action_rollerRescueDynamic" v="Improve seed contact now: a healthy field roller at recommended speed can raise average Sowing Quality by up to %.1f points and recover about %.1f%% yield potential. It cannot replace seeds already missed." />
+        <e k="terraLogic_fa_action_rollerRescueCurrentDynamic" v="Improve seed contact now: a healthy roller could recover up to %.1f Sowing Quality points (about %.1f%% yield). The attached roller's condition limits the current setup to about %.1f points (%.1f%% yield). Missing seed cannot be replaced." />
+        <e k="terraLogic_fa_action_rotationRepeatedDynamic" v="A similar crop group follows itself on %.0f%% of the field. Repetition receives only part of the normal resilience gain; rotate to a different rooting group or establish a cover crop next." />
+        <e k="terraLogic_fa_action_coverCropDynamic" v="Cover crop active: its living roots receive an additional resilience and soil-structure bonus while the crop develops. Keep it established until the next planned operation." />
+        <e k="terraLogic_fa_action_coverCropRepeatedDynamic" v="Cover crop active: its additional root bonus partly offsets this repeated crop group. For the following cash crop, change to a different rooting group to regain the full rotation-diversity benefit." />
+        <e k="terraLogic_fa_action_rotationDiverseDynamic" v="A diverse crop-group transition is active on %.0f%% of the field and is building resilience more effectively than a repeated group." />
+        <e k="terraLogic_fa_action_seedbedDirectDynamic" v="Prepare a more even seedbed or use a suitable direct drill. Precision sowing would currently lose about %.1f%% Work Quality with %.1f%% soil-related missed areas. Use a shallow cultivator, disc harrow or power harrow only where the displayed tilth or evenness requires it." />
+        <e k="terraLogic_fa_action_seedbedDynamic" v="Prepare a more even, suitably crumbled seedbed. Precision sowing would currently lose about %.1f%% Work Quality with %.1f%% soil-related missed areas. Use a shallow cultivator, disc harrow or power harrow only where the displayed tilth or evenness requires it. A roller is a finishing pass after sowing, not a substitute for seedbed preparation." />
+        <e k="terraLogic_fa_ui_seedQualityRollerFormat" v="%s | Roller +%.1f" />
+        <e k="terraLogic_fa_action_continuityDynamic" v="Recent intensive tillage interrupted the biological soil structure. Keep living roots and avoid further deep or intensive soil disturbance while it rebuilds. If another operation is necessary, a shallower working depth usually disturbs continuity less." />
+        <e k="terraLogic_fa_action_surface" v="Surface compaction affects a substantial part of this field. A normal cultivator can relieve moderate compaction; reserve a plough or spader for severe, widespread damage when inversion fits your crop plan. A shallow cultivator, disc harrow or power harrow mainly prepares the seedbed and only softens heavy tracks." />
+        <e k="terraLogic_fa_action_surfaceDynamic" v="Loosen the upper soil: its compaction costs about %.1f%% yield. A cultivator is suitable; plough or spade only if the planned crop and field condition require deeper inversion." />
+        <e k="terraLogic_fa_action_surfaceTracks" v="Only a limited part of the field contains severely compacted wheel tracks while the remaining topsoil is workable. Do not cultivate the entire field again for that reason alone. Reduce axle load, use the widest practical tires, reuse the same lanes and repair them during the next tillage operation with an implement of suitable working depth." />
+        <e k="terraLogic_fa_action_surfaceTracksDynamic" v="There are compacted wheel tracks on %d%% of the checked field area. Correct them during the next suitable cultivation instead of working the whole field only for a few tracks." />
+        <e k="terraLogic_fa_action_trafficDynamic" v="Current topsoil conditions multiply the traffic response by x%.2f. Keep heavy vehicles and implements on existing lanes where possible." />
+        <e k="terraLogic_fa_action_uneven" v="The field is uneven, so precision seeders cannot hold depth and placement as consistently. Level the seedbed with a suitable cultivator before seeding; a soil roller after seeding can settle the surface but does not replace proper seedbed preparation." />
+        <e k="terraLogic_fa_action_wet" v="The surface soil is very wet. Vehicle traffic compacts it more strongly, while ploughs, cultivators, harrows and seeders can smear the seedbed. Let it dry if the schedule allows and avoid unnecessary passes." />
+        <e k="terraLogic_fa_action_wetDynamic" v="Let the topsoil drain if possible. Its current traffic-response factor is x%.2f, while tillage achieves only %d%% of its usual result." />
+        <e k="terraLogic_fa_action_workQuality" v="At least one important field operation was completed with reduced quality and can still affect the harvest. Before the next pass, check speed, implement condition, soil and weather." />
+        <e k="terraLogic_fa_action_workQualityDynamic" v="Earlier fieldwork has reduced final yield potential by about %.1f%%. Check the Work Quality page for the operation involved." />
+        <e k="terraLogic_fa_action_yieldGainDynamic" v="Healthy roots, accurate fieldwork and resilient soil currently raise TerraLogic yield to %.1f%% of the Vanilla/Precision Farming result." />
+        
+        <!-- Planner interface -->
+        <e k="terraLogic_fa_planner_ui_title" v="Planner" />
+        <e k="terraLogic_fa_planner_ui_achievableQuality" v="Achievable work quality" />
+        <e k="terraLogic_fa_planner_ui_additionalAttachments" v="(+%d more)" />
+        <e k="terraLogic_fa_planner_ui_after" v="After" />
+        <e k="terraLogic_fa_planner_ui_attachImplement" v="No supported implement is attached." />
+        <e k="terraLogic_fa_planner_ui_before" v="Current" />
+        <e k="terraLogic_fa_planner_ui_catalogHint" v="Use the arrows to compare the types of implement supported by TerraLogic." />
+        <e k="terraLogic_fa_planner_ui_class_baler" v="Baler" />
+        <e k="terraLogic_fa_planner_ui_class_cultivator" v="Cultivator" />
+        <e k="terraLogic_fa_planner_ui_class_directDrill" v="Direct drill" />
+        <e k="terraLogic_fa_planner_ui_class_discHarrow" v="Disc harrow" />
+        <e k="terraLogic_fa_planner_ui_class_fertilizerSpreader" v="Fertilizer spreader" />
+        <e k="terraLogic_fa_planner_ui_class_hoe" v="Hoe" />
+        <e k="terraLogic_fa_planner_ui_class_liquidSprayer" v="Sprayer" />
+        <e k="terraLogic_fa_planner_ui_class_loaderWagon" v="Loader wagon" />
+        <e k="terraLogic_fa_planner_ui_class_manureSpreader" v="Manure spreader" />
+        <e k="terraLogic_fa_planner_ui_class_mower" v="Mower" />
+        <e k="terraLogic_fa_planner_ui_class_mulcher" v="Mulcher" />
+        <e k="terraLogic_fa_planner_ui_class_plow" v="Plow" />
+        <e k="terraLogic_fa_planner_ui_class_powerHarrow" v="Power harrow" />
+        <e k="terraLogic_fa_planner_ui_class_precisionPlanter" v="Precision planter" />
+        <e k="terraLogic_fa_planner_ui_class_precisionDirectDrill" v="Precision direct planter" />
+        <e k="terraLogic_fa_planner_ui_class_roller" v="Field roller" />
+        <e k="terraLogic_fa_planner_ui_class_shallowCultivator" v="Shallow cultivator" />
+        <e k="terraLogic_fa_planner_ui_class_slurryApplicator" v="Slurry applicator" />
+        <e k="terraLogic_fa_planner_ui_class_slurryInjector" v="Slurry disc injector" />
+        <e k="terraLogic_fa_planner_ui_class_slurrySpreader" v="Slurry spreader" />
+        <e k="terraLogic_fa_planner_ui_class_sowingMachine" v="Sowing machine" />
+        <e k="terraLogic_fa_planner_ui_class_spader" v="Spader" />
+        <e k="terraLogic_fa_planner_ui_class_stonePicker" v="Stone picker" />
+        <e k="terraLogic_fa_planner_ui_class_subsoiler" v="Subsoiler" />
+        <e k="terraLogic_fa_planner_ui_class_tedder" v="Tedder" />
+        <e k="terraLogic_fa_planner_ui_class_weeder" v="Mechanical weeder" />
+        <e k="terraLogic_fa_planner_ui_class_windrower" v="Windrower" />
+        <e k="terraLogic_fa_planner_ui_currentFactors" v="CURRENT CONDITIONS" />
+        <e k="terraLogic_fa_planner_ui_delta" v="Change" />
+        <e k="terraLogic_fa_planner_ui_disclaimer" v="The estimate assumes one pass at the recommended speed. The actual result also depends on your equipment, its condition and your driving." />
+        <e k="terraLogic_fa_planner_ui_draftFactor" v="Pulling resistance" />
+        <e k="terraLogic_fa_planner_ui_dropouts" v="Expected missed areas" />
+        <e k="terraLogic_fa_planner_ui_efficientPasses" v="Efficient coverage" />
+        <e k="terraLogic_fa_planner_ui_enterVehicle" v="Enter a vehicle and attach a supported implement for a setup analysis." />
+        <e k="terraLogic_fa_planner_ui_expected" v="EXPECTED RESULT" />
+        <e k="terraLogic_fa_planner_ui_factors" v="Moisture limitation: %.0f%%&#10;Frost limitation: %.0f%%&#10;Ground penetration: %.0f%%" />
+        <e k="terraLogic_fa_planner_ui_group_cropCare" v="Crop care" />
+        <e k="terraLogic_fa_planner_ui_group_grassHarvest" v="Other" />
+        <e k="terraLogic_fa_planner_ui_group_other" v="Other" />
+        <e k="terraLogic_fa_planner_ui_group_soilWork" v="Soil work" />
+        <e k="terraLogic_fa_planner_ui_group_sowing" v="Sowing" />
+        <e k="terraLogic_fa_planner_ui_implementMass" v="Attached equipment mass" />
+        <e k="terraLogic_fa_planner_ui_noSoilChange" v="The selected implement does not directly work the soil. The tractor and implement wheels can still cause surface and deep compaction." />
+        <e k="terraLogic_fa_planner_ui_fieldRequired" v="Vehicle data remains available. Stand on a field to calculate soil effects, traffic consequences and field-specific recommendations." />
+        <e k="terraLogic_fa_planner_ui_operation" v="FIELD OPERATION" />
+        <e k="terraLogic_fa_planner_ui_oversized" v="This vehicle has a large power reserve while the wheel-load risk is already elevated. A lighter vehicle with sufficient power can reduce unnecessary compaction." />
+        <e k="terraLogic_fa_planner_ui_passFormat" v="%d lanes | %.1f km" />
+        <e k="terraLogic_fa_planner_ui_axleLoad" v="Maximum axle load" />
+        <e k="terraLogic_fa_planner_ui_groundPressure" v="Ground contact pressure" />
+        <e k="terraLogic_fa_planner_ui_recommendedSpeed" v="Recommended speed" />
+        <e k="terraLogic_fa_planner_ui_setup" v="CURRENT SETUP" />
+        <e k="terraLogic_fa_planner_ui_setupSuitable" v="The setup is plausible for the current field conditions. Keep to the recommended speed and avoid repeated traffic." />
+        <e k="terraLogic_fa_planner_ui_soil_aggregateSize" v="Tilth" />
+        <e k="terraLogic_fa_planner_ui_soil_deepCompaction" v="Deep compaction" />
+        <e k="terraLogic_fa_planner_ui_soil_resilience" v="Resilience" />
+        <e k="terraLogic_fa_planner_ui_soil_roughness" v="Evenness" />
+        <e k="terraLogic_fa_planner_ui_soil_surfaceCompaction" v="Surface compaction" />
+        <e k="terraLogic_fa_planner_ui_soilAfterPass" v="After one pass" />
+        <e k="terraLogic_fa_planner_ui_soilEffectiveness" v="Expected soil-working result" />
+        <e k="terraLogic_fa_planner_ui_stoneRiskMower" v="Stone damage: visible stones can strike the mower; uneven ground increases exposure, and speed increases impact severity." />
+        <e k="terraLogic_fa_planner_ui_stoneRiskPicker" v="Stone effect: this pass removes visible stones, but hidden stones can still affect later soil-engaging work." />
+        <e k="terraLogic_fa_planner_ui_stoneRiskSurface" v="Stone damage: this implement can contact visible field stones. Stone size, speed and rotating parts determine impact damage." />
+        <e k="terraLogic_fa_planner_ui_stoneRiskTillage" v="Stone damage: working depth can contact hidden stones; stone size, speed and rotating parts determine impact damage." />
+        <e k="terraLogic_fa_planner_ui_mechanicalLoadCompact" v=" · L %.0f/%.0f%%" />
+        <e k="terraLogic_fa_planner_ui_mechanicalOverload" v="The estimated mechanical load at the recommended speed and under the current soil conditions is above the warning threshold. Reduce speed before the structural limit is exceeded." />
+        <e k="terraLogic_fa_planner_ui_totalMass" v="Combination mass" />
+        <e k="terraLogic_fa_planner_ui_tractorMass" v="Vehicle weight" />
+        <e k="terraLogic_fa_planner_ui_unsupportedTrafficOnly" v="No supported TerraLogic implement is attached. Vehicle traffic is still analysed." />
+        <e k="terraLogic_fa_planner_ui_trafficElevated" v="Compaction risk is elevated. Avoid overlap and unnecessary turns on the field. Wide tires help distribute the load." />
+        <e k="terraLogic_fa_planner_ui_trafficHigh" v="Current axle load or ground contact pressure creates a high compaction risk. Reduce load, use suitable tires or wait for drier soil where practical." />
+        <e k="terraLogic_fa_planner_ui_underpowered" v="The tractor may not have enough power for this implement under the current conditions. Reduce speed or use a tractor with sufficient power." />
+        <e k="terraLogic_fa_planner_ui_workWidth" v="Working width" />
+        
+        <!-- Planner implement descriptions -->
+        <e k="terraLogic_fa_planner_desc_baler" v="Collects material and produces bales. Uneven ground and excessive speed can cause the pickup to leave material behind. These losses affect the collected crop directly rather than the soil or the fieldwork yield estimate." />
+        <e k="terraLogic_fa_planner_desc_cultivator" v="Relieves moderate surface compaction, breaks coarse clods and levels the seedbed. Repeated passes can make the soil too fine. Working too fast weakens the loosening effect and can leave the surface both overworked and uneven." />
+        <e k="terraLogic_fa_planner_desc_directDrill" v="Places seed without full-width cultivation and therefore preserves resilience and avoids an extra tillage pass. It tolerates a rougher seedbed better than conventional or precision sowing, but compaction, moisture, frost, wear and excessive speed can still reduce placement quality and create missed seed." />
+        <e k="terraLogic_fa_planner_desc_discHarrow" v="Works the upper soil, breaks clods and leaves a fairly level seedbed. Repeated or excessively fast passes can make the soil too fine, even when the surface still appears smooth." />
+        <e k="terraLogic_fa_planner_desc_fertilizerSpreader" v="Spreads granular fertilizer. Excess speed, poor implement condition and uneven ground can reduce distribution quality and leave untreated areas. The spreader does not directly work the soil, but its wheels still contribute to compaction." />
+        <e k="terraLogic_fa_planner_desc_hoe" v="Controls weeds between crop rows and lightly loosens the surface. It needs accurate guidance and reasonably even ground. Excessive speed increases untreated areas and leaves a less consistent result." />
+        <e k="terraLogic_fa_planner_desc_liquidSprayer" v="Applies liquid fertilizer or crop protection products. Excess speed and poor condition can reduce coverage. Rain during herbicide spraying can strongly reduce weed control; simulated soil unevenness does not reduce spraying quality. The sprayer does not work the soil directly, but its wheels can compact it." />
+        <e k="terraLogic_fa_planner_desc_loaderWagon" v="Collects material from swaths. Uneven ground and excessive speed can cause the pickup to leave material behind. The vehicle combination can also be heavy enough to create substantial surface and deep compaction." />
+        <e k="terraLogic_fa_planner_desc_manureSpreader" v="Spreads solid manure across the field. Excess speed and uneven ground can reduce distribution quality and leave missed areas. Its own wheels and the tractor can add substantial compaction when the combination is heavy." />
+        <e k="terraLogic_fa_planner_desc_mower" v="Cuts standing grass. Uneven ground reduces cutting consistency and brings the mower into contact with visible stones more often. Excessive speed can create unmown gaps." />
+        <e k="terraLogic_fa_planner_desc_mulcher" v="Processes crop residue and slightly improves the soil surface. Excess speed and poor ground contact can leave unmulched areas and a rougher result. Stones increase wear and damage especially on powered mulchers, regardless of driving speed." />
+        <e k="terraLogic_fa_planner_desc_plow" v="Turns and strongly loosens the upper soil. A normal pass leaves coarse clods and a rough surface and reduces long-term resilience. Working too fast greatly weakens the loosening effect and can leave the soil both overly broken up and very uneven." />
+        <e k="terraLogic_fa_planner_desc_powerHarrow" v="Creates a very fine and level seedbed and can relieve a small amount of surface compaction. Repeated passes can overwork the soil. At excessive speed the rotors have less effective contact time, so the result becomes less consistent and more uneven." />
+        <e k="terraLogic_fa_planner_desc_precisionPlanter" v="Places individual seeds very precisely and is therefore especially sensitive to surface compaction, unsuitable tilth and uneven ground. Moisture, frost, wear and excessive speed can quickly reduce placement quality and create missed plants." />
+        <e k="terraLogic_fa_planner_desc_precisionDirectDrill" v="Combines precision placement with direct planting. It tolerates residue and an uncultivated surface better than a conventional precision planter, but still needs manageable compaction, reliable opener contact and controlled speed." />
+        <e k="terraLogic_fa_planner_desc_roller" v="Levels and firms a loose or cloddy seedbed, but also increases surface compaction. After sowing it can improve seed-to-soil contact and recover part of a correctable placement loss. It cannot replace missing seed. Excess speed makes the roller lose uniform contact, with the effect declining earlier on uneven ground." />
+        <e k="terraLogic_fa_planner_desc_shallowCultivator" v="Levels and refines the seedbed and provides only modest relief from surface compaction. It is not a replacement for deeper cultivation. Working too fast reduces its useful effect and can create an unnecessarily fine, uneven finish." />
+        <e k="terraLogic_fa_planner_desc_slurryApplicator" v="Applies slurry in narrow bands. Speed and an uneven surface can disrupt even distribution and leave isolated untreated areas. The implement does not work the soil directly, but the vehicle and implement wheels still cause compaction." />
+        <e k="terraLogic_fa_planner_desc_slurryInjector" v="Cuts narrow slots with ground-driven discs and places slurry below the surface. It creates modest draft and wear but does not cultivate the full working width. Excess speed or poor penetration can reduce placement quality." />
+        <e k="terraLogic_fa_planner_desc_slurrySpreader" v="Spreads slurry over the surface. Excessive speed and uneven ground can disrupt even distribution and leave isolated untreated areas. It does not work the soil directly, but the usually heavy combination can cause significant compaction." />
+        <e k="terraLogic_fa_planner_desc_sowingMachine" v="Places seed into a prepared seedbed. Surface compaction, tilth, evenness, moisture, frost, wear and speed all affect placement quality and missed seed. Its openers make only small changes to the soil itself." />
+        <e k="terraLogic_fa_planner_desc_spader" v="Strongly loosens and mixes the upper soil and can relieve a limited amount of deeper compaction. It leaves a moderately rough surface. Working too fast reduces the loosening and mixing effect and makes the finish rougher." />
+        <e k="terraLogic_fa_planner_desc_stonePicker" v="Removes visible stones and lightly disturbs the surface. Excess speed can leave stones behind, reduce the soil-working result and increase the chance of damaging impacts with hidden stones." />
+        <e k="terraLogic_fa_planner_desc_subsoiler" v="Breaks deep compaction without turning the whole surface over. It also loosens the upper soil but leaves a noticeably rough finish. Working too fast reduces the deep loosening effect and creates additional surface disturbance." />
+        <e k="terraLogic_fa_planner_desc_tedder" v="Spreads and turns cut material. Uneven ground and excessive speed reduce consistency and can leave grass unturned. The implement does not directly change soil condition, but its wheels still cause compaction." />
+        <e k="terraLogic_fa_planner_desc_weeder" v="Controls weeds with shallow ground contact and slightly works the surface. Uneven, compacted or unsuitable soil can reduce ground contact. Excessive speed increases untreated areas and leaves a rougher result." />
+        <e k="terraLogic_fa_planner_desc_windrower" v="Forms cut material into swaths. Uneven ground and excessive speed can leave an incomplete or irregular swath. The implement does not directly work the soil, but its wheels still cause traffic compaction." />
+        
+        <!-- Planner help texts -->
+        <e k="terraLogic_fa_planner_help_setup_vehicleMass" v="This is the weight of the vehicle being driven, without attached equipment. Fuel, grain and other loads are included where reported by the game. Vehicle weight matters, but its distribution across axles and tires, together with soil moisture and soil type, ultimately determines how deeply and severely the soil is compacted." />
+        <e k="terraLogic_fa_planner_help_setup_equipmentMass" v="This is the combined weight of every connected machine and trailer, including their current load. A two-trailer train therefore includes both trailers. Heavy equipment does not affect every wheel equally; the hitch and support wheels decide where its weight reaches the ground." />
+        <e k="terraLogic_fa_planner_help_setup_combinationMass" v="This is the weight of the complete vehicle train. It helps compare light and heavy setups, but total weight alone does not determine compaction. Axle loads, tire contact, soil moisture and repeated passes are more important at each point on the field." />
+        <e k="terraLogic_fa_planner_help_setup_axleLoad" v="This is the highest estimated load on a single axle in the complete combination. High axle loads are particularly important for deep compaction, even when wide tires or tracks keep the surface contact pressure low. Wet soil, repeated passes and low resilience increase the resulting damage." />
+        <e k="terraLogic_fa_planner_help_setup_groundPressure" v="This is the highest estimated ground contact pressure beneath a tire or track, not tire inflation pressure. It primarily indicates the risk of upper-soil compaction. Wider tires, dual wheels and tracks can reduce contact pressure, while wet soil, repeated passes and low resilience increase the resulting damage." />
+        <e k="terraLogic_fa_planner_help_setup_width" v="This is the detected working width of the current machine or implement. A wider working width usually needs fewer lanes across the field and can reduce total traffic, although every wheel still compacts the soil along its own path." />
+        <e k="terraLogic_fa_planner_help_setup_coverage" v="This estimates the number of efficient parallel lanes and the working distance needed for the selected field. Overlap, repeated manoeuvring, awkward boundaries and extra headland turns increase the real distance and expose more soil to traffic." />
+        <e k="terraLogic_fa_planner_help_setup_traffic" v="This is a comparative risk assessment for the current vehicle combination on this field. Ground contact pressure and axle load are weighted by soil type, moisture, resilience and frost, separately for the two depths. The higher risk determines the label. It is not a prediction of the compaction increase from a complete operation. Actual tracks, existing compaction and repeated passes matter." />
+        <e k="terraLogic_fa_planner_help_valueVehicleMass" v="Vehicle weight: %s" />
+        <e k="terraLogic_fa_planner_help_valueEquipmentMass" v="Equipment weight: %s" />
+        <e k="terraLogic_fa_planner_help_valueCombinationMass" v="Combination weight: %s" />
+        <e k="terraLogic_fa_planner_help_valueAxleLoad" v="Maximum axle load: %s" />
+        <e k="terraLogic_fa_planner_help_valueGroundPressure" v="Ground contact pressure: %s" />
+        <e k="terraLogic_fa_planner_help_valueWidth" v="Working width: %s" />
+        <e k="terraLogic_fa_planner_help_valueCoverage" v="Efficient coverage: %s" />
+        <e k="terraLogic_fa_planner_help_valueTraffic" v="Compaction risk: %s" />
+        <e k="terraLogic_fa_planner_help_draft" v="This value shows how the current soil changes the pulling resistance of the selected implement. Soil type, compaction, tilth, moisture and frost are included. x1.00 means normal resistance; values above x1.00 mean increased resistance. Working width and depth are already included in the machine's normal power requirement. A dash means TerraLogic does not alter draft for this implement type." />
+        <e k="terraLogic_fa_planner_help_dropout" v="This estimates misses expected at normal shop speed on the current soil. The adjacent recommended speed is already adapted to the seedbed. Unevenness or unsuitable tilth does not delete seed by itself; it lowers the speed at which openers can still follow reliably. Below that limit, contact-related misses can disappear completely. Severe wear and frozen soil remain additional risks." />
+        <e k="terraLogic_fa_planner_help_effectiveness" v="This shows how much of the implement's usual soil-working result can be achieved under the current moisture and frost conditions. One hundred percent means the implement can work normally; it does not mean that one pass will make every soil value perfect. A dash means the selected implement does not directly work the soil." />
+        <e k="terraLogic_fa_planner_help_load" v="The first value is the highest estimated axle load in the complete combination; the second is the highest estimated ground contact pressure beneath one tire or track, not tire inflation pressure. Axle load is especially important for deep compaction, while high ground contact pressure mainly damages the topsoil. Wet conditions and low resilience intensify both effects." />
+        <e k="terraLogic_fa_planner_help_quality" v="This is the best Work Quality the selected operation can currently achieve at the recommended speed with a well-maintained implement. Soil condition, moisture and frost are already included. Excess speed, wear and stone impacts can make the actual result worse." />
+        <e k="terraLogic_fa_planner_help_speed" v="This is the soil-adjusted recommended speed for the selected implement class. It is derived from the implement's realistic reference speed and lowered in difficult conditions. Staying below it can remove soil-contact misses; wear, frost or extreme conditions may still cause additional losses." />
+        <e k="terraLogic_help_example" v="Practical example" />
+        <e k="terraLogic_help_welcome_example" v="Before working, open Field Analysis and check soil conditions and possible operations. While driving, watch speed, Work Quality, load and warnings in the work HUD. The green speed range is guidance: soil, moisture and frost may require slower work." />
+        <e k="terraLogic_help_displays_example" v="A narrow red strip on the surface-compaction map may be a single wheel track while the field average remains acceptable. Inspect it with the minimap or local HUD before cultivating the entire field." />
+        <e k="terraLogic_help_soil_example" v="After ploughing, surface compaction may be low while tilth is coarse and evenness is poor. A suitable seedbed pass with a cultivator, shallow cultivator or power harrow breaks the clods and levels the field. Unnecessary additional passes may make the soil too fine and can reduce sowing quality." />
+        <e k="terraLogic_help_traffic_example" v="An almost empty combine on dry soil may leave only modest tracks. The same combine with a full grain tank on wet soil can create strong local surface and deep compaction. Unloading earlier and storing the crop away from the field helps reduce compaction. Permanent lanes for the transfer vehicle can also contain damage, but require planning and compatible working widths." />
+        <e k="terraLogic_help_tillage_example" v="If only the topsoil is compacted while the subsoil remains relatively loose, a shallow-working cultivator can address the problem with fewer negative consequences for the biological structure. If Field Analysis instead shows widespread deep compaction, using a subsoiler may be worthwhile even though such deep disturbance can slow long-term natural recovery." />
+        <e k="terraLogic_help_seeding_example" v="A precision planter must slow down on a rough ploughed surface so its openers can follow the ground. Below the displayed soil-safe speed, contact-related misses can disappear completely. A prepared seedbed permits shop speed; a direct drill tolerates rougher surfaces better but does not remove compaction. A suitable roller can improve only loose, coarse or rough seed contact and the corresponding share of Sowing Quality. Missing seed, wear and overspeed placement errors remain." />
+        <e k="terraLogic_help_speed_example" v="A plough pulled too fast may loosen less effectively and leave a poorer seedbed. At extreme speed its effective working depth drops sharply. A visible ploughed texture then does not mean the soil was adequately loosened. Check the soil maps and prepare the seedbed if needed before sowing." />
+        <e k="terraLogic_help_draft_example" v="The same cultivator generally pulls more easily in loamy sand than in silty clay. If the clay is also compacted, frozen and worked with worn points, draft rises further. A very heavy high-power tractor may maintain speed, but its axle load can create exactly the deep compaction that makes later work and crop root development harder." />
+        <e k="terraLogic_help_weather_example" v="After several hours of rain, the surface may already be wet enough to make traffic risky while the root zone is still absorbing water. Waiting for the upper layer to dry protects the seedbed although the crop benefits from water below. In winter, a sunny afternoon may thaw the surface while the deeper layer remains cold and frozen." />
+        <e k="terraLogic_help_recovery_example" v="Regularly changing crops, growing cover crops or keeping grass on a field for several years accelerates natural recovery and improves resilience. Annual ploughing can solve an immediate surface problem such as compaction, but disturbs the biological soil structure and slows natural processes. Excessive subsoiling and ploughing can even reduce resilience, making the soil less resistant to compaction." />
+        <e k="terraLogic_help_work_example" v="A seeder can store 80 percent placement quality and also leave visible unsown patches. The stored value describes seed-placement quality, while no plants exist at all in the gaps. A loader wagon driven too quickly instead leaves part of the swath behind; that loss is immediately visible and directly reduces the collected amount." />
+        <e k="terraLogic_help_yield_example" v="If soil is healthy during the first growth phase but is later compacted by care traffic in wet conditions, yield is affected proportionally. TerraLogic simulates crop growth and yield from water capacity, moisture and compaction across the complete growth period. Yield loss is not judged only from soil condition at harvest." />
+        <e k="terraLogic_help_damage_example" v="A mower on an uneven field is more exposed to visible stones because the cutterbar follows the surface closely. A deep cultivator may instead strike a simulated underground stone although the surface looks clean. A powered rotary tool retains impact energy through its rotation. Structural overload is evaluated separately from stone impacts and only from the drawbar load actually measured by the game." />
+        <e k="terraLogic_help_compat_example" v="With Precision Farming active, two areas of one field can have different soil types and therefore different draft and moisture responses. Without Precision Farming, both use TerraLogic's default soil. If More Realistic is installed, choose in TerraLogic's settings which mod controls draft. CAUTION: More Realistic may override TerraLogic's draft balancing in some situations." />
+        <e k="terraLogic_help_problems_example" v="If Overview warns about surface compaction, first open its explanation and compare the field average with the soil map. A few red wheel tracks call for better traffic management and perhaps correction during the next planned cultivation; a widespread high value may justify a full-field pass. Diagnose the scale before choosing the machine." />
+        <e k="terraLogic_workHudQuality" v="WORK QUALITY" />
+        <e k="terraLogic_workHudPickup" v="MATERIAL PICKUP" />
+        <e k="terraLogic_workHudRecommended" v="NOMINAL RANGE" />
+        <e k="terraLogic_workHudLoad" v="MECHANICAL LOAD" />
+        <e k="terraLogic_workHudLoadUnavailable" v="MECHANICAL LOAD" />
+        <e k="terraLogic_workHudWearNormal" v="WEAR RATE NORMAL" />
+        <e k="terraLogic_workHudWearIncreased" v="WEAR RATE INCREASED" />
+        <e k="terraLogic_workHudWearHigh" v="WEAR RATE HIGH" />
+        <e k="terraLogic_workHudWearExtreme" v="WEAR RATE EXTREME" />
+        <e k="terraLogic_workHudBrokenTitle" v="IMPLEMENT BROKEN" />
+        <e k="terraLogic_workHudBrokenDetail" v="The implement no longer works. Repair it before continuing." />
+        <e k="terraLogic_workHudSurfaceStoneTitle" v="STONE IMPACT" />
+        <e k="terraLogic_workHudUndergroundStoneTitle" v="UNDERGROUND STONE IMPACT" />
+        <e k="terraLogic_workHudStoneDetail" v="The impact caused %.1f%% implement damage." />
+        <e k="terraLogic_workHudOverloadTitle" v="SEVERE MECHANICAL LOAD" />
+        <e k="terraLogic_workHudOverloadDetail" v="Overload is causing continuous structural damage. Reduce speed." />
+        <e k="terraLogic_workHudHighLoadTitle" v="HIGH MECHANICAL LOAD" />
+        <e k="terraLogic_workHudHighLoadDetail" v="The implement is overloaded and wears faster. Reduce speed to ease the load." />
+        <e k="terraLogic_workHudMaterialLossTitle" v="MATERIAL LOSS" />
+        <e k="terraLogic_workHudMaterialLossDetail" v="Material may remain on the field" />
+        <e k="terraLogic_workHudUnevenSeedbedTitle" v="UNEVEN SEEDBED" />
+        <e k="terraLogic_workHudUnevenSeedbedDetail" v="Placement quality reduced" />
+        <e k="terraLogic_workHudFrozenTitle" v="SOIL FROZEN" />
+        <e k="terraLogic_workHudFrozenDetail" v="Frozen soil increases pulling resistance. Wait for thawing if the tractor struggles." />
+        <e k="terraLogic_workHudWetTitle" v="WET SOIL" />
+        <e k="terraLogic_workHudWetDetail" v="Compaction risk increased" />
+        <e k="terraLogic_workHudCompactionTitle" v="HIGH COMPACTION RISK" />
+        <e k="terraLogic_workHudCompactionDetail" v="Reduce axle load or ground contact pressure" />
+        <e k="terraLogic_workHudOverspeedTitle" v="OVERSPEED" />
+        <e k="terraLogic_workHudConditionCauseTitle" v="IMPLEMENT WORN" />
+        <e k="terraLogic_workHudSoilCauseTitle" v="UNSUITABLE SOIL" />
+        <e k="terraLogic_workHudUnevenGroundTitle" v="UNEVEN GROUND" />
+        <e k="terraLogic_workHudPickupDropoutDetail" v="Material is being left behind" />
+        <e k="terraLogic_workHudWorkDropoutDetail" v="Work gaps are being created" />
+        <e k="terraLogic_workHudQualityCauseDetail" v="Work quality reduced" />
+        <e k="terraLogic_workHudConditionActionDetail" v="Slowing down limits the loss; repair removes the cause." />
+        <e k="terraLogic_workHudSoilActionDetail" v="Soil conditions are causing missed areas. Check the recommended speed and soil conditions in the Planner." />
+        <e k="terraLogic_workHudOverspeedQualityDetail" v="Speed reduces work quality" />
+        <e k="terraLogic_workHudConditionQualityDetail" v="Wear reduces work quality" />
+        <e k="terraLogic_workHudSoilQualityDetail" v="Soil conditions limit the result. Use the Planner to check whether another operation would help." />
+        <e k="terraLogic_workHudFrozenQualityDetail" v="Frozen soil reduces penetration and quality" />
+        <e k="terraLogic_workHudWetQualityDetail" v="Wet soil reduces penetration and placement" />
+        <e k="terraLogic_workHudDryTitle" v="DRY SOIL" />
+        <e k="terraLogic_workHudDryQualityDetail" v="Dry soil reduces penetration and placement" />
+        <e k="terraLogic_workHudUnevenQualityDetail" v="Ground following and placement are reduced" />
+        <e k="terraLogic_workHudCoarseTitle" v="COARSE SEEDBED" />
+        <e k="terraLogic_workHudCoarseDetail" v="Large clods reduce consistent placement" />
+        <e k="terraLogic_workHudFineTitle" v="OVER-FINE SEEDBED" />
+        <e k="terraLogic_workHudFineDetail" v="Overworked soil reduces placement stability" />
+        <e k="terraLogic_workHudRainTitle" v="RAIN DURING SPRAYING" />
+        <e k="terraLogic_workHudRainQualityDetail" v="Rain reduces herbicide effectiveness. Wait until the rain stops before spraying." />
+        <e k="terraLogic_workHudRainDropoutDetail" v="Rain is leaving gaps in weed control. Wait until the rain stops before spraying." />
+        <e k="terraLogic_workHudSeedingSpeedTitle" v="SEEDING TOO FAST" />
+        <e k="terraLogic_workHudSeedingSpeedQualityDetail" v="Seed placement becomes uneven at this speed." />
+        <e k="terraLogic_workHudSeedingSpeedDropoutDetail" v="Openers lose ground contact; crop gaps are being created." />
+        <e k="terraLogic_workHudPickupSpeedTitle" v="PICKUP TOO FAST" />
+        <e k="terraLogic_workHudPickupSpeedQualityDetail" v="Material pickup becomes unreliable at this speed." />
+        <e k="terraLogic_workHudPickupSpeedDropoutDetail" v="The pickup is leaving material on the field." />
+        <e k="terraLogic_workHudHaySpeedTitle" v="HAY WORK TOO FAST" />
+        <e k="terraLogic_workHudHaySpeedQualityDetail" v="The swath result becomes uneven at this speed." />
+        <e k="terraLogic_workHudHaySpeedDropoutDetail" v="Material is not being turned or raked completely." />
+        <e k="terraLogic_workHudTillageSpeedTitle" v="SOIL WORK TOO FAST" />
+        <e k="terraLogic_workHudTillageSpeedQualityDetail" v="At this speed the implement has less effect on the soil. Slow down to improve the result." />
+        <e k="terraLogic_workHudTillageSpeedDropoutDetail" v="The implement leaves untreated gaps at this speed. Slow down to work more consistently." />
+        <e k="terraLogic_workHudApplicationSpeedTitle" v="APPLICATION TOO FAST" />
+        <e k="terraLogic_workHudApplicationSpeedQualityDetail" v="Application becomes less even at this speed. Slow down to improve coverage." />
+        <e k="terraLogic_workHudApplicationSpeedDropoutDetail" v="Gaps are appearing in the treated area. Slow down to improve coverage." />
+        <e k="terraLogic_workHudSeedingWearQualityDetail" v="Worn openers reduce seed placement. Repair the seeder." />
+        <e k="terraLogic_workHudSeedingWearDropoutDetail" v="Worn openers are causing crop gaps. Repair the seeder." />
+        <e k="terraLogic_workHudPickupWearQualityDetail" v="Wear makes material pickup unreliable. Repair the implement." />
+        <e k="terraLogic_workHudPickupWearDropoutDetail" v="Wear is leaving material behind. Repair the implement." />
+        <e k="terraLogic_workHudSeedingUnevenQualityDetail" v="The uneven seedbed reduces seed-placement quality." />
+        <e k="terraLogic_workHudSeedingUnevenDropoutDetail" v="Openers lose contact on the uneven seedbed. Slow down or level it." />
+        <e k="terraLogic_workHudPickupUnevenQualityDetail" v="The pickup follows the uneven surface less reliably." />
+        <e k="terraLogic_workHudPickupUnevenDropoutDetail" v="The pickup cannot follow the surface; material remains behind." />
+        <e k="terraLogic_workHudHayUnevenQualityDetail" v="Uneven ground makes the swath result inconsistent." />
+        <e k="terraLogic_workHudHayUnevenDropoutDetail" v="The tines lose contact; material is not fully worked." />
+        <e k="terraLogic_workHudTillageUnevenDetail" v="This very rough surface limits the soil-working result. Check the seedbed before sowing." />
+        <e k="terraLogic_workHudApplicationUnevenDetail" v="Uneven ground makes application less consistent." />
+        <e k="terraLogic_workHudSeedingWetDetail" v="Wet soil smears the furrow and reduces seed placement." />
+        <e k="terraLogic_workHudTillageWetDetail" v="Wet soil smears instead of crumbling cleanly. Let it dry before continuing if possible." />
+        <e k="terraLogic_workHudSeedingDryDetail" v="Openers penetrate unevenly; seed depth becomes inconsistent." />
+        <e k="terraLogic_workHudTillageDryDetail" v="Hard, dry soil limits the soil-working result. Wait for more suitable soil moisture if possible." />
+        <e k="terraLogic_workHudSeedingFrostDetail" v="Openers cannot penetrate reliably; placement and emergence suffer." />
+        <e k="terraLogic_workHudTillageFrostDetail" v="Frozen soil limits penetration and soil loosening. Wait until it has thawed." />
+        <e k="terraLogic_fa_map_title" v="SOIL MAPS" />
+        <e k="terraLogic_fa_map_layers" v="MAP LAYER" />
+        <e k="terraLogic_fa_map_surface" v="Surface compaction" />
+        <e k="terraLogic_fa_map_deep" v="Deep compaction" />
+        <e k="terraLogic_fa_map_tilth" v="Tilth" />
+        <e k="terraLogic_fa_map_evenness" v="Evenness" />
+        <e k="terraLogic_fa_map_resilience" v="Soil resilience" />
+        <e k="terraLogic_fa_map_legendCompaction" v="Low     Moderate     High" />
+        <e k="terraLogic_fa_map_legendTilth" v="Coarse     Crumbly     Too fine" />
+        <e k="terraLogic_fa_map_legendEvenness" v="Even     Moderate     Rough" />
+        <e k="terraLogic_fa_map_legendResilience" v="Low     Moderate     High" />
+        <e k="terraLogic_fa_map_noField" v="Stand on a field and refresh the analysis." />
+        <e k="terraLogic_fa_map_unavailable" v="The soil map is not available." />
+        <e k="terraLogic_fa_map_loading" v="Preparing field map..." />
+        <e k="terraLogic_fa_ui_soilSensitivity" v="Soil susceptibility" />
+        <e k="terraLogic_fa_ui_trafficLayers" v="Top x%.2f / Deep x%.2f" />
+        <e k="terraLogic_fa_help_valueSensitivity" v="Soil susceptibility: %s" />
+        <e k="terraLogic_fa_help_soilSensitivity" v="These factors describe how strongly the current soil conditions modify compaction from traffic, separately for topsoil and subsoil. They include soil type, moisture, resilience and frost. The deep factor also includes the model's lower deep accumulation rate. They multiply the load-dependent response; x1 means no net scaling of that response. They are not probabilities or predicted percentage-point increases. Vehicle load, tires, covered area and existing compaction also determine the actual result. A frozen surface does not protect an unfrozen subsoil in the same way." />
+        <e k="terraLogic_workHudRollerSpeedDetail" v="At this speed the roller presses the soil less evenly. Slow down to improve soil and seed contact." />
+        <e k="terraLogic_workHudRollerWearDetail" v="Wear reduces the rolling effect. Repair the roller to restore its performance." />
+        <e k="terraLogic_workHudRollerWetDetail" v="Wet soil limits the rolling effect. Let it dry before rolling again." />
+        <e k="terraLogic_workHudRollerDryDetail" v="Very dry soil limits the rolling effect. Wait for more suitable soil moisture if possible." />
+        <e k="terraLogic_workHudRollerFrostDetail" v="Frozen soil limits the rolling effect. Wait until the soil has thawed." />
+        <e k="terraLogic_workHudRollerUnevenDetail" v="The roller has a reduced effect on this very rough surface. Check whether seedbed preparation is needed." />
+        <e k="terraLogic_workHudRollerSoilDetail" v="The roller has little effect in these soil conditions. Check in the Planner whether rolling will help." />
+            <e k="terraLogic_fa_ui_estimateNone" v="No active crop - no yield estimate yet." />
+        <e k="terraLogic_fa_ui_estimateHistory" v="Estimate includes growth recorded so far." />
+        <e k="terraLogic_fa_ui_estimatePreview" v="Preliminary estimate using current conditions." />
     </elements>
 </l10n>

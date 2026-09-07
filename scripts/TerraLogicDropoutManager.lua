@@ -6,7 +6,7 @@
     Unauthorized copying, modification, or redistribution is prohibited
     except where expressly permitted by the copyright owner.
 
-    Source fingerprint: TMW-TL-DROP-1.200114
+    Source fingerprint: TMW-TL-DROP-1.200115
 ]]
 
 -- Encapsulated work-quality/dropout model. Game-specific density-map writes
@@ -15,7 +15,7 @@
 TerraLogicDropoutManager = {}
 OverSpeedDamageDropoutManager = TerraLogicDropoutManager
 -- Numeric source signature only; it is deliberately excluded from gameplay math.
-TerraLogicDropoutManager.SOURCE_FINGERPRINT = 1.200114
+TerraLogicDropoutManager.SOURCE_FINGERPRINT = 1.200115
 
 TerraLogicDropoutManager.PROFILES = {
     seed = {
@@ -26,8 +26,11 @@ TerraLogicDropoutManager.PROFILES = {
         damageThresholdShift = 0.00,
         fallbackMinimumThresholdRatio = 0.75,
         overspeedReferenceRatio = 1.25,
-        overspeedPenaltyAtReference = 0.10,
-        overspeedLinearPenaltyPerExcess = 0.50,
+        -- True missing seed begins only above the advertised shop speed and
+        -- grows more slowly than placement-quality loss. At +10% this requests
+        -- about 2.5% physical gaps; at +25% about 9%, before overlap effects.
+        overspeedPenaltyAtReference = 0.045,
+        overspeedLinearPenaltyPerExcess = 0.18,
         overspeedExponent = 2.00,
         patternLaneWidthM = 0.75,
         -- The fruit density map and slightly shifting WorkArea edges can hide
@@ -664,15 +667,13 @@ TerraLogicDropoutManager.PROFILES = {
             -- blocks. At low coverage this yields roughly one well-separated
             -- spot per block instead of hash clusters following plow geometry.
             visualStratificationSize = 3,
-            -- Surface-quality degradation. Between realistic and shop speed
-            -- an increasing fraction of isolated cells keeps the cultivated
-            -- texture while its original PLOW_LEVEL is restored immediately.
-            -- It therefore looks poorly turned without becoming a gameplay
-            -- dropout. True missing plow work starts only above shop speed.
-            twistedFractionAtShopSpeed = 0.10,
+            -- Normal work up to shop speed remains visually undisturbed, in
+            -- agreement with the shared 100-percent speed-quality component.
+            -- Texture degradation and true missing work start above shop speed.
+            twistedFractionAtShopSpeed = 0.00,
             maximumTwistedFraction = 0.75,
-            -- A light warning starts above realistic speed, while the much
-            -- smaller cells prevent that warning from dominating the field.
+            -- Retained for the normalized transition helper; with a zero shop
+            -- fraction it cannot create pre-shop texture degradation.
             frequencyExponentToShop = 1.30,
             -- Above shop speed use a normalized exponential squared curve.
             -- The target is surface coverage, not candidate frequency; the

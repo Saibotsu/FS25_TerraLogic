@@ -1,9 +1,27 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
 <l10n>
     <elements>
+        <e k="terraLogic_fa_planner_ui_resilienceImpact" v="Resilienzbelastung" />
+        <e k="terraLogic_fa_planner_ui_continuityImpact" v="Kontinuitätsstörung" />
+        <e k="terraLogic_fa_impact_strong" v="Stark" />
+        <e k="terraLogic_fa_impact_medium" v="Mittel" />
+        <e k="terraLogic_fa_impact_low" v="Gering" />
+        <e k="terraLogic_fa_impact_none" v="Keine" />
+        <e k="terraLogic_fa_planner_help_resilienceImpact" v="Beschreibt, wie stark dieses Gerät die Bodenresilienz belastet. Bodenresilienz ist die Widerstandsfähigkeit der Bodenstruktur gegen spätere Verdichtung. Bodenzustand, Einstellungen und bearbeitete Fläche bestimmen die tatsächliche Änderung." />
+        <e k="terraLogic_fa_planner_help_continuityImpact" v="Beschreibt, wie stark dieses Gerät die biologische Kontinuität stört. Biologische Kontinuität beschreibt, wie lange sich Wurzeln, Poren und Bodenleben ungestört entwickeln konnten. Nach einer Störung ist die natürliche Erholung zunächst verlangsamt. Je länger der Boden anschließend ungestört bleibt, desto stärker können diese Strukturen die natürliche Erholung und den Aufbau der Bodenresilienz unterstützen. Je stärker der Eingriff, desto länger dauert es, bis die volle Erholungsrate wieder erreicht wird. Bodenzustand, Einstellungen und bearbeitete Fläche bestimmen die tatsächliche Änderung." />
+        <e k="terraLogic_mapUpdateTitle" v="Bodenkarten-Aktualisierung" />
+        <e k="terraLogic_mapUpdateGentle" v="Normal (Standard)" />
+        <e k="terraLogic_mapUpdateFast" v="Schnell" />
+        <e k="terraLogic_mapUpdateHelp" v="Legt fest, wie schnell die Bodenkarten im Einzelspieler und Multiplayer aktualisiert werden. Schnell benötigt mehr Rechenleistung und im Multiplayer zusätzliche Datenübertragung. Wähle Schnell, wenn dein PC beziehungsweise der Server genügend Leistung hat; bei Leistungsproblemen Normal. Im Multiplayer gilt die Einstellung für alle Spieler und kann vom Serveradmin während des Spiels geändert werden. Die Bodenberechnung und der Ertrag bleiben unverändert." />
+        <e k="terraLogic_tutorialModeGuided" v="Einführung und Kontexthinweise" />
+        <e k="terraLogic_tutorialModeContext" v="Nur Kontexthinweise" />
+        <e k="terraLogic_tutorialLibraryAction" v="Öffnen" />
+        <e k="terraLogic_tutorialLibraryTitle" v="Tutorialbibliothek" />
+        <e k="terraLogic_tutorialLibraryTooltip" v="Öffnet den Lernbegleiter nach dem Verlassen dieses Menüs. Alle Themen sind auch bei ausgeschalteten Tutorials verfügbar. Deine Leseposition wird gespeichert." />
         <e k="terraLogic_workQualityTitle" v="ARBEITSQUALITÄT" />
+        <e k="terraLogic_localWorkQualityTitle" v="LOKALE ARBEITSQUALITÄT" />
         <e k="terraLogic_workQualityPlow" v="Pflügen" />
-        <e k="terraLogic_workQualitySoil" v="Bodenbearbeitung" />
+        <e k="terraLogic_workQualitySoil" v="Bodenzustand" />
         <e k="terraLogic_workQualityCultivate" v="Grubbern" />
         <e k="terraLogic_workQualitySeed" v="Aussaat" />
         <e k="terraLogic_workQualityFertilizer" v="Düngung" />
@@ -12,9 +30,10 @@
         <e k="terraLogic_workQualityRoller" v="Walzen" />
         <e k="terraLogic_workQualityMulch" v="Mulchen" />
         <e k="terraLogic_workQualityMower" v="Mähen" />
-        <e k="terraLogic_workQualityYieldFactor" v="TerraLogic-Ertragsfaktor (nach PF/Vanilla)" />
-        <e k="terraLogic_workQualityRemainingVanilla" v="Verbleibender Ertrag von Vanilla" />
-        <e k="terraLogic_workQualityRemainingPF" v="Verbleibender Ertrag von Precision Farming" />
+        <e k="terraLogic_workQualityYieldFactor" v="TerraLogic-Ertragspotenzial" />
+        <e k="terraLogic_workQualityFinalYieldFactor" v="Finales Ertragspotenzial" />
+        <e k="terraLogic_workQualityRemainingVanilla" v="Ertrag nach den Bedingungen des Grundspiels" />
+        <e k="terraLogic_workQualityRemainingPF" v="Ertrag nach den Bedingungen von Precision Farming" />
         <e k="terraLogic_speedHudQuality" v="Arbeitsqualität: %d %%" />
         <e k="terraLogic_speedHudQualityWear" v="Arbeitsqualität: %d %% | Verschleiß: -%d %%" />
         <e k="terraLogic_speedHudQualityWorn" v="Arbeitsqualität (verschlissen): %d %%" />
@@ -26,43 +45,843 @@
         <e k="terraLogic_speedHudQualityUnavailable" v="Arbeitsqualität: -" />
         <e k="terraLogic_speedHudActiveImplements" v="%d Geräte" />
         <e k="terraLogic_settingSection" v="TERRALOGIC" />
-        <e k="terraLogic_settingDraftTitle" v="Zugkraftmodell" />
-        <e k="terraLogic_settingDraftTooltip" v="Legt fest, welcher Mod den Gerätezugwiderstand berechnet. Im Multiplayer kann dies nur ein Server-Admin ändern." />
+        <e k="terraLogic_settingDraftTitle" v="Berechnung des Zugwiderstands" />
+        <e k="terraLogic_settingDraftTooltip" v="Legt fest, ob TerraLogic oder More Realistic die benötigte Zugleistung für Bodenbearbeitungsgeräte anpasst. Im Multiplayer kann dies nur ein Server-Admin ändern." />
         <e k="terraLogic_settingDraftTerraLogic" v="TerraLogic" />
         <e k="terraLogic_settingDraftMR" v="More Realistic" />
-        <e k="terraLogic_settingPhysicalDropoutsTitle" v="Physikalische Arbeitsaussetzer" />
-        <e k="terraLogic_settingPhysicalDropoutsTooltip" v="Erlaubt bei zu hoher Geschwindigkeit echte unbehandelte oder unbearbeitete Stellen. Beim Deaktivieren behalten betroffene Geräte ihr Shop-Speedlimit; die volle Arbeitsqualitätswertung bleibt, sofern vorhanden, aktiv. Im Multiplayer kann dies nur ein Server-Admin ändern." />
+        <e k="terraLogic_settingSoilDevelopmentTitle" v="Entwicklung der Bodenresilienz" />
+        <e k="terraLogic_settingSoilDevelopmentTooltip" v="Bestimmt das Tempo der langfristigen Resilienzentwicklung. Biologische Gewinne und Verluste durch Bodenstörung verwenden gemeinsam 1x, 4x oder 8x, damit das beabsichtigte Verhältnis verschiedener Bewirtschaftungsweisen erhalten bleibt. Die natürliche Erholung von Verdichtung, Krümelstruktur und Ebenheit wird nicht beschleunigt. Im Multiplayer kann dies nur ein Server-Admin ändern." />
+        <e k="terraLogic_settingSoilDevelopmentRealistic" v="Realistisch (1x)" />
+        <e k="terraLogic_settingSoilDevelopmentNormal" v="4x" />
+        <e k="terraLogic_settingSoilDevelopmentFast" v="Normal (8x)" />
+        <e k="terraLogic_settingSoilDevelopmentAccelerated" v="Beschleunigt (4x)" />
         <e k="terraLogic_settingVisibleStonesTitle" v="Schaden durch sichtbare Steine" />
-        <e k="terraLogic_settingVisibleStonesTooltip" v="Vanilla verwendet nur die Geräteklassen des Grundspiels. TerraLogic ergänzt sichtbaren Steinschaden auch bei nicht berücksichtigten Bodengeräten, ohne Vanilla-Schaden zu verdoppeln. Diese Einstellung beeinflusst keine Steine unter der Bodenoberfläche. Im Multiplayer kann sie nur ein Server-Admin ändern." />
-        <e k="terraLogic_settingVisibleStonesVanilla" v="Vanilla" />
-        <e k="terraLogic_settingVisibleStonesTerraLogic" v="TerraLogic erweitert" />
-        <e k="terraLogic_settingQualityTextTitle" v="Qualität und Anzahl erkannter Geräte anzeigen" />
-        <e k="terraLogic_settingQualityTextTooltip" v="Zeigt die aktuelle Arbeitsqualität und bei mehreren aktiven Geräten deren Anzahl oberhalb des Geschwindigkeitsbalkens." />
+        <e k="terraLogic_settingVisibleStonesTooltip" v="Das Grundspiel verursacht durch sichtbare Steine nur bei bestimmten Maschinen Schaden. TerraLogic kann diese Wirkung auf weitere Geräte mit Bodenkontakt erweitern, ohne denselben Treffer doppelt anzurechnen. Verdeckte Steine unter der Oberfläche bleiben davon unberührt. Im Multiplayer kann dies nur ein Server-Admin ändern." />
+        <e k="terraLogic_settingVisibleStonesVanilla" v="Grundspiel" />
+        <e k="terraLogic_settingVisibleStonesTerraLogic" v="Erweiterter Steinschaden" />
         <e k="terraLogic_settingHudModeTitle" v="Geschwindigkeitsanzeige" />
-        <e k="terraLogic_settingHudModeTooltip" v="Dynamisch blendet die Anzeige nach drei Sekunden im optimalen Bereich aus und nach Tempomatänderungen wieder ein." />
+        <e k="terraLogic_settingHudModeTooltip" v="Dynamisch zeigt die Anzeige bei arbeitsbereitem Gerät, lässt sie im blauen und roten Tempobereich sichtbar und blendet sie nach drei Sekunden im grünen Nennbereich aus. Tempomatänderungen und Warnungen blenden sie erneut ein. Immer sichtbar zeigt sie zusätzlich bei angehobenen oder ausgeschalteten erkannten Geräten. Bei Aus werden auch die TerraLogic-Warnungen nicht angezeigt." />
         <e k="terraLogic_settingHudDynamic" v="Dynamisch" />
-        <e k="terraLogic_settingHudAlways" v="Immer an" />
+        <e k="terraLogic_settingHudAlways" v="Immer sichtbar" />
         <e k="terraLogic_settingHudOff" v="Aus" />
-        <e k="terraLogic_settingConditionWarningsTitle" v="Warnungen zum Gerätezustand" />
-        <e k="terraLogic_settingConditionWarningsTooltip" v="Zeigt beim Aktivieren eines stark verschlissenen oder beschädigten Geräts eine kurze Warnung." />
-        <e k="terraLogic_settingDamageWarningsTitle" v="Schadenswarnungen" />
-        <e k="terraLogic_settingDamageWarningsTooltip" v="Zeigt Warnungen bei starken Steinaufprallen und bei mehr als 5 % dauerhaftem Schaden pro Hektar." />
-        <e k="terraLogic_settingConditionWarningTimeoutTitle" v="Intervall der Zustandswarnungen" />
-        <e k="terraLogic_settingConditionWarningTimeoutTooltip" v="Mindestzeit, bevor die Warnungen bei 75 % und 90 % erneut erscheinen dürfen. Aus zeigt bei jeder Aktivierung die höchste zutreffende Warnstufe." />
-        <e k="terraLogic_settingWarningTimeoutOff" v="Aus" />
-        <e k="terraLogic_settingWarningTimeout1" v="1 Minute" />
-        <e k="terraLogic_settingWarningTimeout2" v="2 Minuten" />
-        <e k="terraLogic_settingWarningTimeout5" v="5 Minuten" />
+        <e k="terraLogic_settingWarningDurationTitle" v="Anzeigedauer der Warnungen" />
+        <e k="terraLogic_settingWarningDurationTooltip" v="Legt fest, wie viele Sekunden jede Meldung im TerraLogic-HUD lesbar bleibt, bevor die nächste Meldung aus der Warteschlange erscheint. Diese Einstellung ist nur lokal und beeinflusst keine anderen Spieler." />
+        <e k="terraLogic_settingSoilMinimapZoomTitle" v="Zoom der Bodenkarten-Minimap" />
+        <e k="terraLogic_settingSoilMinimapZoomTooltip" v="Vergrößert die Minimap automatisch, solange eine TerraLogic-Bodenkarte mit ALT+T aktiv ist. Diese Einstellung ist nur lokal und beeinflusst keine anderen Spieler." />
+        <e k="terraLogic_settingDamageWarningsTitle" v="Steinschlagwarnungen" />
+        <e k="terraLogic_settingDamageWarningsTooltip" v="Zeigt starke oberirdische und unterirdische Steinaufpralle in der Warnungsanzeige des TerraLogic-HUDs." />
         <e k="terraLogic_conditionWarning75" v="Starker Geräteverschleiß - Die Arbeitsqualität ist reduziert. Eine Reparatur wird empfohlen." />
         <e k="terraLogic_conditionWarning90" v="Gerät stark beschädigt - Die Arbeitsqualität ist stark reduziert." />
         <e k="terraLogic_conditionWarning100" v="Gerät defekt - Vor der weiteren Verwendung ist eine Reparatur erforderlich." />
         <e k="terraLogic_stoneImpactWarning" v="Starker Steinaufprall! Niedrigere Geschwindigkeiten reduzieren den Aufprallschaden." />
         <e k="terraLogic_highDamagePerHectareWarning" v="Hohe Schadensrate am Gerät! Geschwindigkeit reduzieren und auf steinige Bedingungen achten." />
         <e k="terraLogic_settingOn" v="An" />
-        <e k="terraLogic_consoleMowerQualityStatus" v="TerraLogic Mähwerk-Arbeitsqualität: %s (physische Dropouts bleiben aktiv)" />
+        <e k="terraLogic_consoleMowerQualityStatus" v="TerraLogic Mähwerk-Arbeitsqualität: %s (physische Fehlstellen bleiben aktiv)" />
         <e k="terraLogic_consoleMowerQualityHelp" v="Mähwerk-Arbeitsqualität: tlMowerQuality [on|off]" />
         <e k="terraLogic_consoleMowerQualityUsage" v="TerraLogic Verwendung: tlMowerQuality [on|off]" />
         <e k="terraLogic_consoleServerOnly" v="TerraLogic: Dieser Befehl muss auf dem Server oder Host ausgeführt werden" />
         <e k="terraLogic_settingOff" v="Aus" />
+        <e k="input_TERRALOGIC_TOGGLE_SOIL_DISPLAY" v="TerraLogic-Feldanzeige umschalten" />
+        <e k="input_TERRALOGIC_CYCLE_SOIL_DISPLAY_BACK" v="TerraLogic-Feldanzeige rückwärts umschalten" />
+        <e k="input_TERRALOGIC_SHOW_SOIL_SURFACE" v="Karte der Oberflächenverdichtung anzeigen" />
+        <e k="input_TERRALOGIC_SHOW_SOIL_DEEP" v="Karte der Tiefenverdichtung anzeigen" />
+        <e k="input_TERRALOGIC_SHOW_SOIL_TILTH" v="Karte der Krümelstruktur anzeigen" />
+        <e k="input_TERRALOGIC_SHOW_SOIL_EVENNESS" v="Karte der Ebenheit anzeigen" />
+        <e k="input_TERRALOGIC_SHOW_SOIL_RESILIENCE" v="Karte der Bodenresilienz anzeigen" />
+        <e k="terraLogic_soilTitle" v="BODENBESCHAFFENHEIT" />
+        <e k="terraLogic_localSoilTitle" v="LOKALE BODENBESCHAFFENHEIT" />
+        <e k="terraLogic_soilSurface" v="Oberflächenverdichtung" />
+        <e k="terraLogic_soilDeep" v="Tiefenverdichtung" />
+        <e k="terraLogic_soilSurfaceHud" v="Oberbodenverd." />
+        <e k="terraLogic_soilDeepHud" v="Tiefenverd." />
+        <e k="terraLogic_soilAggregate" v="Krümelstruktur" />
+        <e k="terraLogic_soilEvenness" v="Ebenheit" />
+        <e k="terraLogic_soilResilience" v="Bodenresilienz" />
+        <e k="terraLogic_soilStatePoor" v="schlecht" />
+        <e k="terraLogic_soilStateFair" v="mittel" />
+        <e k="terraLogic_soilStateGood" v="gut" />
+        <e k="terraLogic_soilTilthCoarse" v="grob" />
+        <e k="terraLogic_soilTilthOptimal" v="optimal" />
+        <e k="terraLogic_soilTilthFine" v="fein" />
+        <e k="terraLogic_soilScaleBad" v="0 schlecht" />
+        <e k="terraLogic_soilScaleGood" v="100 gut" />
+        <e k="terraLogic_soilTilthScaleCoarse" v="0 grob" />
+        <e k="terraLogic_soilTilthScaleOptimal" v="50 opt." />
+        <e k="terraLogic_soilTilthScaleFine" v="100 fein" />
+        <e k="terraLogic_soilMapOff" v="Bodenkarte: Aus" />
+        <e k="terraLogic_soilMapSurface" v="Bodenkarte: Oberflächenverdichtung" />
+        <e k="terraLogic_soilMapDeep" v="Bodenkarte: Tiefenverdichtung" />
+        <e k="terraLogic_soilMapAggregate" v="Bodenkarte: Krümelstruktur" />
+        <e k="terraLogic_soilMapRoughness" v="Bodenkarte: Ebenheit" />
+        <e k="terraLogic_soilMapResilience" v="Bodenkarte: Bodenresilienz" />
+        <e k="terraLogic_settingMoistureYieldTitle" v="Bodenfeuchte beeinflusst Ertrag" />
+        <e k="terraLogic_settingMoistureYieldTooltip" v="Bewertet die Feuchte während drei Wachstumsabschnitten und berücksichtigt Trockenheit sowie Staunässe beim Ertrag. Die Einstellung gilt für alle Spieler und kann im Multiplayer nur von einem Server-Admin geändert werden." />
+        <e k="terraLogic_settingTutorialsTitle" v="TerraLogic-Tutorial" />
+        <e k="terraLogic_settingTutorialsTooltip" v="Wähle Einführung mit Kontexthinweisen, nur Kontexthinweise oder keine automatischen Karten. Karten pausieren das Spiel nicht und bleiben bis zum Schließen offen. Nachlesen ist in der Tutorialbibliothek möglich. Nur für diesen Spieler." />
+        <e k="terraLogic_settingTutorialReset" v="Tutorial zurücksetzen" />
+        <e k="terraLogic_settingTutorialResetAction" v="Zurücksetzen" />
+        <e k="terraLogic_settingTutorialResetTooltip" v="Startet die Einführung nach dem Verlassen dieses Menüs neu, setzt den Lesefortschritt zurück und aktiviert Einführung und kontextuelle Tipps. Boden-, Feld- und Fahrzeugdaten bleiben unverändert." />
+        <e k="terraLogic_settingTutorialResetConfirm" v="Möchtest du alle TerraLogic-Hinweise wieder von vorn anzeigen lassen? Boden- und Felddaten bleiben dabei unverändert." />
+
+        <!-- TerraLogic-Handbuch: didaktisch von Grundlagen zu Detailmechaniken -->
+        <e k="terraLogic_help_category" v="TerraLogic" />
+        <e k="terraLogic_help_welcome_title" v="Willkommen bei TerraLogic" />
+        <e k="terraLogic_help_welcome_p1" v="TerraLogic erweitert den Landwirtschaftssimulator 25 um eine dynamische und realistische Bodensimulation, bei der Boden, Wetter, Pflanzen und Maschinen direkt miteinander interagieren. Unterstützte Anbaugeräte besitzen keine starren Arbeitsgeschwindigkeiten mehr. Stattdessen bestimmen Gerätetyp, Bauweise, Arbeitsgeschwindigkeit und aktuelle Bodenbedingungen, wie sich eine Bearbeitung auf Verdichtung, Krümelstruktur, Ebenheit, Resilienz und weitere Bodeneigenschaften auswirkt. Diese Veränderungen beeinflussen wiederum nachfolgende Arbeitsschritte, den Zugkraftbedarf der Maschinen und das Pflanzenwachstum.
+
+		Dadurch erhält jedes Gerät seine eigene, realistische Aufgabe innerhalb der Bodenbearbeitung. Ein Pflug lockert beispielsweise den Oberboden, hinterlässt jedoch eine raue Oberfläche mit groben Schollen. Eine Sämaschine muss anschließend mit genau diesem Bodenzustand arbeiten und kann bei zu hoher Geschwindigkeit oder ungeeigneter Bauweise stellenweise den Bodenkontakt verlieren, wodurch Saataussetzer entstehen. Geräte wie Tiefenlockerer, Spatenmaschinen, Grubber, Flachgrubber, Scheibeneggen und Kreiseleggen sind deshalb nicht länger lediglich unterschiedliche Varianten derselben Spielfunktion, sondern beeinflussen den Boden entsprechend ihrer tatsächlichen Arbeitsweise.
+
+		Gleichzeitig verändert sich der Boden kontinuierlich. Bodenart, Feuchtigkeit, Temperatur und Frost beeinflussen unter anderem Zugkraftbedarf, Arbeitsqualität, Pflanzenentwicklung sowie den natürlichen Abbau von Verdichtung und den Aufbau von Resilienz. Feldsteine und Steine im Untergrund verursachen abhängig von Arbeitsweise, Gerätekonstruktion und Geschwindigkeit unterschiedlich starken Verschleiß und Schaden. Lebende Wurzeln, mehrjährige Kulturen, Zwischenfrüchte und abwechslungsreiche Fruchtfolgen fördern über mehrere Jahre die natürlichen Regenerationsprozesse des Bodens. Dadurch kann Verdichtung langsam abgebaut werden, während der Boden gleichzeitig resilienter und damit widerstandsfähiger gegenüber neuer Verdichtung wird.
+
+		TerraLogic simuliert damit keinen festen Ablauf von Arbeitsschritten. Jede Entscheidung verändert die Bedingungen für die nächste. Wie ein Gerät arbeitet, hängt vom Boden ab – und wie sich der Boden anschließend verhält, hängt davon ab, wie er zuvor bearbeitet und bewirtschaftet wurde. Ackerböden sind damit dynamische Systeme, die sich abhängig von Bewirtschaftung, Umweltbedingungen und Bearbeitung entwickeln – mit realistischen Konsequenzen für zukünftige Arbeitsschritte und das Pflanzenwachstum." />
+		
+		<e k="terraLogic_help_welcome_h2" v="Drei Wege zu Antworten" />
+		<e k="terraLogic_help_welcome_p2" v="Die umschaltbare Minimap und die lokale HUD-Anzeige zeigen dir den aktuellen Bodenzustand. Die Minimap zeigt für den gewählten Bodenparameter Infos zum gesamten Feld, während das Info-Hud unten rechts zu Fuß die Werte direkt an deiner Position darstellt. TerraLogic-Feldanalyse wertet dagegen ein gesamtes Feld aus, zeigt mögliche Probleme und schlägt sinnvolle Maßnahmen vor. Dieses Handbuch erklärt die zugrunde liegenden Systeme im Detail und ist jederzeit unter Hilfe → TerraLogic verfügbar." />
+		<e k="terraLogic_help_welcome_h3" v="Das Ziel" />
+		<e k="terraLogic_help_welcome_p3" v="In TerraLogic gibt es selten nur einen richtigen Weg. Direktsaat, klassische Bodenbearbeitung oder eine gelegentliche Tiefenlockerung können gleichermaßen funktionieren, wenn sie zum aktuellen Bodenzustand passen. Die eigentliche Herausforderung besteht darin, Probleme zu erkennen, die passende Maßnahme zu wählen und dabei keine neuen Probleme zu verursachen. Kümmerst du dich gut um deinen Boden, vermeidest schwere Überfahrten mit unnötig großen Traktoren und berücksichtigst Feuchtigkeit sowie Frost, wirst du bei sorgfältiger Bewirtschaftung mit höheren Erträgen belohnt." />
+		<e k="terraLogic_help_welcome_h4" v="Offizielle Versionen" />
+		<e k="terraLogic_help_welcome_p4" v="TerraLogic wird offiziell ausschließlich über ModHub und das TerraLogic-GitHub-Repository unter https://github.com/Saibotsu/FS25_TerraLogic veröffentlicht. Versionen auf anderen Downloadseiten stammen nicht aus offiziellen Quellen und können veraltet, verändert oder unvollständig sein. Für eine sichere und aktuelle Version lade TerraLogic daher nur über ModHub oder GitHub herunter." />
+		
+		<e k="terraLogic_help_displays_title" v="Bodenkarten und lokale Anzeigen" />
+        <e k="terraLogic_help_displays_p1" v="Die Bodenkarten zeigen lokale Unterschiede: Reifenspuren, Vorgewende, Fehlstellen und unterschiedlich bearbeitete Bereiche bleiben nebeneinander sichtbar. Suche auf der Karte nach betroffenen Stellen und vergleiche sie mit dem Feldmittelwert in der TerraLogic-Feldanalyse." />
+		<e k="terraLogic_help_displays_h2" v="ALT+T und die Minimap" />
+		<e k="terraLogic_help_displays_p2" v="Mit ALT+T wechselst du vorwärts durch Oberflächenverdichtung, Tiefenverdichtung, Krümelstruktur, Ebenheit und Resilienz; STRG+ALT+T wechselt rückwärts. STRG+ALT+1 bis 5 ruft eine Karte direkt auf. Drückst du die Taste der bereits aktiven Karte erneut, wird sie ausgeschaltet. Alle Belegungen lassen sich in den Steuerungseinstellungen ändern und können auch einem Controller zugewiesen werden." />
+		<e k="terraLogic_help_displays_h3" v="Das lokale HUD wechselt mit der Karte" />
+		<e k="terraLogic_help_displays_p3" v="Bei Verdichtung ist 0 Prozent locker und gut, 100 Prozent stark verdichtet. Bei Ebenheit und Resilienz ist ein hoher Wert gut. Die Krümelstruktur besitzt ihr Optimum ungefähr in der Mitte: sehr niedrige Werte bedeuten grobe Schollen, sehr hohe Werte einen übermäßig feinen oder verschmierten Boden. Die feinen Farbverläufe der Karte zeigen den Messwert; die farbigen Texte in TerraLogic-Feldanalyse bewerten dagegen seine mögliche Auswirkung." />
+		<e k="terraLogic_help_displays_h4" v="Felder, eigene Flächen und Precision Farming" />
+		<e k="terraLogic_help_displays_p4" v="TerraLogic initialisiert normale Kartenfelder passend zu ihrem Ausgangszustand und aktualisiert unbesessene NPC-Felder weiter, bis sie gekauft werden. Mit dem Pflug neu angelegte Feldflächen erhalten ebenfalls Bodendaten und können angezeigt werden. Eine aktive TerraLogic-Karte ersetzt vorübergehend nur die farbige Precision-Farming-Ansicht; Precision Farming selbst bleibt aktiv. Ohne Precision Farming verwendet TerraLogic ein ausgewogenes eigenes Bodenprofil." />
+		<e k="terraLogic_help_displays_h5" v="Lokales Feld-HUD" />
+		<e k="terraLogic_help_displays_p5" v="Befindest du dich mit einer aktiven Bodenkarte auf einer gültigen Bodenfläche, zeigt die Feldinformation unten rechts alle fünf Werte an deiner aktuellen Position. Außerhalb einer TerraLogic-Bodenfläche erscheinen Striche statt erfundener Umgebungswerte. Bei ausgeschalteter Bodenkarte kann das HUD lokal gespeicherte Arbeitsqualitäten seit der letzten Ernte zeigen. Diese Anzeige beschreibt immer nur den Boden unter dir." />
+		<e k="terraLogic_help_displays_h6" v="Lokaler Fleck oder ganzes Feld?" />
+		<e k="terraLogic_help_displays_p6" v="Eine rote Fahrspur bedeutet nicht automatisch, dass das gesamte Feld bearbeitet werden muss. Vergleiche ihre Ausdehnung auf der Karte mit dem Felddurchschnitt in TerraLogic-Feldanalyse. Oft ist es besser, die Spur künftig zu meiden oder bei einem ohnehin geplanten Arbeitsgang mitzubehandeln, statt wegen einer kleinen Stelle einen zusätzlichen Vollflächen-Arbeitsgang zu fahren." />
+
+        <e k="terraLogic_help_soil_title" v="Die fünf Bodenzustände" />
+        <e k="terraLogic_help_soil_p1" v="TerraLogic beschreibt den Boden durch fünf Eigenschaften: Oberflächenverdichtung, Tiefenverdichtung, Krümelstruktur, Ebenheit und Resilienz. Jede kann sich unabhängig verändern. Deshalb können Fahrspuren, Vorgewende und Feldmitte unterschiedliche Pflege benötigen." />
+        <e k="terraLogic_help_soil_h2" v="Oberflächen- und Tiefenverdichtung" />
+        <e k="terraLogic_help_soil_p2" v="Oberflächenverdichtung ist die Verdichtung in der bearbeiteten oberen Bodenschicht. Sie entsteht vor allem durch hohen Bodenkontaktdruck unter Reifen und Laufwerken, Nässe und wiederholte Überfahrten. Tiefenverdichtung beschreibt Schäden im Unterboden und wird stärker durch Achslast und schwere Mehrfachüberfahrten bestimmt. Ein Grubber kann mäßige Verdichtung im Oberboden lockern; tiefe Schäden benötigen hingegen einen Tiefenlockerer oder lange Zeit mit günstiger Durchwurzelung und natürlicher Regeneration. Während im Sommer durch günstige Temperaturen biologische Prozesse den Boden schneller verbessern, kann das Einfrieren und Auftauen des Bodens durch Bodenfrost feste Strukturen lockern." />
+        <e k="terraLogic_help_soil_h3" v="Krümelstruktur" />
+        <e k="terraLogic_help_soil_p3" v="Die Krümelstruktur beschreibt Größe und Beschaffenheit der Bodenaggregate im bearbeiteten Boden. TerraLogic verwendet eine Skala von groben Schollen bei 0 Prozent über eine günstige Krümelung um 50 Prozent bis zu übermäßig feinem, verschmiertem oder pulverisiertem Boden bei 100 Prozent. Höher ist deshalb nicht immer besser. Geräte können den Boden leichter weiter zerkleinern als verlorene Aggregate wieder aufbauen und wiederholtes Verfeinern kann ein bereits gutes Saatbett sogar überarbeiten." />
+        <e k="terraLogic_help_soil_h4" v="Ebenheit" />
+        <e k="terraLogic_help_soil_p4" v="Die Ebenheit beschreibt, wie gleichmäßig die Feldoberfläche ist. Pflügen und tiefe Lockerung hinterlassen sie meist rau. Saatbettgrubber, Scheiben- oder Kreiseleggen und Walzen können sie einebnen. Säschare, Hackgeräte, Pickups und andere bodengeführte Werkzeuge benötigen zuverlässigen Bodenkontakt. Unebener Boden senkt deshalb zunächst ihre sichere Arbeitsgeschwindigkeit und die Arbeitsqualität. Echte Fehlstellen entstehen erst, wenn das Gerät diesem Boden bei der gefahrenen Geschwindigkeit nicht mehr folgen kann." />
+        <e k="terraLogic_help_soil_h5" v="Bodenresilienz" />
+        <e k="terraLogic_help_soil_p5" v="Die Resilienz beschreibt langfristig, wie gut der Boden Verkehr widersteht und sich erholt. Hohe Werte verringern neue Verdichtungsschäden. Lebende Wurzeln, vielfältige Fruchtfolge, Bodenbedeckung und ungestörte Jahre verbessern sie langsam, aber intensive oder wiederholte tiefe Bearbeitung kann sie senken." />
+
+		<e k="terraLogic_help_traffic_title" v="Fahrzeugverkehr und Verdichtung" />
+		<e k="terraLogic_help_traffic_p1" v="Jeder Reifen und jedes Laufwerk, das ein Feld überquert, kann den Boden verändern – auch an Mähdreschern, Anhängern und Transportfahrzeugen. TerraLogic verwendet die laufend berechneten Radlasten des Fahrzeugs. Kraftstoff, Ballast, Erntegut, Gülle, Saatgut, angehängte Geräte und deren Stützräder verändern deshalb die Belastung während des Spiels; ein voller Korntank kann ein anderes Ergebnis hinterlassen als ein leerer." />
+		<e k="terraLogic_help_traffic_h2" v="Bodenkontaktdruck oben, Achslast unten" />
+		<e k="terraLogic_help_traffic_p2" v="Die Radlast ist das Gewicht, das ein einzelnes Rad tatsächlich trägt; die Achslast fasst die Räder derselben Achse zusammen. Hoher Bodenkontaktdruck belastet vor allem den Oberboden, hohe Achslast überträgt Spannung tiefer. Der angezeigte Bodenkontaktdruck ist nicht der Luftdruck im Reifen: TerraLogic schätzt ihn aus Radlast, Reifenbreite, Reifendurchmesser und Aufstandsfläche. Breitreifen, passend belastete Zwillingsreifen und Raupen verteilen Gewicht besser. Eine größere Spurweite halbiert die Last nicht; sie verändert hauptsächlich, wo sich Druckzonen überlagern." />
+		<e k="terraLogic_help_traffic_h3" v="Der Bodenzustand verändert das Risiko" />
+		<e k="terraLogic_help_traffic_p3" v="Feuchter Boden lässt sich wesentlich leichter verdichten und verformen, während ein trockener Boden Belastungen besser verkraftet. Die erste Überfahrt auf lockerem Boden hat meist den größten Effekt. Weitere Fahrten in derselben Spur verdichten weiter, erfassen aber nicht immer neue lockere Fläche. Fünf getrennte Spuren betreffen daher mehr Boden als fünf Fahrten in derselben Spur. Feste Fahrspuren begrenzen die betroffene Fläche; sie verhindern dort aber keine weitere Verdichtung. Ein voll beladener Mähdrescher oder Anhänger kann deshalb lokal starke Verdichtung verursachen, obwohl der durchschnittliche Zustand des Feldes weiterhin unauffällig erscheint." />
+		<e k="terraLogic_help_traffic_h4" v="Praktische Entscheidungen" />
+		<e k="terraLogic_help_traffic_p4" v="Nutze das leichteste Fahrzeug, das für die Arbeit noch sinnvoll geeignet ist, und achte auf passende Bereifung oder Raupenlaufwerke, eine sinnvolle Ballastierung und möglichst feste Fahrspuren. Unter Verwendung von Precision Farming können sich feste Fahrgassen lohnen, da die Verdichtung dort entsteht, wo ohnehin nicht ausgesät wurde. Fahre nicht häufiger über das Feld, als es der Arbeitsgang erfordert, und vermeide überlappende Spuren. Reduziere die Beladung schwerer Ernte- und Transportfahrzeuge wenn möglich durch früheres Abtanken und warte bei hohem Verdichtungsrisiko auf trockenere Bedingungen. Pflegebereifung schont zwar den Pflanzenbestand, ist durch ihre kleine Aufstandsfläche jedoch schlechter für den Boden als normale oder extra breite Reifen." />
+		<e k="terraLogic_help_traffic_h5" v="Reifen verändern auch das Saatbett" />
+		<e k="terraLogic_help_traffic_p5" v="Eine Überfahrt verändert nicht nur die Verdichtung. Bei geeigneter Bodenfeuchte können Reifen grobe Schollen zerdrücken und eine raue Oberfläche lokal glätten. Hoher Bodenkontaktdruck auf trockenem Boden kann die Krümelstruktur dagegen übermäßig verfeinern, während Überfahrten bei nassen Bedingungen den Boden verformen und Fahrspuren hinterlassen können. Starker Radschlupf schert zusätzlich den Oberboden, zerstört Bodenaggregate und verschlechtert die Ebenheit. Besonders schwere oder wiederholte Überfahrten können außerdem die Bodenresilienz verringern. Sie setzen jedoch die biologische Kontinuität nicht zurück: Diese wird durch Bodenbearbeitung unterbrochen, nicht durch das bloße Befahren." />
+
+        <e k="terraLogic_help_tillage_title" v="Bodenbearbeitungsgeräte wählen" />
+        <e k="terraLogic_help_tillage_p1" v="Bodenbearbeitungsgeräte setzen ein Feld nicht auf einen allgemeinen Idealzustand zurück. Jeder Arbeitsgang verändert nun die verschiedenen Werte wie Verdichtung, Krümelstruktur und Ebenheit auf realistische Weise. Bodenart, Feuchte, Frost, Verschleiß und Arbeitsgeschwindigkeit bestimmen, wie welche physikalischen Auswirkungen auf die eben genannten Bodenparameter hat. Wähle das passende Gerät für das tatsächlich vorhandene Problem und prüfe vor einem weiteren Arbeitsgang den Planer, um die Auswirkung besser abschätzen zu können." />
+        <e k="terraLogic_help_tillage_h2" v="Pflug und Tiefenlockerer" />
+        <e k="terraLogic_help_tillage_p2" v="Ein Pflug lockert den Oberboden stark, hinterlässt aber grobe Schollen und eine raue Oberfläche und stört die Resilienz. Durch die entstandenen Unebenheiten haben es normale Sämaschinen schwer, sauberen Bodenkontakt während des Aussäens zu halten. Wenn du vorher nicht mit geeigneten Geräten den Feldboden ebnest, musst du unter Umständen die Arbeitsgeschwindigkeit beim säen drastisch reduzieren, um keine Fehlstellen zu erhalten. Der Tiefenlockerer hingegen ist die wichtigste Antwort auf Tiefenverdichtung. Er arbeitet in der Regel tiefer als ein herkömmlicher Pflug, stört aber ebenfalls die Oberfläche. Die Oberfläche ist durch die unterschiedliche Bearbeitungsweise des Bodens nicht ganz so uneben wie beim Pflug, ideal für die Aussaat mit herkömmlichen Sämaschinen ist das Feld danach aber trotzdem nicht." />
+        <e k="terraLogic_help_tillage_h3" v="Grubber" />
+        <e k="terraLogic_help_tillage_p3" v="Ein normaler Grubber lockert mäßige Oberflächenverdichtung, bricht grobe Aggregate und ebnet das Feld. Ein Flachgrubber arbeitet ähnlich, ist durch die verringerte Arbeitstiefe schonender für den Ackerboden, aber lockert entsprechend den verdichteten Boden weniger effektiv auf. Der Flachgrubber eignet sich daher eher für die Glättung des Feldes und zur schonenden Verfeinerung des Bodens, wenn das reduzieren der Verdichtung nicht das primäre Ziel ist." />
+        <e k="terraLogic_help_tillage_h4" v="Scheibenegge, Kreiselegge und Spatenmaschine" />
+        <e k="terraLogic_help_tillage_p4" v="Scheiben- und Kreiseleggen verfeinern und ebnen das Saatbett. Eine Kreiselegge hinterlässt eine besonders feine Struktur. Wiederholte Arbeitsgänge beziehungsweise Überfahrten derselben Stelle können bereits feinen Boden überarbeiten und die Krümelstruktur bei bestimmten Wetterbedingungen sogar regelrecht pulverisieren. Eine Spatenmaschine lockert und mischt stark, ohne alle negativen Wirkungen eines Wendepflugs nachzubilden, und kann begrenzt auch tiefer lockern." />
+        <e k="terraLogic_help_tillage_h5" v="Bedingungen und Geschwindigkeit" />
+        <e k="terraLogic_help_tillage_p5" v="Nasser, bindiger Boden kann verklumpen und schmieren, sehr trockener Boden hart oder bei intensiver Bearbeitung zu fein werden. Frost erschwert das Eindringen. Bodenart, Feuchtigkeit und der vorherige Bodenzustand bestimmen deshalb mit, welches Ergebnis ein Gerät hinterlässt. Zu hohes Tempo kann Lockerung und Einebnung verringern und die Struktur verschlechtern. Ein weiterer Arbeitsgang verbessert nicht automatisch alles: Prüfe zuerst Krümelstruktur und Ebenheit. Ein bereits geeignetes Saatbett braucht keine zusätzliche Bearbeitung." />
+
+        <e k="terraLogic_help_seeding_title" v="Saatbett, Aussaat und Walzen" />
+        <e k="terraLogic_help_seeding_p1" v="Guter Feldaufgang benötigt eine passende Krümelstruktur, eine ebene Oberfläche und zuverlässigen Scharkontakt. Oberflächenverdichtung, Feuchte, Frost, zu hohes Tempo und Geräteverschleiß können die Ablagequalität der Samen senken. Unter schlechten Bedingungen kann TerraLogic außerdem echte ungesäte Stellen erzeugen. Diese fehlenden Pflanzen sind sichtbar und lassen sich später nur durch erneutes übersäen korrigieren. Wenn die Bodenbeschaffenheiten nicht ideal sind, muss man gegebenenfalls langsamer säen, um Fehlstellen zu vermeiden." />
+        <e k="terraLogic_help_seeding_h2" v="Normale Saat und Einzelkornsaat" />
+        <e k="terraLogic_help_seeding_p2" v="Normale Sämaschinen erwarten ein vorbereitetes, ebenes Saatbett. Einzelkornsämaschinen reagieren besonders stark auf Unebenheit und ungeeignete Krümelung, weil jedes Korn gleichmäßig abgelegt werden muss. Ein optisch glattes Feld kann trotzdem verdichtet sein oder die falsche Aggregatgröße für die ideale Aussaat besitzen. Langsameres Fahren kann bodenkontaktbedingte Aussetzer vollständig vermeiden; eine verbleibende schlechte Ablage- oder Auflaufqualität wird weiterhin als Saatqualität gespeichert." />
+        <e k="terraLogic_help_seeding_h3" v="Direktsaat" />
+        <e k="terraLogic_help_seeding_p3" v="Direktsaatmaschinen vermeiden eine ganzflächige Bodenbearbeitung und schützen dadurch die natürliche Regenerationsfähigkeit des Bodens, sofern auf Pflügen und Grubbern verzichtet wird. Sie lockern verdichteten Boden aber kaum auf. Durch ihre Konstruktion vertragen sie ein raueres Saatbett und behalten dort eine höhere sichere Arbeitsgeschwindigkeit als normale oder präzise Sämaschinen. Starke Verdichtung, ungeeignete Feuchte, Frost, Verschleiß und ein Überschreiten dieser sicheren Geschwindigkeit verschlechtern weiterhin die Saatablage." />
+        <e k="terraLogic_help_seeding_h4" v="Walzen" />
+        <e k="terraLogic_help_seeding_p4" v="Ackerwalzen können geeigneten Boden auch vor der Aussaat glätten und rückverfestigen. Nach der Saat verbessern sie zusätzlich den Bodenschluss und können den korrigierbaren Anteil bodenbedingter Saatablageverluste ausgleichen, sofern Saatqualität gespeichert ist. Fehlendes Saatgut wird nicht ersetzt; Tempo- und Verschleißfehler bleiben bestehen. Eine zu schnelle Walze verliert besonders auf unebenem Boden gleichmäßigen Kontakt. Einebnung, Rückverfestigung und Saatverbesserung lassen dann nach. Auf nassem Boden und bei unnötigen Wiederholungen kann zusätzliche Verdichtung entstehen." />
+
+        <e k="terraLogic_help_speed_title" v="Arbeitsgeschwindigkeit und Arbeits-HUD" />
+        <e k="terraLogic_help_speed_p1" v="Wenn du eine unterstützte Maschine selbst fährst, hebt TerraLogic ihre feste Arbeitsgeschwindigkeitsbegrenzung auf. Das ist Freiheit und keine neue Empfehlung: Du kannst versuchen, mit 20 km/h zu pflügen oder eine Ballenpresse schneller als vorgesehen zu fahren. Maschine, Boden und Arbeitsergebnis reagieren jedoch auf diese Entscheidung mit erhöhtem Verschleiß, Aussetzern oder liegengebliebens Material. Helfer und nicht unterstützte Maschinen behalten ihre Tempolimits bei, um Kompatibilität mit Mods wie CoursePlay sicherzustellen. " />
+        <e k="terraLogic_help_speed_h2" v="Die Anzeige unten in der Bildschirmmitte" />
+        <e k="terraLogic_help_speed_p2" v="Das Arbeits-HUD zeigt die Geschwindigkeit, Arbeitsqualität und Belastung einsatzbereiter, unterstützter Geräte. Ein Strich bei der Arbeitsqualität bedeutet, dass gerade keine Arbeit bewertet wird. Im Modus Dynamisch blendet es sich nach kurzer gleichmäßiger Fahrt im grünen Bereich aus und bei Geschwindigkeitsänderungen oder Warnungen wieder ein. Die Warnungsdauer lässt sich einstellen. Grün kennzeichnet den üblichen Geschwindigkeitsbereich des Geräts, garantiert aber keine perfekte Arbeit: Boden, Feuchtigkeit, Frost und Verschleiß können langsameres Fahren erfordern. Bei mehreren Geräten richtet sich der Bereich nach dem langsamsten relevanten Gerät." />
+        <e k="terraLogic_help_speed_h3" v="Arbeitsqualität und echte Fehlstellen" />
+        <e k="terraLogic_help_speed_p3" v="Neben ungünstiger Bodeneigenschaften kann zu hohes Arbeitstempo die Arbeitsqualität senken und echte Fehlstellen erzeugen. Sämaschinen können ungesäte Bereiche hinterlassen, Spritzen und Streuer je nach Art der Ausbringung unbehandelte Streifen und Striegel oder Hackgeräte Unkraut stehen lassen. Bei extremem Tempo kann mechanische Unkrautbekämpfung sogar die Kultur beschädigen. Mähwerke, Zetter, Schwader, Ballenpressen und Ladewagen-Pickups können Erntegut oder Schwadmaterial liegen lassen, wenn sie abhängig von Ebenheit des Bodens zu schnell bewegt werden." />
+        <e k="terraLogic_help_speed_h4" v="Das Tempo verändert auch das Bodenergebnis" />
+        <e k="terraLogic_help_speed_p4" v="Eine schnelle Überfahrt verringert nicht nur einen allgemeinen Qualitätswert. Bei Bodenbearbeitungsgeräten ändert sie, wie stark jeder der fünf Bodenzustände beeinflusst wird. Ein Pflug kann schlechter lockern und zugleich eine sehr raue, übermäßig zerkleinerte Oberfläche hinterlassen. Grubber und Eggen können den Boden zu stark verfeinern, ohne wie vorgesehen zu lockern oder einzuebnen. Ein Tiefenlockerer kann seine volle Tiefe nicht wirksam lösen. Jedes Gerät besitzt eine eigene Reaktion, die der Planer als Vorschau zeigt." />
+        <e k="terraLogic_help_speed_h5" v="Zeitgewinn und Folgen abwägen" />
+        <e k="terraLogic_help_speed_p5" v="Schnelleres Arbeiten kann Zeit sparen, erhöht bei bodeneingreifenden Geräten aber den Leistungsbedarf und Verschleiß. Starke Überlastung oder Steintreffer können zusätzliche Schäden verursachen. Beachte deshalb neben der Arbeitsqualität auch Belastung und Warnungen im Arbeits-HUD. Mehr Traktorleistung schützt das Gerät nicht vor Überlastung." />
+
+        <e k="terraLogic_help_draft_title" v="Zugwiderstand und Leistungsbedarf" />
+        <e k="terraLogic_help_draft_p1" v="TerraLogic verändert den Zugwiderstand unterstützter bodengreifender Geräte. Arbeitsbreite und Arbeitstiefe sind bereits im normalen Leistungsbedarf des Grundspiels enthalten. TerraLogic ergänzt hingegen den Einfluss des Feldes, Temperatur, Feuchtigkeit und des aktuellen Gerätezustands. Sofern mit Precision Farming gespielt wird, beeinflussen die unterschiedlichen Bodenarten ebenfalls den Zugkraftbedarf." />
+        <e k="terraLogic_help_draft_h2" v="Bodenarten von Precision Farming" />
+        <e k="terraLogic_help_draft_p2" v="Mit aktivem Precision Farming lässt sich lehmiger Sand im Allgemeinen am leichtesten ziehen, verstärkt aber den Verschleiß durch abrasive Sandpartikel. Sandiger Lehm dient als neutraler Boden mit moderatem Verschleiß, Lehm benötigt mehr Zugkraft bei etwas reduziertem Verschleiß und schluffiger Ton besitzt den höchsten Grundwiderstand, dafür den geringsten Verschleiß. Bei tief arbeitenden Geräten ist der Unterschied deutlicher, weil mehr Boden bewegt wird. Ohne Precision Farming verwendet TerraLogic einen ausgewogenen Standardboden mit ähnlichen Eigenschaften wie Sandiger Lehm. Das vollständige System von TerraLogic bleibt dabei auch ohne Precision Farming aktiv." />
+        <e k="terraLogic_help_draft_h3" v="Der vorhandene Bodenzustand" />
+        <e k="terraLogic_help_draft_p3" v="Jedes Gerät reagiert auf den Boden, den seine Werkzeuge tatsächlich bearbeiten. Ein Tiefenlockerer reagiert stark auf Tiefenverdichtung, ein Grubber auf verdichteten oder scholligen Oberboden und eine Sämaschine auf Oberflächenverdichtung, grobe Krümelstruktur und Unebenheit. Zwei Felder derselben Bodenart können deshalb nach unterschiedlichem Verkehr und verschiedener Bearbeitung einen anderen Zugkraftbedarf besitzen, wenn sich Verdichtung, Krümelstruktur und Ebenheit unterscheiden." />
+        <e k="terraLogic_help_draft_h4" v="Feuchte und Frost" />
+        <e k="terraLogic_help_draft_p4" v="Sehr trockener Boden kann hart werden und dem Eindringen widerstehen; nasser bindiger Boden kann schwer ziehen und verschmieren, statt sauber zu krümeln. Gefrorenes Wasser verbindet die Bodenpartikel und erhöht den Zugwiderstand stark, während die Eindringung abnimmt." />
+        <e k="terraLogic_help_draft_h5" v="Verschlissene Arbeitswerkzeuge" />
+        <e k="terraLogic_help_draft_p5" v="Abgenutzte Schare, Spitzen, Scheiben und Säelemente dringen nicht mehr so sauber ein und schneiden den Boden schlechter. TerraLogic erhöht deshalb bei verschlissenen Bodengeräten den Zugwiderstand leicht und verringert gleichzeitig erreichbare Bodenwirkung und Arbeitsqualität. Die Stärke hängt von der Geräteart ab. Ein vollständig defektes Gerät muss vor der Arbeit repariert werden, ehe es wieder verwendet werden kann." />
+        <e k="terraLogic_help_draft_h6" v="Geschwindigkeit und Traktorwahl" />
+        <e k="terraLogic_help_draft_p6" v="Oberhalb der angegebenen Arbeitsgeschwindigkeit benötigen geeignete Bodengeräte zunehmend mehr Zugkraft, wobei die benötigte Leistung je nach Gerät etwa quadratisch steigt. Ein größerer Traktor kann diese Leistung liefern, doch sein zusätzliches Gewicht und seine Achslast können den Boden stärker verdichten. Die gesparte Zeit kann bei zu starker Verdichtung einen Teil der Ernte kosten. Wähle ausreichend Leistung ohne unnötiges Gewicht oder übermäßigen Ballast und betrachte im Planer Zugwiderstand und Verdichtungsrisiko." />
+
+        <e k="terraLogic_help_weather_title" v="Feuchtigkeit, Temperatur und Frost" />
+        <e k="terraLogic_help_weather_p1" v="TerraLogic bildet aus Regen, Schnee, Verdunstung und Lufttemperatur ein träges Bodenklima. Oberfläche, Wurzelzone und tiefere Schichten reagieren unterschiedlich schnell: Ein kurzer Wetterwechsel erreicht zuerst die Oberfläche, während Wasser und Temperatur darunter zeitversetzt folgen. Dadurch entscheidet nicht nur das Wetter-Symbol, sondern der tatsächliche Bodenzustand über Feldarbeit und Pflanzen." />
+        <e k="terraLogic_help_weather_h2" v="Oberboden- und Wurzelzonenfeuchte" />
+        <e k="terraLogic_help_weather_p2" v="Oberbodenfeuchte bestimmt die Empfindlichkeit gegen Verkehr und das Verhalten flacher Bodenarbeit. Die Wurzelzonenfeuchte verändert sich langsamer und beschreibt den Wasservorrat während des Wachstums. Mit Precision Farming reagieren die vier Bodenarten unterschiedlich. Ohne Precision Farming wird ein ausgewogener Standardboden verwendet." />
+        <e k="terraLogic_help_weather_h3" v="Bodentemperatur und Frost" />
+        <e k="terraLogic_help_weather_p3" v="Der Oberboden folgt der Lufttemperatur schneller als tiefere Schichten. Gefrorener Boden erhöht den Zugkraftbedarf, verringert die Eindringung und begrenzt die Arbeitsqualität bodengreifender Geräte und Sämaschinen. Frost-Tau-Wechsel können durch Frostsprengung eine kleine natürliche Lockerung bewirken." />
+        <e k="terraLogic_help_weather_h4" v="Wetter und Ertrag" />
+        <e k="terraLogic_help_weather_p4" v="Die Wasserversorgung während des Wachstums wirkt sich auf die spätere Ernte aus. Ein später Regenschauer gleicht eine längere Trockenphase nicht vollständig aus. Umgekehrt verliert eine gut versorgte Kultur nicht nachträglich ihren gesamten Vorteil, nur weil es am Erntetag trocken ist. Der Wetterverlust bleibt begrenzt, da du den Regen nicht kontrollieren kannst und das Wetter von der Karte abhängt. Bei ungünstigen Wetterverläufen kannst du Bodenfeuchte beeinflusst Ertrag ausschalten. Feuchtigkeit und Temperatur wirken weiterhin auf Verdichtung, Arbeitsqualität, Bodenbearbeitung und Zugkraftbedarf." />
+
+        <e k="terraLogic_help_recovery_title" v="Resilienz und natürliche Erholung" />
+        <e k="terraLogic_help_recovery_p1" v="Erholung geschieht auf zwei verschiedene Arten. Langsame physikalische Vorgänge verändern Verdichtung, Krümelstruktur und Ebenheit. Die Bodenresilienz beschreibt dagegen die langfristige biologische Struktur und Widerstandskraft des Bodens. Steigende Resilienz macht zukünftige Überfahrten weniger schädlich." />
+        <e k="terraLogic_help_recovery_h2" v="Lebende Wurzeln und Fruchtfolge" />
+        <e k="terraLogic_help_recovery_p2" v="Lebende Kulturen unterstützen die Erholung. Der Wechsel zwischen flach und tief wurzelnden Kulturgruppen wirkt besser als dieselbe Frucht oder dasselbe Wurzelbild wiederholt anzubauen. Zwischenfrüchte geben einen zusätzlichen Beitrag, weil ihre Wurzeln die Zeit zwischen Hauptkulturen nutzen. Mehrjähriges Gras ist besonders wertvoll, wenn es mehrere Jahre ungestört bleibt. Abgestorbene oder verwitterte Pflanzen zählen nicht mehr als lebender Bewuchs. Das gilt auch für Ölrettich, sobald das Spiel ihn als abgestorben führt. Ernterückstände sind trotzdem nicht nutzlos: Sie werden anders bewertet als lebende Wurzeln. Eine mögliche Düngewirkung beim Einarbeiten bleibt davon getrennt." />
+        <e k="terraLogic_help_recovery_h3" v="Bodenruhe und Eingriffe" />
+        <e k="terraLogic_help_recovery_p3" v="Möglichst geringe Bodenstörung schützt die Resilienz, starke Verdichtung kann aber weiterhin Grubbern oder Tiefenlockern rechtfertigen. Grundsätzlich stören flach arbeitende Geräte die biologische Kontinuität weniger als tiefe oder intensive Bodenbearbeitung. Pflug und Spatenmaschine lockern sofort, unterbrechen dabei jedoch gewachsene Poren und biologische Strukturen. Lebende Wurzeln bauen diese Kontinuität ungefähr innerhalb eines Anbaujahres wieder auf; die Resilienz selbst entwickelt sich weiterhin über mehrere Saisons." />
+        <e k="terraLogic_help_recovery_h4" v="Einstellung der Erholungsgeschwindigkeit" />
+        <e k="terraLogic_help_recovery_p4" v="Die Einstellungen 1x, 4x und 8x in den Einstellungen von TerraLogic beschleunigen die langfristige Resilienzentwicklung für unterschiedlich lange Spielstände. Natürliche physikalische Erholung und direkte Wurzellockerung bleiben bewusst begrenzt, sodass selbst die schnellste Einstellung Verdichtungen nicht automatisch entfernt. Bei einer beschleunigten Resilienzentwicklung werden ebenfalls negative Effekte von schwerer Bodenbearbeitung verstärkt, um das System im Gleichgewicht zu halten. Geschonter Boden - wie zum Beispiel bei der Direktsaat - baut schneller Resilienz auf, Pflüge und Grubber stören diese aber ebenfalls in höherem Maße." />
+        <e k="terraLogic_help_recovery_h5" v="Ernterückstände und langsame Reparatur" />
+        <e k="terraLogic_help_recovery_p5" v="Ein erfolgreicher Mulchgang hinterlässt nützliche Ernterückstände und trägt einmalig ein wenig zur Bodenresilienz bei. Wiederholtes Mulchen derselben Stelle erzeugt allerdings keine unbegrenzte Verbesserung. Bodenbearbeitung besitzt keinen eigenen Qualitätswert mehr, der sich von selbst erholt: Wurzeln, Witterung, Bewuchs und spätere Arbeitsgänge verändern stattdessen die tatsächlichen Bodenkarten. Nur kleine Lücken in mehrjährigem Gras können allmählich zuwachsen." />
+
+        <e k="terraLogic_help_work_title" v="Arbeitsqualität und Fehlstellen" />
+        <e k="terraLogic_help_work_p1" v="Ein abgeschlossener Feldzustand des Grundspiels bedeutet nicht automatisch, dass die Arbeit gut ausgeführt wurde. TerraLogic speichert örtlich, wie wirksam unterstützte Arbeitsgänge waren. 'Nicht ausgeführt' ist neutral." />
+        <e k="terraLogic_help_work_h2" v="Was die Qualität verändert" />
+        <e k="terraLogic_help_work_p2" v="Die wichtigen Ursachen hängen vom Gerät ab: Tempo und Verschleiß beeinflussen fast jede unterstützte Arbeit: Sämaschinen reagieren zusätzlich auf Verdichtung, Krümelstruktur, Ebenheit, Feuchte und Frost. Bodengeführte Geräte reagieren auf die Bodenbeschaffenheit. Der Planer zeigt die beste bei angepasstem Arbeitstempo erreichbare Qualität, damit der Spieler Arbeitsschritte unter aktuellen Wetterbedingungen, Temperatur und Feuchte besser einschätzen kann." />
+        <e k="terraLogic_help_work_h3" v="Physische Fehlstellen" />
+        <e k="terraLogic_help_work_p3" v="Wenn der reale Arbeitsmechanismus es zulässt, kann ein Gerät tatsächlich etwas auslassen, statt nur eine schlechtere Bewertung zu erhalten. Schlechte Saat erzeugt ungesäte Stellen; Ausbringgeräte können unbehandelte Bereiche hinterlassen; Striegel und Hackgeräte lassen Unkraut stehen; Pickups können Schwadmaterial liegen lassen. Dieser Verlust entsteht sofort und wird nicht später ein zweites Mal vom Ertrag abgezogen. Bodenbearbeitungsgeräte erhalten dagegen keine künstlichen Zufallslöcher." />
+        <e k="terraLogic_help_work_h4" v="Gespeicherte Ergebnisse" />
+        <e k="terraLogic_help_work_p4" v="Saatqualität und ausgewählte Ausbringungsqualitäten bleiben im betroffenen Bereich des Feldes gespeichert und können die spätere Ernte beeinflussen. Das lokale HUD beschreibt den Boden unter dem Spieler. TerraLogic-Feldanalyse mittelt das Feld und zeigt, wie viel Fläche tatsächlich erfasst wurde." />
+        <e k="terraLogic_help_work_h5" v="Warum Fehlstellen fest dazugehören" />
+        <e k="terraLogic_help_work_p5" v="Physische Fehlstellen sind eine feste Konsequenz, wenn ein Gerät tatsächlich Saatgut, Erntegut oder Material liegen lassen kann. Sie bleiben aktiv, damit Sämaschinen, Pickups und oberflächennah arbeitende Geräte in jedem Spielstand gleich nachvollziehbar ausbalanciert sind. Bodenbearbeitungsgeräte erhalten keine künstlichen Zufallslöcher: Bei absurdem Tempo brechen stattdessen Bodeneingriff und persistente Bodenwirkung weich ein." />
+
+        <e k="terraLogic_help_yield_title" v="Wie TerraLogic den Ertrag beeinflusst" />
+        <e k="terraLogic_help_yield_p1" v="Grundspiel und Precision Farming berechnen zuerst ihren vollständigen normalen Ertrag. Danach wendet TerraLogic abhängig von Boden, Wasserversorgung und Feldarbeit einen gemeinsamen kontinuierlichen Faktor von 60 bis 110 % an. Resilienz hilft, gute Bodenbedingungen zu erhalten, gibt aber keinen direkten Ertragsbonus oder -malus. Düngung, Kalk, Unkraut, Kulturboni und das Umweltsystem von Precision Farming werden weder zurückgesetzt noch ersetzt." />
+        <e k="terraLogic_help_yield_h2" v="Boden und Wurzelentwicklung" />
+        <e k="terraLogic_help_yield_p2" v="Oberflächen- und Tiefenverdichtung erschweren das Wurzelwachstum. Starke Tiefenverdichtung kann besonders schädlich sein und lässt sich schwerer beheben. Entscheidend ist der Bodenzustand während des Wachstums, nicht nur am Erntetag. Späteres Lockern macht bereits entstandene Wachstumseinbußen deshalb nicht einfach rückgängig." />
+        <e k="terraLogic_help_yield_h3" v="Wasser und Feldarbeit" />
+        <e k="terraLogic_help_yield_p3" v="Wasserknappheit oder anhaltende Nässe können das Wachstum beeinträchtigen, wenn der Feuchteeinfluss auf den Ertrag aktiviert ist. Auch gespeicherte Saat- und Ausbringungsqualität sowie unterstützte Ernteverluste zählen zum Ergebnis. Resilienz beeinflusst den Ertrag nur indirekt: Ein widerstandsfähiger Boden ist weniger anfällig für neue Verdichtung. Sie gibt keinen eigenen Ertragsbonus oder -malus. Wo Pflanzen fehlen, entsteht keine Ernte; solche Lücken liegen deshalb außerhalb der Untergrenze von 60 Prozent." />
+        <e k="terraLogic_help_yield_h4" v="Die Schätzung lesen" />
+        <e k="terraLogic_help_yield_p4" v="TerraLogic-Feldanalyse trennt Wurzelentwicklung, Wasserversorgung und Qualität der Feldarbeit und zeigt danach das finale Ertragspotenzial. Etwa 100 % erhalten das bereits berechnete Ergebnis des Basisspiels; hervorragende Bewirtschaftung kann 110 % erreichen, während mehrere schwere Probleme bis auf 60 % führen können. Der Wert ist ein relativer Faktor und kein Versprechen in Tonnen pro Hektar." />
+
+        <e k="terraLogic_help_damage_title" v="Verschleiß, Abrasion und Steinschäden" />
+        <e k="terraLogic_help_damage_p1" v="Das Grundspiel berücksichtigt vor allem allgemeinen Betriebsverschleiß und eine begrenzte Steinwirkung. TerraLogic erhält den normalen Verschleiß und ergänzt Belastung durch Arbeitsgeschwindigkeit, Bodenabrasion, tatsächlichen Kontakt mit sichtbaren Feldsteinen sowie simulierte Steine unter der Oberfläche. Diese Ursachen werden getrennt berechnet, damit sich ein harter Einschlag anders auswirkt als langsame Abnutzung." />
+        <e k="terraLogic_help_damage_h2" v="Langsamer Verschleiß und Bodenabrasion" />
+        <e k="terraLogic_help_damage_p2" v="Bodeneingreifende Geräte verschleißen durch die Reibung im Boden. Hoher Zugwiderstand, lange Arbeitsstrecken und abrasive Böden erhöhen diesen Verschleiß. Verschlissene Geräte können schlechter arbeiten und mehr Zugkraft benötigen. Kontrolliere ihren Zustand regelmäßig und repariere sie rechtzeitig." />
+        <e k="terraLogic_help_damage_h3" v="Sichtbare Feldsteine" />
+        <e k="terraLogic_help_damage_p3" v="Sichtbare Feldsteine können geeignete Geräte beschädigen. Große Steine, hohe Geschwindigkeit und bodennahe Arbeitswerkzeuge erhöhen das Risiko. Unebener Boden kann beispielsweise Mähwerke stärker gefährden. Ein Steinsammler entfernt sichtbare Steine und verringert dieses Risiko. Sind Feldsteine in den Spieleinstellungen ausgeschaltet, entfällt diese Schadensquelle; simulierte unterirdische Steine sind davon getrennt." />
+        <e k="terraLogic_help_damage_h4" v="Simulierte Steine unter der Oberfläche" />
+        <e k="terraLogic_help_damage_p4" v="Nicht jeder schädliche Stein liegt sichtbar auf der Oberfläche. TerraLogic simuliert auch gelegentliche Treffer unterirdischer Steine. Tief arbeitende Geräte sind stärker betroffen als flach geführte Werkzeuge. Auch auf einem sichtbar steinfreien Feld sind solche Treffer möglich." />
+        <e k="terraLogic_help_damage_h5" v="Rotierende Teile und Werkzeugkontakt" />
+        <e k="terraLogic_help_damage_p5" v="Angetriebene, rotierende Werkzeuge können auch bei langsamer Fahrt hart auf Steine treffen. Kreiseleggen, Spatenmaschinen, Mulcher und andere rotierende Geräte reagieren deshalb anders als passive Zinken oder Schare. Langsameres Fahren senkt nicht bei jedem Gerät jedes Schadensrisiko gleichermaßen." />
+        <e k="terraLogic_help_damage_h6" v="Folgen extremen Tempos" />
+        <e k="terraLogic_help_damage_p6" v="Hält ein starker Traktor ein bodeneingreifendes Zuggerät weit über seinem vorgesehenen Tempo, steigen gleichzeitig Zugkraft und übertragene Leistung. Bis zur oberen Belastungsreferenz wächst vor allem die Abrasion; darüber setzt zunehmend schwerer Strukturschaden ein. Arbeitsqualität, sichtbare Fehlstellen und Steintreffer bleiben davon getrennte Folgen. Das Arbeits-HUD zeigt Last, Verschleiß und die wichtigste aktuelle Warnung." />
+        <e k="terraLogic_help_damage_h7" v="Einstellungen für Steinschäden" />
+        <e k="terraLogic_help_damage_p7" v="Die Einstellung für sichtbare Steine wählt zwischen dem normalen Schadensverhalten von Farming Simulator 25 und dem erweiterten Schaden für weitere geeignete TerraLogic-Geräte. Untergrundsteine bleiben Teil der Simulation, auch wenn keine sichtbare Steinschicht vorhanden ist. Die separate Option Steinschlagwarnungen bestimmt nur, ob starke Treffer im Arbeits-HUD gemeldet werden; sie schaltet den Schaden nicht ab." />
+
+        <e k="terraLogic_help_compat_title" v="Precision Farming, Multiplayer und andere Mods" />
+        <e k="terraLogic_help_compat_p1" v="Die Grundsimulation von TerraLogic funktioniert ohne Precision Farming. Ist Precision Farming aktiv, verändern lehmiger Sand, sandiger Lehm, Lehm und schluffiger Ton die Feuchtereaktion, Zugkraft, Verkehrsempfindlichkeit und Erholung." />
+        <e k="terraLogic_help_compat_h2" v="Multiplayer" />
+        <e k="terraLogic_help_compat_p2" v="Im Multiplayer berechnet der Server die Bodenveränderungen, speichert die Felddaten und verteilt die gemeinsamen Spieleinstellungen. Dadurch erhalten alle Spieler dasselbe Bodenergebnis. Anzeigeauswahl, Handbuch und Tutorialfortschritt bleiben persönlich und verändern keine Einstellungen anderer Spieler." />
+        <e k="terraLogic_help_compat_h3" v="Kombigeräte und besondere Maschinen" />
+        <e k="terraLogic_help_compat_p3" v="Bei unterstützten Gerätekombinationen berücksichtigt TerraLogic mehrere Arbeitsgänge, zum Beispiel Bodenbearbeitung und Saat oder Gülleausbringung und Einarbeitung. Nicht jede Sonderfunktion eines Mod-Geräts wird automatisch erkannt. Manche selbstfahrenden Trägersysteme behalten ihre eigene Geschwindigkeitsbegrenzung." />
+        <e k="terraLogic_help_compat_h4" v="Andere Mods verwenden" />
+        <e k="terraLogic_help_compat_p4" v="Andere Mods können dieselben Fahrzeugfunktionen verändern. Falls ein Gerät unerwartet arbeitet, melde das Problem im offiziellen GitHub-Repository. Nenne TerraLogic-Version, Karte, Maschine, aktive Mods und die Schritte, mit denen der Fehler auftritt. Füge nach Möglichkeit die Spiel-Logdatei bei. Zusätzliche Testaufnahmen sind nur nötig, wenn wir sie zur Diagnose anfordern." />
+        <e k="terraLogic_help_compat_h5" v="More Realistic und Zugwiderstand" />
+        <e k="terraLogic_help_compat_p5" v="Wenn More Realistic installiert ist, kannst du in den TerraLogic-Einstellungen wählen, welcher Mod den Zugwiderstand steuert. Mit More Realistic gilt dessen Zugkraftmodell; mit TerraLogic wirken die hier beschriebenen Bodeneinflüsse. Bei ungewöhnlichem Fahrverhalten prüfe diese Auswahl und mögliche Konflikte zwischen den Mods." />
+
+        <e k="terraLogic_help_problems_title" v="Schnelle Problemlösung" />
+        <e k="terraLogic_help_problems_h1" v="Oberflächenverdichtung ist hoch" />
+        <e k="terraLogic_help_problems_p1" v="Prüfe zuerst, ob das Problem örtlich oder feldweit besteht. Vermeide weitere nasse oder wiederholte Überfahrten. Ein normaler Grubber kann mäßige Verdichtung oben lockern; flache Geräte wirken schwächer, während Pflügen eine stärkere, aber störendere Maßnahme ist." />
+        <e k="terraLogic_help_problems_h2" v="Tiefenverdichtung ist hoch" />
+        <e k="terraLogic_help_problems_p2" v="Verringere zuerst Achslasten und wiederholte Fahrspuren. Nutze einen Tiefenlockerer, wenn eine tiefe Reparatur gerechtfertigt ist. Flachgrubber, Egge und Walze können Tiefenverdichtung nicht beheben; natürliche Erholung bleibt bewusst langsam." />
+        <e k="terraLogic_help_problems_h3" v="Saatqualität ist niedrig" />
+        <e k="terraLogic_help_problems_p3" v="Prüfe Oberflächenverdichtung, Krümelstruktur, Ebenheit, Feuchte, Frost, Tempo und Geräteverschleiß. Bereite nur die ungeeignete Eigenschaft nach. Nach der Saat kann eine Walze einen Teil schlechter Bodenhaftung ausgleichen, aber fehlende Saat sowie Tempo- und Verschleißfehler nicht beheben." />
+        <e k="terraLogic_help_problems_h4" v="Zugkraft oder Schaden ist ungewöhnlich hoch" />
+        <e k="terraLogic_help_problems_p4" v="Vergleiche aktuelle Feuchte und Temperatur, Bodenart, Verdichtung, Krümelstruktur und Tempo in TerraLogic-Feldanalyse oder im Planer. Prüfe das Gerät auf Verschleiß und beachte sichtbare oder verborgene Steine. Mehr Motorleistung hält die Maschine möglicherweise in Bewegung, beseitigt aber die Ursache nicht." />
+        <e k="terraLogic_help_problems_h5" v="Ertragsschätzung ist niedrig" />
+        <e k="terraLogic_help_problems_p5" v="Öffne in der Feldanalyse die Seite Arbeit und Ertrag. Vergleiche Wurzelentwicklung, Wasserversorgung und Arbeitsqualität, um die wichtigsten Verlustursachen zu erkennen. Nutze anschließend die Übersicht und den Planer, um passende Maßnahmen für den nächsten Arbeitsgang zu wählen. Wenige problematische Fahrspuren rechtfertigen nicht automatisch eine Bearbeitung des ganzen Feldes." />
+
+        <!-- Ergänzende Handbuchseiten für Einstieg, Analyse und Optionen -->
+        <e k="terraLogic_help_quick_title" v="Schnellstart: Das erste Feld" />
+        <e k="terraLogic_help_quick_p1" v="Du musst nicht sofort jede Zahl verstehen. Für den Einstieg reicht ein einfacher Ablauf: Feld prüfen, ein passendes Gerät wählen, während der Arbeit auf das Arbeits-HUD reagieren und das Ergebnis danach kontrollieren. TerraLogic belohnt eine nachvollziehbare Entscheidung stärker als eine feste Reihenfolge von Maschinen." />
+        <e k="terraLogic_help_quick_h2" v="1. Vor der Arbeit prüfen" />
+        <e k="terraLogic_help_quick_p2" v="Stelle dich auf das Feld, öffne das ESC-Menü und wähle das TerraLogic-Symbol. Beginne mit der Übersicht und ihren Empfehlungen, prüfe anschließend Wetter und Einflüsse. Suche zuerst das größte Problem: Ist nur eine Fahrspur verdichtet, das ganze Saatbett uneben oder der Boden zu nass oder gefroren? Kleine lokale Probleme rechtfertigen selten einen zusätzlichen Arbeitsgang über das ganze Feld." />
+        <e k="terraLogic_help_quick_h3" v="2. Das passende Gerät wählen" />
+        <e k="terraLogic_help_quick_p3" v="Behandle nur das Problem, das wirklich vorhanden ist. Ein Tiefenlockerer ist für Tiefenverdichtung gedacht, ein Grubber für den Oberboden und die Saatbettbereitung, eine Egge vor allem zum Verfeinern und Einebnen. Ist der Boden bereits tragfähig und eben, kann Direktsaat eine zusätzliche Überfahrt vermeiden und die Resilienz langfristig schützen." />
+        <e k="terraLogic_help_quick_h4" v="3. Arbeiten und kontrollieren" />
+        <e k="terraLogic_help_quick_p4" v="Beginne ungefähr im grünen Tempobereich. Sinkt die Arbeitsqualität oder meldet das HUD unebenen, nassen, trockenen oder gefrorenen Boden, reduziere das Tempo und prüfe, ob sich das Ergebnis verbessert. Mechanische Last und Verschleiß erklären Risiken für das Gerät. Kontrolliere anschließend die passende Bodenkarte und später unter Arbeit und Ertrag, was auf dem Feld gespeichert wurde." />
+        <e k="terraLogic_help_quick_example" v="Nach sauberem Pflügen ist der Oberboden locker, aber meist grob und uneben. Du kannst langsam direkt säen und damit Fehlstellen vermeiden, die Ablagequalität bleibt jedoch begrenzt. Ein passender Grubber oder eine Kreiselegge kostet einen zusätzlichen Arbeitsgang, schafft dafür ein gleichmäßigeres Saatbett und erlaubt der Sämaschine eine bessere Ablage bei normalem Tempo. Auf einem bereits ebenen Stoppelfeld kann eine geeignete Direktsaatmaschine dagegen ohne diesen Zwischenschritt sinnvoller sein." />
+
+        <e k="terraLogic_help_analysis_title" v="TerraLogic-Feldanalyse verstehen" />
+        <e k="terraLogic_help_analysis_p1" v="TerraLogic-Feldanalyse ist die zentrale Auswertung des Feldes, auf dem du stehst. Öffne das ESC-Menü und wähle das TerraLogic-Symbol. Die fünf Seiten beantworten nacheinander: Wie steht der Boden da? Wo ging Arbeits- oder Ertragspotenzial verloren? Was bewirken Wetter und Bodenzustand gerade? Was würde ein bestimmtes Gerät tun? Und welche Maßnahmen sind jetzt oder später sinnvoll?" />
+        <e k="terraLogic_help_analysis_h2" v="Übersicht: Felddurchschnitt statt Einzelspur" />
+        <e k="terraLogic_help_analysis_p2" v="Die Übersicht mittelt nur Bereiche, für die TerraLogic tatsächlich Bodendaten besitzt. Außerhalb eines Feldes oder einer selbst angelegten Bodenfläche werden Striche angezeigt. Flächenanteile und Farbbewertungen helfen zu unterscheiden, ob ein Problem nur wenige Fahrspuren oder einen großen Teil des Feldes betrifft. Nutze die Minimap zusätzlich, weil ein Durchschnitt die genaue Position nicht zeigen kann." />
+        <e k="terraLogic_help_analysis_h3" v="Arbeit und Ertrag" />
+        <e k="terraLogic_help_analysis_p3" v="Ein Strich bei einer Arbeitsqualität bedeutet, dass dieser Arbeitsgang nicht erfasst wurde; er ist weder gut noch schlecht. Saat- und andere gespeicherte Qualitäten werden mit ihrer erfassten Fläche ausgewertet. Die Ertragsseite trennt Wurzelentwicklung, Wasser und Feldarbeit. Verluste erscheinen mit Minuszeichen, während das finale Potenzial zeigt, welcher Faktor später auf den bereits vom Grundspiel oder Precision Farming berechneten Ertrag wirkt." />
+        <e k="terraLogic_help_analysis_h4" v="Wetter, Einflüsse und Planer" />
+        <e k="terraLogic_help_analysis_p4" v="Wetter und Einflüsse zeigt Oberflächen- und Tiefentemperatur, Feuchte, Niederschlag und die Folgen für die nächste Arbeit. Im Planer wählst du links Geräteklasse und Gerät; das aktuell angehängte Gerät wird möglichst automatisch gewählt. Im Fahrzeug bleiben Fahrzeuggewicht, Gerätegewicht, Gesamtgewicht, höchste Achslast und Bodenkontaktdruck sichtbar. Die Vorschau nutzt dieselben Boden-, Wetter- und Geräteberechnungen wie die echte Arbeit, bildet aber keine zusätzlichen Wendemanöver, Überlappungen oder späteren Mehrfachüberfahrten vorweg." />
+        <e k="terraLogic_help_analysis_h5" v="Empfehlungen richtig verwenden" />
+        <e k="terraLogic_help_analysis_p5" v="Aktuelle Maßnahmen helfen vor oder während des anstehenden Arbeitsgangs. Nächster Arbeitsgang beschreibt eine sinnvolle Korrektur in der folgenden Bearbeitung. Langfristig betrifft Verkehr, Fruchtfolge, Zwischenfrüchte und Resilienz über mehrere Saisons. Die Hinweise sind keine starre Aufgabenliste: Prüfe immer, ob die betroffene Fläche groß genug ist, damit sich ein zusätzlicher Arbeitsgang lohnt." />
+        <e k="terraLogic_help_analysis_example" v="Zeigt der Durchschnitt 20 Prozent Oberflächenverdichtung, die Karte aber zwei rote Fahrgassen und sonst grünen Boden, wäre ein Vollflächen-Pflug keine sinnvolle Reaktion. Nutze die Fahrgassen weiter oder lockere sie beim nächsten ohnehin geplanten Arbeitsgang. Sind dagegen große Teile des Feldes verdichtet und der Planer zeigt eine deutliche Verbesserung durch einen Grubber, ist die zusätzliche Bearbeitung nachvollziehbar." />
+
+        <e k="terraLogic_help_options_title" v="Einstellungen und Tutorial" />
+        <e k="terraLogic_help_options_p1" v="Die TerraLogic-Einstellungen findest du im normalen Spieleinstellungsmenü. Anzeige, Minimap-Zoom und Tutorial kannst du an deine Vorlieben anpassen. Einstellungen für die gemeinsame Simulation dürfen im Multiplayer nur Serveradmins ändern. Gespeicherte Einstellungen bleiben nach einem Mod-Update erhalten." />
+        <e k="terraLogic_help_options_h2" v="Arbeits-HUD, Meldungsdauer und Minimap" />
+        <e k="terraLogic_help_options_p2" v="Dynamisch blendet das Arbeits-HUD bei Bedarf ein und nach ruhiger Arbeit im grünen Bereich wieder aus. Immer sichtbar hält es auch bei erkannten, aber angehobenen Geräten bereit; Aus verbirgt zugleich die TerraLogic-Warnungen. Arbeitsqualität und Anzahl erkannter Geräte sind fester Bestandteil des HUDs. Die Meldungsdauer legt lokal zwischen einer und zehn Sekunden fest, wie lange jede Warnung vor dem nächsten Eintrag der Warteschlange lesbar bleibt. Der Minimap-Zoom gilt ebenfalls nur für dich." />
+        <e k="terraLogic_help_options_h3" v="Tutorial und Steinschlagwarnungen" />
+        <e k="terraLogic_help_options_p3" v="Im geführten Tutorial lernst du zuerst die Grundlagen und danach passende Themen zur aktuellen Situation. Im kontextbezogenen Modus entfallen die einleitenden Bodenkarten-Hinweise. Ein kurzer Rechtsklick aktiviert den Mauszeiger nur, wenn eine Tutorialkarte oder die Themenübersicht sichtbar ist. Währenddessen reagiert die Kamera im Fahrzeug und zu Fuß nicht auf Mausbewegungen. Ein weiterer Rechtsklick oder das Schließen gibt die Maus wieder frei. Weiter und Zurück wechseln die Seiten; Verstanden schließt ein Thema als gelesen ab. Das X schließt die Karte, ohne das Thema als gelesen zu markieren: Bei passendem Anlass kann es später erneut erscheinen. Die Karten bleiben zum Lesen geöffnet, während das Spiel weiterläuft. Über Themen oder die Tutorial-Themenübersicht in den Einstellungen kannst du jederzeit nachlesen. Ausschalten oder Zurücksetzen verändert weder Boden- noch Felddaten. Steinschlagwarnungen melden starke Treffer im Arbeits-HUD; ihr Ausschalten verhindert keinen Schaden." />
+        <e k="terraLogic_help_options_h4" v="Gemeinsame Gameplay-Einstellungen" />
+        <e k="terraLogic_help_options_p4" v="Die Resilienzentwicklung bietet Realistisch (1x), 4x und Normal (8x). Das gewählte Tempo gilt gleichermaßen für biologische Gewinne und Verluste durch Bodenbearbeitung, damit der beabsichtigte Unterschied zwischen intensiver und reduzierter Bearbeitung erhalten bleibt. Die physikalische Erholung von Verdichtung, Krümelstruktur und Ebenheit wird nicht beschleunigt. Der Schalter für Bodenfeuchte betrifft nur den Ertragsanteil des Wetters. Feuchte wirkt weiterhin auf Verdichtung, Zugwiderstand und Arbeitsqualität. Sichtbarer Steinschaden wählt Grundspiel oder die erweiterte TerraLogic-Wirkung. Ist More Realistic vorhanden, kann der Server außerdem den Anbieter für den Zugwiderstand wählen. Bodenkarten-Aktualisierung bietet Normal und Schnell. Schnell aktualisiert die Karten zügiger, beansprucht aber mehr Rechenleistung und im Multiplayer mehr Datenübertragung. Der Serveradmin kann die gemeinsame Einstellung während des Spiels ändern. Die Genauigkeit der Bodenberechnung und der Ertrag ändern sich dadurch nicht." />
+        <e k="terraLogic_help_options_h5" v="Bewusst nicht abschaltbar" />
+        <e k="terraLogic_help_options_p5" v="Bodenzustände, Arbeitsqualität, erkannte Kombigeräte und physische Fehlstellen sind Teil der Kernsimulation und besitzen keine Aus-Schalter. So bleibt dieselbe Maschine in jedem Spielstand nachvollziehbar ausbalanciert. Bereits gespeicherte Einstellungen werden bei einem Update beibehalten; neue Standardwerte überschreiben keinen vorhandenen Spielstand." />
+
+        <!-- ================================================================ -->
+        <!-- Field Analysis: interface labels and formatted values -->
+        <!-- ================================================================ -->
+        <e k="ui_TerraLogicFieldAnalysis" v="TerraLogic Feldanalyse" />
+        <e k="terraLogic_fa_ui_action" v="Handlungsbedarf" />
+        <e k="terraLogic_fa_ui_advice" v="Maßnahmen" />
+        <e k="terraLogic_fa_ui_calculatedConsequences" v="Erwartete Auswirkungen" />
+        <e k="terraLogic_fa_ui_caution" v="Mit Vorsicht" />
+        <e k="terraLogic_fa_ui_criticalArea" v="%d%% der geprüften Feldfläche benötigen Aufmerksamkeit" />
+        <e k="terraLogic_fa_ui_criticalLocal" v="Lokales Problem - %d%% der Feldfläche" />
+        <e k="terraLogic_fa_ui_criticalNone" v="Keine kritische Fläche erkannt" />
+        <e k="terraLogic_fa_ui_criticalWidespread" v="Flächiges Problem - %d%% der Feldfläche" />
+        <e k="terraLogic_fa_ui_crop" v="Kultur am Standort" />
+        <e k="terraLogic_fa_ui_cropWater" v="Wasserversorgung im Wachstum" />
+        <e k="terraLogic_fa_ui_currentAdvice" v="Aktuelle Empfehlung" />
+        <e k="terraLogic_fa_ui_deepCompaction" v="Tiefenverdichtung" />
+        <e k="terraLogic_fa_ui_deepTemperature" v="Temperatur in 35 cm" />
+        <e k="terraLogic_fa_ui_deepYieldLoss" v="Ertragsverlust durch Tiefenverdichtung" />
+        <e k="terraLogic_fa_ui_disabled" v="Deaktiviert" />
+        <e k="terraLogic_fa_ui_evenness" v="Ebenheit" />
+        <e k="terraLogic_fa_ui_expectedYield" v="Ertragseinschätzung" />
+        <e k="terraLogic_fa_ui_fertilizing" v="Düngung" />
+        <e k="terraLogic_fa_ui_fieldCapacity" v="Feldkapazität oben / Wurzelraum" />
+        <e k="terraLogic_fa_ui_fieldScope" v="Feld %d" />
+        <e k="terraLogic_fa_ui_fieldScopeUnknown" v="Feld am aktuellen Standort" />
+        <e k="terraLogic_fa_ui_fieldScopeSection" v="Feld %d - Teilfläche" />
+        <e k="terraLogic_fa_ui_fieldScopeExtended" v="Feld %d - erweitert" />
+        <e k="terraLogic_fa_ui_fieldScopeCreated" v="Erstelltes Feld" />
+        <e k="terraLogic_fa_ui_fieldScopeConnected" v="Verbundene Felder %s" />
+        <e k="terraLogic_fa_ui_fieldworkHistory" v="Ausgeführte Feldarbeiten" />
+        <e k="terraLogic_fa_ui_frozen" v="gefroren" />
+        <e k="terraLogic_fa_ui_furtherActions" v="Weitere Hinweise" />
+        <e k="terraLogic_fa_ui_genericSoil" v="Standardboden (Precision Farming inaktiv)" />
+        <e k="terraLogic_fa_ui_good" v="Gut" />
+        <e k="terraLogic_fa_ui_growthStage" v="Wachstumsprüfung %d von 3 - %d abgeschlossen" />
+        <e k="terraLogic_fa_ui_growthProgressRecorded" v="Aktuelle Wachstumsphase: %d von 3 | %d von 3 Wachstumsbewertungen gespeichert" />
+        <e k="terraLogic_fa_ui_growthProgressRecordedCoverage" v="Aktuelle Wachstumsphase: %d von 3 | %d von 3 Bewertungen auf %.0f %% der bewachsenen Fläche" />
+        <e k="terraLogic_fa_ui_growthProgressUpdating" v="Aktuelle Wachstumsphase: %d von 3 | Wachstumshistorie wird aktualisiert" />
+        <e k="terraLogic_fa_ui_growthProgressNone" v="Aktuelle Wachstumsphase: %d von 3 | Noch kein Wachstumsverlauf gespeichert" />
+        <e k="terraLogic_fa_ui_ledgerFactor" v="Ertragsfaktor der Feldarbeit" />
+        <e k="terraLogic_fa_ui_totalWorkQuality" v="Gesamte Arbeitsqualität" />
+        <e k="terraLogic_fa_ui_liming" v="Kalkung" />
+        <e k="terraLogic_fa_ui_loading" v="Feldübersicht wird berechnet ..." />
+        <e k="terraLogic_fa_ui_loam" v="Lehm" />
+        <e k="terraLogic_fa_ui_loamySand" v="Lehmiger Sand" />
+        <e k="terraLogic_fa_ui_localScope" v="Lokaler Bereich" />
+        <e k="terraLogic_fa_ui_longTerm" v="Langfristig" />
+        <e k="terraLogic_fa_ui_longTermAndResults" v="Langfristige Entwicklung und Ergebnisse" />
+        <e k="terraLogic_fa_ui_lossSources" v="Ursachen für verlorenes Ertragspotenzial" />
+        <e k="terraLogic_fa_ui_meaning" v="Was das bedeutet" />
+        <e k="terraLogic_fa_ui_mixedSoil" v="Gemischte Precision-Farming-Bodenarten" />
+        <e k="terraLogic_fa_ui_moistureFactor" v="Wasserversorgung im Wachstum" />
+        <e k="terraLogic_fa_ui_moistureInitializing" v="Die Feuchtesimulation ist erst vor kurzer Zeit gestartet. Beide Tiefen können zunächst denselben Wert zeigen; durch Regen, Versickerung und Abtrocknung werden sie sich bald unterschiedlich entwickeln." />
+        <e k="terraLogic_fa_ui_mulching" v="Mulchen" />
+        <e k="terraLogic_fa_ui_nextOperation" v="Nächster Arbeitsgang" />
+        <e k="terraLogic_fa_ui_noCrop" v="Keine wachsende Kultur erkannt" />
+        <e k="terraLogic_fa_ui_noField" v="An dieser Position wurde kein von TerraLogic bewerteter Feldboden gefunden." />
+        <e k="terraLogic_fa_ui_notRecorded" v="Nicht ausgeführt" />
+        <e k="terraLogic_fa_ui_now" v="Aktuell" />
+        <e k="terraLogic_fa_ui_nowAndNext" v="Aktuelle Bedingungen und nächster Arbeitsgang" />
+        <e k="terraLogic_fa_ui_currentConditions" v="Vor oder während der aktuellen Arbeit" />
+        <e k="terraLogic_fa_ui_currentWeather" v="Aktuelles Wetter" />
+        <e k="terraLogic_fa_ui_weatherDry" v="Kein Niederschlag" />
+        <e k="terraLogic_fa_ui_weatherRain" v="Regen %.0f %%" />
+        <e k="terraLogic_fa_ui_weatherSnow" v="Schnee %.0f %%" />
+        <e k="terraLogic_fa_ui_weatherMixed" v="Schneeregen %.0f %%" />
+        <e k="terraLogic_fa_ui_operatingWindow" v="Aktuelles Arbeitsfenster" />
+        <e k="terraLogic_fa_ui_overall" v="Gesamtzustand" />
+        <e k="terraLogic_fa_ui_overview" v="Übersicht" />
+        <e k="terraLogic_fa_ui_persistentSoil" v="Langfristiger Bodenzustand" />
+        <e k="terraLogic_fa_ui_priorityActions" v="Wichtigste Maßnahmen" />
+        <e k="terraLogic_fa_ui_qualityDropoutFormat" v="%d%% Qualität / %.1f%% Fehlstellen" />
+        <e k="terraLogic_fa_ui_recommendedActions" v="Empfohlene Schritte" />
+        <e k="terraLogic_fa_ui_recordedConsequences" v="Bereits berücksichtigt" />
+        <e k="terraLogic_fa_ui_recordedWork" v="Durchschnittliche Arbeitsqualität des Feldes" />
+        <e k="terraLogic_fa_ui_refresh" v="Standort aktualisieren" />
+        <e k="terraLogic_fa_ui_resilience" v="Bodenresilienz" />
+        <e k="terraLogic_fa_ui_biologicalContinuity" v="Biologische Kontinuität" />
+        <e k="terraLogic_fa_ui_continuityEstablished" v="Etabliert" />
+        <e k="terraLogic_fa_ui_continuityRecovering" v="Erholt sich" />
+        <e k="terraLogic_fa_ui_continuityRebuilding" v="Langsamer Wiederaufbau" />
+        <e k="terraLogic_fa_ui_continuityInterrupted" v="Unterbrochen" />
+        <e k="terraLogic_fa_ui_riskElevated" v="Erhöht" />
+        <e k="terraLogic_fa_ui_riskHigh" v="Hoch" />
+        <e k="terraLogic_fa_ui_riskLow" v="Gering" />
+        <e k="terraLogic_fa_ui_rolling" v="Walzen" />
+        <e k="terraLogic_fa_ui_rootFactor" v="Wurzelentwicklung im Wachstum" />
+        <e k="terraLogic_fa_ui_rootMoisture" v="Feuchte im Wurzelraum" />
+        <e k="terraLogic_fa_ui_rootZone" v="Wurzelentwicklung im Wachstum" />
+        <e k="terraLogic_fa_ui_sandyLoam" v="Sandiger Lehm" />
+        <e k="terraLogic_fa_ui_seeding" v="Saat" />
+        <e k="terraLogic_fa_ui_seedingResult" v="Ergebnis einer präzisen Saat" />
+        <e k="terraLogic_fa_ui_seedingSuitability" v="Präzise Saat unter aktuellen Bedingungen" />
+        <e k="terraLogic_fa_ui_seedingWindow" v="Saat" />
+        <e k="terraLogic_fa_ui_siltyClay" v="Schluffiger Ton" />
+        <e k="terraLogic_fa_ui_soil" v="Boden" />
+        <e k="terraLogic_fa_ui_soilCondition" v="Bodenzustand" />
+        <e k="terraLogic_fa_ui_soilType" v="Bodenart" />
+        <e k="terraLogic_fa_ui_storedWork" v="Ausgeführte Feldarbeiten" />
+        <e k="terraLogic_fa_ui_suitable" v="Geeignet" />
+        <e k="terraLogic_fa_ui_supportingWork" v="Weitere Arbeitsergebnisse" />
+        <e k="terraLogic_fa_ui_surfaceCompaction" v="Oberflächenverdichtung" />
+        <e k="terraLogic_fa_ui_surfaceMoisture" v="Feuchte im Oberboden" />
+        <e k="terraLogic_fa_ui_surfaceTemperature" v="Temperatur oben" />
+        <e k="terraLogic_fa_ui_surfaceYieldLoss" v="Ertragsverlust durch Oberflächenverdichtung" />
+        <e k="terraLogic_fa_ui_temperatureInitializing" v="Die Temperatursimulation ist erst vor kurzer Zeit gestartet. Beide Tiefen können zunächst denselben Wert zeigen; mit der Zeit wird die Oberfläche schneller auf Wetteränderungen reagieren als der tiefere Boden." />
+        <e k="terraLogic_fa_ui_terraLogicShare" v="Finales Ertragspotenzial" />
+        <e k="terraLogic_fa_ui_tillageDraft" v="Zugwiderstand" />
+        <e k="terraLogic_fa_ui_tillageEffect" v="Wirkung der Bodenbearbeitung" />
+        <e k="terraLogic_fa_ui_tillageWindow" v="Bodenbearbeitung" />
+        <e k="terraLogic_fa_ui_tilth" v="Krümelstruktur" />
+        <e k="terraLogic_fa_ui_title" v="TerraLogic Feldanalyse" />
+        <e k="terraLogic_fa_ui_topPriorityLong" v="Langfristig am wichtigsten" />
+        <e k="terraLogic_fa_ui_topPriorityNext" v="Beim nächsten Arbeitsgang am wichtigsten" />
+        <e k="terraLogic_fa_ui_topPriorityNow" v="Jetzt am wichtigsten" />
+        <e k="terraLogic_fa_ui_trafficRisk" v="Verdichtungsrisiko" />
+        <e k="terraLogic_fa_ui_trafficSensitivity" v="Schaden durch Überfahrten" />
+        <e k="terraLogic_fa_ui_unknownCrop" v="Unbekannte Kultur" />
+        <e k="terraLogic_fa_ui_unsuitable" v="Ungeeignet" />
+        <e k="terraLogic_fa_ui_watch" v="Beobachten" />
+        <e k="terraLogic_fa_ui_waterHistory" v="Wasserversorgung während des Wachstums" />
+        <e k="terraLogic_fa_ui_weather" v="Wetter" />
+        <e k="terraLogic_fa_ui_weatherNoForecast" v="Diese Seite zeigt den Boden jetzt und ist keine Vorhersage. Prüfe sie vor Arbeitsbeginn erneut, wenn sich Wetter oder Tageszeit geändert haben." />
+        <e k="terraLogic_fa_ui_weatherState" v="Bodenzustand und Wetter" />
+        <e k="terraLogic_fa_ui_weedControl" v="Unkrautbekämpfung" />
+        <e k="terraLogic_fa_ui_work" v="Arbeitsqualität" />
+        <e k="terraLogic_fa_ui_workability" v="Wetter und Befahrbarkeit" />
+        <e k="terraLogic_fa_ui_workQuality" v="Arbeitsqualität" />
+        <e k="terraLogic_fa_ui_results" v="Arbeit und Ertrag" />
+        <e k="terraLogic_fa_ui_conditions" v="Wetter und Einflüsse" />
+        <e k="terraLogic_fa_ui_currentEffects" v="Was das aktuell bedeutet" />
+        <e k="terraLogic_fa_ui_yield" v="Ertrag" />
+        <e k="terraLogic_fa_ui_yieldNotVanilla" v="Das ist noch nicht die endgültige Erntemenge. Sichtbare Saatlücken, die spätere Erntegeschwindigkeit und andere Spielsysteme können weiterhin verändern, was im Anhänger ankommt." />
+        <e k="terraLogic_fa_ui_yieldRelevantWork" v="In dieser Ertragsschätzung berücksichtigte Feldarbeit" />
+        
+        <!-- Page explanations and notes -->
+        <e k="terraLogic_fa_note_overviewFooter" v="Bei Verdichtung sind niedrige Werte in Richtung 0 % günstiger, bei Ebenheit und Bodenresilienz hohe Werte in Richtung 100 %. Die Krümelstruktur ist um 50 % ausgewogen." />
+        <e k="terraLogic_fa_note_resultsWork" v="Die Arbeitsqualität der erfassten Arbeitsgänge dieses Anbauzyklus. Nicht ausgeführte Arbeiten bleiben neutral." />
+        <e k="terraLogic_fa_note_resultsYield" v="Diese Qualitätswerte reichen bis 100 %. Gemeinsam bestimmen sie die Ertragseinschätzung gegenüber demselben Feld ohne TerraLogic, einschließlich möglicher Precision-Farming-Einflüsse. Sehr gute Bedingungen ermöglichen bis zu 110 %. Die Einschätzung entwickelt sich mit dem Wachstum der Kultur." />
+        <e k="terraLogic_fa_note_resultsLosses" v="Diese Werte zeigen die Verluste hinter der Einschätzung. Ungesäte Stellen verringern die Erntemenge zusätzlich, weil dort keine Kultur wächst." />
+        <e k="terraLogic_fa_note_conditionsFooter" v="Prüfe vor der Feldarbeit Bodenfeuchte und Bodentemperatur: Sie beeinflussen den Leistungsbedarf, das Eindringen der Werkzeuge und das Verdichtungsrisiko." />
+        <e k="terraLogic_fa_condition_frost" v="Gefrorener Boden erhöht den Zugwiderstand und erschwert das Eindringen der Werkzeuge." />
+        <e k="terraLogic_fa_condition_traffic" v="Die aktuellen Oberbodenbedingungen gewichten die Verdichtungszunahme durch Befahrung mit x%.2f." />
+        <e k="terraLogic_fa_condition_draft" v="Der aktuelle Bodenzustand erhöht den Zugwiderstand auf das %.2f-Fache." />
+        <e k="terraLogic_fa_condition_tillage" v="Bodenbearbeitung erreicht aktuell nur %d %% ihrer normalen Wirkung." />
+        <e k="terraLogic_fa_condition_seeding" v="Eine Sämaschine würde beim Referenztempo etwa %d %% Ablagequalität und %.1f %% Fehlstellen erreichen." />
+        <e k="terraLogic_fa_condition_seedingActionSeedbed" v="Bereite ein ebeneres, passend gekrümeltes Saatbett vor oder fahre langsamer, bis die Schare zuverlässig folgen." />
+        <e k="terraLogic_fa_condition_seedingActionSpeed" v="Verringere das Tempo, bis die Schare der Oberfläche zuverlässig folgen." />
+        <e k="terraLogic_fa_condition_seedingRollerHint" v="Walzen nach der Saat kann einen Teil der bodenbedingten Ablageverluste ausgleichen, ersetzt aber kein fehlendes Saatgut." />
+        <e k="terraLogic_fa_condition_good" v="Hier ist momentan keine spürbare wetterbedingte Einschränkung aktiv." />
+        <e k="terraLogic_fa_note_adviceNote" v="Die Empfehlungen sind nach ihrem Einsatzzeitpunkt geordnet: bei der laufenden Arbeit, beim nächsten Arbeitsgang oder für die langfristige Bodenpflege. Das Dringendste steht in jeder Spalte zuerst." />
+        <e k="terraLogic_fa_note_criticalNote" v="Der Hauptwert ist der Felddurchschnitt. Die kleine Zeile darunter beschreibt, ob es sich um kleine Hotspots, oder größere Flächen betroffen sind." />
+        <e k="terraLogic_fa_note_estimateNote" v="Diese Werte beschreiben das Feld insgesamt. Eine einzelne Fahrspur oder ausgelassene Bahn kann trotzdem besser oder schlechter als der angezeigte Durchschnittswert sein." />
+        <e k="terraLogic_fa_note_lossSourcesNote" v="Oberflächen- und Tiefenverdichtung beeinflussen die Wurzelentwicklung. Die Wasserversorgung beschreibt die Bedingungen, welche die Kultur in früheren Wachstumsphasen erlebt hat. Der Wert für Feldarbeit fasst die Qualität wichtiger Arbeitsgänge zusammen. Fehlendes Saatgut oder bereits sichtbare unbehandelte Bereiche werden gesondert berücksichtigt." />
+        <e k="terraLogic_fa_note_notRecordedExplanation" v="Nicht ausgeführt bedeutet, dass dieser Arbeitsgang im aktuellen Anbauzyklus nicht stattgefunden hat. Der Eintrag ist neutral und zählt nicht als schlechte Arbeit." />
+        <e k="terraLogic_fa_note_refreshNote" v="Mit Standort aktualisieren prüfst du das Feld, auf dem dein Spieler gerade steht." />
+        <e k="terraLogic_fa_note_soilConsequenceNote" v="Eine Empfehlung erscheint nur, wenn der aktuelle Zustand Ertrag, Arbeitsqualität, Fehlstellen, Zugwiderstand oder Schäden durch Überfahrten voraussichtlich spürbar beeinflusst." />
+        <e k="terraLogic_fa_note_soilOverviewNote" v="Die Verdichtungswerte zeigen den tatsächlich verdichteten Anteil; niedriger ist daher besser. Ebenheit und Bodenresilienz sind besser, wenn sie höher liegen. Die Krümelstruktur beschreibt grob bis fein und ist um 50% ausgewogen." />
+        <e k="terraLogic_fa_note_supportingWorkExplanation" v="Unkrautbekämpfung, Walzen und Mulchen bleiben sichtbar, weil ihre Qualität und ihr sichtbares Ergebnis weiterhin wichtig sind." />
+        <e k="terraLogic_fa_note_weatherDetailNote" v="Die Feldkapazität zeigt, wie viel Wasser diese Bodenart nach dem Abfluss von überschüssigem Wasser gut halten kann. Ein etwas höherer Wert ist nicht sofort schädlich, doch nahe am nassen Bereich werden Überfahrten und Bodenbearbeitung zunehmend riskant." />
+        <e k="terraLogic_fa_note_weatherNote" v="Prüfe diese Werte vor der Feldfahrt: Nasser, trockener oder gefrorener Boden kann Traktion, Leistungsbedarf, Eindringung, Arbeitsqualität und Schäden durch Überfahrten verändern." />
+        <e k="terraLogic_fa_note_workNote" v="Nicht ausgeführt bedeutet, dass dieser Arbeitsgang im aktuellen Anbauzyklus noch nicht stattgefunden hat; der Ertrag wird dadurch nicht verringert. Walzen, Mulchen und Unkrautbekämpfung bleiben sichtbar, weil ihre Qualität und direkte Wirkung weiterhin wichtig sein können." />
+        <e k="terraLogic_fa_note_yieldFormula" v="Das finale Ertragspotenzial ist der gemeinsame TerraLogic-Faktor von 60-110 % auf die bereits vom Basisspiel und Precision Farming berechnete Ernte. Wurzelentwicklung, Wasserversorgung und Feldarbeit bestimmen das Ergebnis. Resilienz wirkt nicht direkt auf den Ertrag. Schwere Probleme sperren den oberen Bereich; physische Fehlstellen wirken zusätzlich, weil dort keine Pflanzen stehen." />
+        <e k="terraLogic_fa_note_yieldOverviewNote" v="Dieser Wert zeigt, wie viel Ertragspotenzial TerraLogic aktuell übrig lässt. Düngung, pH-Wert, Wachstumsstufen und andere Grundspiel- oder Precision-Farming-Boni berechnet das Spiel weiterhin getrennt." />
+        <e k="terraLogic_fa_note_yieldWorkExplanation" v="Schlechte Saat, Düngung oder Kalkung kann das finale Ertragspotenzial verringern. Kleine Fehler haben nur eine geringe Wirkung, während deutlich ungeeignete Geschwindigkeit, schlechter Gerätezustand oder schwierige Bodenbedingungen stärker ins Gewicht fallen." />
+        
+        <!-- Question-mark help texts -->
+        <e k="terraLogic_fa_help_currentValue" v="Aktueller Feldwert: %s" />
+        <e k="terraLogic_fa_help_deepGood" v="Die Tiefenverdichtung ist gering, sodass Wurzeln tiefere Vorräte an Wasser und Nährstoffen erschließen können. Vermeide neuen Druck in der Tiefe durch schwere Fahrzeuge auf nassem Boden. Achte vor allem bei Pflegefahrten mit schmaler Pflegebereifung auf ausreichend trockenen Boden, da diese zwar die Pflanzen schonen, aber die punktuelle Verdichtung verstärken." />
+        <e k="terraLogic_fa_help_deepPoor" v="Die tiefere Bodenschicht ist verdichtet und schränkt den Wurzelraum ein. Ein Tiefenlockerer kann helfen, aber nur bei ausreichend trockenem Boden. Tiefe Bearbeitung bei Nässe kann neue Schäden erzeugen." />
+        <e k="terraLogic_fa_help_deepTemperatureFrozen" v="Das ist die Temperatur etwa 35 cm unter der Oberfläche. Sie verändert sich nur langsam und zeigt, ob Frost den tieferen Wurzel- und Bearbeitungsraum erreicht hat. Diese Schicht ist aktuell gefroren, wodurch tief arbeitende Geräte mehr Zugkraft benötigen und weniger Eindringung und Arbeitsqualität erreichen können." />
+        <e k="terraLogic_fa_help_deepTemperatureOpen" v="Das ist die Temperatur etwa 35 cm unter der Oberfläche. Sie verändert sich viel langsamer als der Oberboden und zeigt den längerfristigen Wärmezustand des Wurzelraums. Die tiefe Schicht ist nicht gefroren, auch wenn niedrige Temperaturen die biologische Regeneration bremsen können." />
+        <e k="terraLogic_fa_help_deepWatch" v="Der tiefere Boden ist noch nicht stark eingeschränkt, liegt aber unter dem Idealzustand. Hohe Achslasten auf nassem Boden können daraus ein dauerhaftes Wurzelproblem machen. Lockere nur bei echtem Bedarf tief und wenn der Boden trocken genug ist, um natürliche Regenerationsprozesse nicht zu verzögern." />
+        <e k="terraLogic_fa_help_evennessGood" v="Das Feld ist eben, sodass präzise Geräte Arbeitstiefe und Ablage gleichmäßig halten können. Das unterstützt eine gute Arbeitsqualität und eine konstante, angemessene Fahrgeschwindigkeit." />
+        <e k="terraLogic_fa_help_evennessPoor" v="Das Feld ist uneben, sodass präzise Sämaschinen Tiefe und Ablage schlechter halten. Ebene das Saatbett vor der Präzisionsarbeit mit einem geeigneten Gerät wie einem Flachgrubber. Die Walze kann nach der Saat die Qualität wieder etwas verbessern, wobei direkt mit guter Qualität zu säen immer die wirtschaftlich sinnvollere Option ist." />
+        <e k="terraLogic_fa_help_evennessWatch" v="Das Feld ist ausreichend eben und normale Arbeiten sollten weiterhin gut funktionieren. Für präzise Sämaschinen oder höhere Arbeitsgeschwindigkeiten besteht noch Spielraum. Ist eine Korrektur wirklich nötig, ebne das Saatbett mit einem geeigneten Grubber; eine Feldwalze kann es nach der Saat weiter setzen." />
+        <e k="terraLogic_fa_help_moistureDisabled" v="Wetterbedingte Ertragseinflüsse sind in den Einstellungen deaktiviert. Die Bodenfeuchte verändert weiterhin Verdichtungsrisiko, Zugkraftbedarf, Eindringung und Arbeitsqualität betroffener Geräte." />
+        <e k="terraLogic_fa_help_moistureDry" v="Der Wurzelraum ist trocken. Längere Trockenheit kann das Ertragspotenzial leicht senken; ein sehr trockener Oberboden kann außerdem den Zugkraftbedarf erhöhen und die Eindringung ungleichmäßiger machen." />
+        <e k="terraLogic_fa_help_moistureGood" v="Die Wasserversorgung liegt derzeit in einem brauchbaren Bereich. TerraLogic simuliert mehrere Wachstumsabschnitte, sodass ein kurzer Regenschauer oder ein trockener Monat nicht über die Ernte entscheidet." />
+        <e k="terraLogic_fa_help_moistureWet" v="Der Wurzelraum ist sehr nass. Längere Staunässe kann das Ertragspotenzial leicht senken, während nasser Oberboden deutlich empfindlicher auf Überfahrten und Verschmierung reagiert." />
+        <e k="terraLogic_fa_help_resilienceGood" v="Die Bodenresilienz ist hoch und hilft der Struktur, Überfahrten zu widerstehen. Erhalte sie mit lebenden Wurzeln, geringer Bodenstörung und einer abwechslungsreichen Fruchtfolge. Der Wechsel zwischen Flach- und Tiefwurzlern verbessert sie schneller; mehrjähriges Gras wirkt über mehrere Jahre besonders stark. Schwere Fahrzeuge und Nässe können den Boden trotzdem verdichten." />
+        <e k="terraLogic_fa_help_resiliencePoor" v="Die Bodenresilienz ist gering, deshalb verursacht Fahrzeugverkehr leichter Schäden. Vermeide unnötige Fahrten und unnötige Bodenstörung und erhalte lebenden, nicht verdorrten Bewuchs. Eine abwechslungsreiche Fruchtfolge, Zwischenfrüchte und besonders der Wechsel zwischen Flach- und Tiefwurzlern bauen Resilienz schneller auf als dieselbe Kultur mehrmals hintereinander zu säen. Wenn Bodenbearbeitung nötig ist, stört eine geringere Arbeitstiefe die biologische Struktur meist weniger." />
+        <e k="terraLogic_fa_help_resilienceWatch" v="Die Bodenresilienz ist brauchbar, aber noch nicht stark. Nasser oder schwerer Fahrzeugverkehr kann deshalb weiterhin leicht Schäden hinterlassen. Begrenze unnötige Fahrten und Bodenstörung, erhalte lebenden Bewuchs und nutze eine abwechslungsreiche Fruchtfolge. Der Wechsel zwischen Flach- und Tiefwurzlern verbessert die Resilienz schneller, Zwischenfrüchte beschleunigen den Prozess zusätzlich. Mehrjähriges Gras wirkt besonders positiv, wenn es mehrere Jahre ungestört bleibt. Flache Bearbeitung stört die biologische Struktur grundsätzlich weniger als tiefe oder intensive Eingriffe." />
+        <e k="terraLogic_fa_help_continuityEstablished" v="Der Boden blieb weitgehend ungestört. Gewachsene Poren, Wurzeln und biologische Strukturen können die natürliche Erholung deshalb mit voller Wirkung unterstützen. Biologische Kontinuität wird vor allem durch bodengreifende Bearbeitung gestört, nicht allein durch jede notwendige Fahrt über das Feld. Grundsätzlich stört eine geringe Arbeitstiefe weniger als tiefe oder intensive Bodenbearbeitung. Dauerhafter lebender Bewuchs hilft, diesen Zustand zu erhalten." />
+        <e k="terraLogic_fa_help_continuityRecovering" v="Die biologische Erholungsaktivität kehrt nach einer früheren Bodenstörung zurück. Lebende Wurzeln und Zeit bauen sie schrittweise wieder auf. Vermeide einen weiteren tiefen oder intensiven Bearbeitungsgang, sofern der Bodenzustand ihn nicht wirklich erfordert. Ein flacherer Arbeitsgang unterbricht meist weniger von der sich erholenden Struktur." />
+        <e k="terraLogic_fa_help_continuityInterrupted" v="Eine tiefe oder intensive Bodenbearbeitung hat einen großen Teil der gewachsenen biologischen Struktur unterbrochen. Der Boden wurde sofort gelockert, natürliche Erholung und neue Resilienzgewinne sind vorübergehend jedoch schwächer. Flachere Arbeitsgänge stören die Kontinuität weniger. Mit lebenden Wurzeln kehrt die volle Aktivität ungefähr innerhalb eines Anbaujahres zurück." />
+        <e k="terraLogic_fa_help_valueContinuity" v="Biologische Kontinuität: %s" />
+        <e k="terraLogic_fa_help_rootGood" v="Der Bodenzustand hat die Wurzelentwicklung während der bereits abgeschlossenen Wachstumsabschnitte unterstützt. Spätere Überfahrten können die übrigen Abschnitte weiterhin beeinflussen, daher kann sich der Wert bis zur Ernte ändern. Beachte, dass gerade Pflegebereifung durch die kleineren Kontaktflächen punktuell mehr Verdichtung erzeugen können, was das Pflanzenwachstum und den Ertrag bis zur Ernte beeinflusst." />
+        <e k="terraLogic_fa_help_rootMoistureDry" v="Der Wurzelraum enthält weniger Wasser, als diese Bodenart normalerweise gut bereitstellt. Eine kurze trockene Phase wird abgefedert, doch wiederholt trockene Wachstumsabschnitte können das abschließende Ergebnis der Wasserversorgung leicht senken. Die Bodenart selbst bestimmt, wie schnell sich dieser tiefere Vorrat füllt und leert." />
+        <e k="terraLogic_fa_help_rootMoistureGood" v="Der Wurzelraum enthält aktuell einen brauchbaren Wasservorrat für die Kultur. Diese tiefere Schicht verändert sich langsamer als die Oberfläche und ist deshalb für die Versorgung über längere Wachstumsabschnitte hinweg fast wichtiger, wie kurze Regenschauer." />
+        <e k="terraLogic_fa_help_rootMoistureWet" v="Der Wurzelraum ist sehr nass. Längere Sättigung kann das Ertragspotenzial aus Wasserversorgung leicht senken und macht tiefere Schichten empfindlicher für schwere Lasten. Schwere Böden wie Lehm bleiben meist länger in diesem Zustand als sandige Böden." />
+        <e k="terraLogic_fa_help_rootPoor" v="Verdichtung oder ungeeignete Bodenstruktur haben die Wurzelentwicklung in mindestens einem Wachstumsabschnitt eingeschränkt. TerraLogic mittelt alle drei Abschnitte, sodass eine schlechte Phase nicht allein die Ernte bestimmt. Nutze einen Tiefenlockerer nur bei bestätigter Tiefenverdichtung und einen normalen Grubber bei spürbarer, großflächiger Oberbodenverdichtung. Flachgrubber, Scheibenegge und Kreiselegge korrigieren vor allem ein grobes oder unebenes Saatbett." />
+        <e k="terraLogic_fa_help_seedingGood" v="Saatbett und aktuelle Bedingungen unterstützen eine gleichmäßige Saattiefe und Ablage. Halte eine geeignete Arbeitsgeschwindigkeit ein und achte auf einen guten Zustand der Sämaschine." />
+        <e k="terraLogic_fa_help_seedingPoor" v="Saatbett oder Wetterbedingungen begrenzen die präzise Ablage. Nutze Grubber, Flachgrubber, Scheibenegge oder Kreiselegge nur, wenn Krümelstruktur oder Ebenheit wirklich korrigiert werden müssen, und vermeide das Säen bei sehr nassem oder gefrorenem Boden. Eine Feldwalze nach der Saat verbessert den Bodenschluss, ersetzt aber keine fehlenden Pflanzen." />
+        <e k="terraLogic_fa_help_seedingWatch" v="Die Saat sollte noch funktionieren, aber Saatbett oder aktuelle Feuchte sind nicht ideal. Eine passende Geschwindigkeit und eine gepflegte Sämaschine halten die Wirkung überschaubar. Korrigiere Krümelstruktur oder Ebenheit nur, wenn die angezeigten Feldwerte einen echten Bedarf zeigen." />
+        <e k="terraLogic_fa_help_soilGood" v="Der Boden befindet sich insgesamt in einem ausgewogenen Zustand. Kein einzelner Wert garantiert einen guten Ertrag, aber Verdichtung, Krümelstruktur, Ebenheit und Bodenresilienz bilden derzeit eine gute Grundlage für Feldarbeit und Wurzelentwicklung." />
+        <e k="terraLogic_fa_help_soilPoor" v="Mehrere Bodeneigenschaften begrenzen das Feld gleichzeitig. Öffne die einzelnen Werte, um vor dem nächsten Arbeitsgang zu erkennen, ob Verdichtung, Krümelstruktur, Ebenheit oder Bodenresilienz Aufmerksamkeit benötigen." />
+        <e k="terraLogic_fa_help_soilWatch" v="Der Boden ist nutzbar, aber mindestens eine Eigenschaft kann noch verbessert werden. Prüfe vor dem nächsten Arbeitsgang die Einzelwerte; schonende Überfahrten und eine passende Arbeitsfolge verhindern, dass aus einem mäßigen Problem eine deutliche Einschränkung wird." />
+        <e k="terraLogic_fa_help_surfaceGood" v="Die Oberbodenverdichtung ist niedrig genug für ein gut bearbeitbares Saatbett und frühe Wurzelentwicklung. Halte Achslasten und wiederholte Überfahrten besonders bei nassem Boden gering." />
+        <e k="terraLogic_fa_help_surfaceMoistureDry" v="Der Oberboden ist trocken. Überfahrten erzeugen weniger Verdichtung als bei Nässe, aber bodengreifende Geräte können mehr Zugkraft benötigen, ungleichmäßiger eindringen und bei sehr hartem oder staubigem Boden ein schlechteres Arbeitsergebnis hinterlassen." />
+        <e k="terraLogic_fa_help_surfaceMoistureGood" v="Die Feuchte im Oberboden liegt in einem gut bearbeitbaren Mittelbereich. Bodenbearbeitungs- und Saatgeräte können meist gleichmäßig eindringen, ohne das besondere Verschmierungs- und Verdichtungsrisiko von nassem Boden. Gewicht, Reifen, Geschwindigkeit und Bodenzustand bleiben trotzdem wichtig." />
+        <e k="terraLogic_fa_help_surfaceMoistureWet" v="Der Oberboden ist nass. Räder verdichten ihn stärker und Bodenbearbeitungs- oder Saatgeräte können den Boden verschmieren, schlechter eindringen und Arbeitsqualität verlieren. Lass die Oberfläche nach Möglichkeit entwässern und abtrocknen." />
+        <e k="terraLogic_fa_help_surfacePoor" v="Der Oberboden ist so stark verdichtet, dass Saatbettbildung und junge Wurzeln beeinträchtigt werden. Ein normaler Grubber kann mäßige flächige Verdichtung lockern. Pflug und Spatenmaschine wirken stärker, sollten aber schweren Schäden und einer passenden Fruchtfolge vorbehalten bleiben. Flachgrubber, Scheibenegge und Kreiselegge dienen vor allem der Saatbettbereitung." />
+        <e k="terraLogic_fa_help_surfaceTemperatureFrozen" v="Das ist die Temperatur der oberen Bodenschicht, die relativ schnell auf das Tageswetter reagiert. Sie ist aktuell gefroren. Bodenbearbeitungs- und Saatgeräte benötigen dadurch mehr Zugkraft, dringen unzuverlässiger ein und können Arbeitsqualität verlieren. Warte vor präzisen Arbeiten auf aufgetauten Boden." />
+        <e k="terraLogic_fa_help_surfaceTemperatureOpen" v="Das ist die Temperatur der oberen Bodenschicht und damit der wichtigste Temperaturwert für die aktuelle Feldarbeit. Sie folgt wechselnder Lufttemperatur schneller als der tiefe Boden. Die Schicht ist nicht gefroren, aber Kälte kann die biologische Regeneration trotzdem verlangsamen." />
+        <e k="terraLogic_fa_help_surfaceWatch" v="Der Oberboden ist weiterhin bearbeitbar, aber die Verdichtung macht sich allmählich bemerkbar. Saatbett und junge Wurzeln kommen damit noch zurecht. Vermeide wiederholte Überfahrten bei Nässe. Flachgrubber, Scheibenegge oder Kreiselegge können bei der Saatbettbereitung leicht lockern, ersetzen aber nicht die stärkere Lockerung eines normalen Grubbers oder Pfluges." />
+        <e k="terraLogic_fa_help_tillageGood" v="Feuchte und Temperatur erlauben derzeit Bodenbearbeitung ohne zusätzliche Schwierigkeiten durch das Wetter. Bodenart, Verdichtung, Krümelstruktur, Ebenheit, Geschwindigkeit und Gerätezustand können das Ergebnis weiterhin verändern." />
+        <e k="terraLogic_fa_help_tillagePoor" v="Die aktuelle Feuchte oder Frost machen Bodenbearbeitung unzuverlässig. Geräte können mehr Zugkraft benötigen, schlechter eindringen oder nassen Boden verschmieren. Bessere Bedingungen abzuwarten liefert meist ein besseres Ergebnis als ein zusätzlicher Korrekturgang." />
+        <e k="terraLogic_fa_help_tillageWatch" v="Bodenbearbeitung ist möglich, aber der Oberboden ist sehr trocken. Geräte können mehr Zugkraft benötigen und ungleichmäßiger eindringen oder krümeln. Arbeite mit angemessener Geschwindigkeit und vermeide einen zusätzlichen Korrekturgang, solange das Ergebnis ihn nicht wirklich benötigt." />
+        <e k="terraLogic_fa_help_tilthCoarse" v="Die Krümelstruktur ist zu grob und schollig für zuverlässige Saattiefe und guten Bodenschluss. Ein geeigneter Grubber oder ein Saatbettgerät kann sie verfeinern. Der beste Bereich liegt um 50%; ein höherer Wert bedeutet nicht automatisch besseren Boden." />
+        <e k="terraLogic_fa_help_tilthCoarseWatch" v="Die Krümelstruktur ist etwas grob, bleibt aber brauchbar. Präzise Saat kann leicht ungleichmäßiger werden. Ein Gang mit Saatbettgrubber, Kreiselegge oder passender Scheibenegge hilft, wenn Kultur und Sämaschine ihn wirklich benötigen; vermeide unnötige Überbearbeitung." />
+        <e k="terraLogic_fa_help_tilthFine" v="Der Boden ist zu fein zerkleinert. Nach Regen kann sich eine Kruste bilden, und der Boden lässt sich leichter erneut verdichten. Vermeide weitere verfeinernde Arbeitsgänge mit Grubber, Scheibenegge oder Kreiselegge. Ein Pflug kann wieder eine gröbere Struktur herstellen, erzeugt dabei aber eine raue Oberfläche und verringert langfristig die Resilienz. Wenn Pflügen nicht ohnehin sinnvoll ist, bauen lebende Wurzeln und natürliche Prozesse die Struktur schonender wieder auf." />
+        <e k="terraLogic_fa_help_tilthFineWatch" v="Die Krümelstruktur ist etwas fein, aber noch brauchbar. Weitere intensive Arbeitsgänge bringen wahrscheinlich wenig und können den Boden zu stark pulverisieren. Erhalte das Saatbett, solange der Boden keine Probleme bei zukünftigen Arbeitsschritten und Geräten verursacht." />
+        <e k="terraLogic_fa_help_tilthGood" v="Die Krümelstruktur liegt für dieses Feld in einem brauchbaren, ausgewogenen Bereich. Der Wert zeigt die echte Skala von grob nach fein wobei der ideale Wert bei ca. 50% liegt." />
+        <e k="terraLogic_fa_help_trafficGood" v="Die aktuelle Feuchte erzeugt kein außergewöhnliches Verdichtungsrisiko. Fahrzeuggewicht, Bereifung, wiederholte Überfahrten und vorhandene Bodenresilienz bestimmen weiterhin, wie stark sich der Boden verändert." />
+        <e k="terraLogic_fa_help_trafficPoor" v="Nasser oder frisch aufgetauter Boden ist besonders empfindlich gegenüber Überfahrten. Vermeide unnötige Fahrten, reduziere nach Möglichkeit die Achslast und nutze vorhandene Fahrgassen. Fest gefrorener Boden verhält sich nicht wie nasser Schlamm, doch beim Auftauen können sich die Bedingungen schnell ändern." />
+        <e k="terraLogic_fa_help_trafficWatch" v="Das Verdichtungsrisiko ist erhöht, der Boden hat seinen nassesten und empfindlichsten Zustand aber noch nicht erreicht. Normale Arbeit ist mit Vorsicht möglich: Reduziere nach Möglichkeit die Achslast, nutze breite Reifen und vermeide wiederholte Überfahrten derselben Spur." />
+        <e k="terraLogic_fa_help_valueAchievableQuality" v="Erreichbare Arbeitsqualität: %s" />
+        <e k="terraLogic_fa_help_valueDeepCompaction" v="Tiefenverdichtung: %s" />
+        <e k="terraLogic_fa_help_valueDraftFactor" v="Aktueller Zugwiderstand: %s" />
+        <e k="terraLogic_fa_help_valueEvenness" v="Ebenheit: %s" />
+        <e k="terraLogic_fa_help_valueExpectedGaps" v="Erwartete Fehlstellen: %s" />
+        <e k="terraLogic_fa_help_valueFinalYield" v="Finales Ertragspotenzial: %s" />
+        <e k="terraLogic_fa_help_valueOverallSoil" v="Gesamter Bodenzustand: %s" />
+        <e k="terraLogic_fa_help_valueRecommendedSpeed" v="Empfohlenes Tempo: %s" />
+        <e k="terraLogic_fa_help_valueRecordedQuality" v="Arbeitsqualität des ausgeführten Arbeitsgangs: %s" />
+        <e k="terraLogic_fa_help_valueResilience" v="Bodenresilienz: %s" />
+        <e k="terraLogic_fa_help_valueRootFactor" v="Wurzelentwicklung im Wachstum: %s" />
+        <e k="terraLogic_fa_help_valueRootMoisture" v="Aktuelle Wurzelraumfeuchte: %s" />
+        <e k="terraLogic_fa_help_valueSeedbed" v="Aktuelle Saatbetteignung: %s" />
+        <e k="terraLogic_fa_help_valueSoilEffect" v="Erreichbare Bodenwirkung: %s" />
+        <e k="terraLogic_fa_help_valueSurfaceCompaction" v="Oberflächenverdichtung: %s" />
+        <e k="terraLogic_fa_help_valueTemperature" v="Aktuelle Temperatur: %s" />
+        <e k="terraLogic_fa_help_valueTilth" v="Krümelstruktur: %s" />
+        <e k="terraLogic_fa_help_valueTopsoilMoisture" v="Aktuelle Oberbodenfeuchte: %s" />
+        <e k="terraLogic_fa_help_valueWaterFactor" v="Wasserversorgung im Wachstum: %s" />
+        <e k="terraLogic_fa_help_valueWorkFactor" v="In der Ertragsschätzung berücksichtigte Feldarbeit: %s" />
+        <e k="terraLogic_fa_help_workFertilizer" v="Dieser Wert zeigt, wie gleichmäßig Dünger, Mist oder Gülle ausgebracht wurde. Zu hohe Geschwindigkeit, schlechter Gerätezustand und ein unebenes Feld können die Verteilung verschlechtern und unbehandelte Bereiche hinterlassen. Die Ausbringtechnik bearbeitet den Boden nicht direkt, doch Fahrzeug und Gerät können ihn durch ihr Gewicht verdichten. Kleine Ausbringungsfehler haben nur eine begrenzte Wirkung auf den finalen Ertrag." />
+        <e k="terraLogic_fa_help_workGood" v="Die bisher ausgeführten wichtigen Feldarbeiten erreichten eine gute Arbeitsqualität. Passende Geschwindigkeit, guter Gerätezustand, Boden und Wetter helfen, dieses Ergebnis hoch zu halten." />
+        <e k="terraLogic_fa_help_workNone" v="Im aktuellen Anbauzyklus wurde noch keine ertragsrelevante Arbeitsqualität auf diesem Feld gespeichert. Nicht ausgeführte Arbeiten sind neutral und werden nicht als 100 % bewertet." />
+        <e k="terraLogic_fa_help_ledgerFactor" v="Das ist der nach den gespeicherten Feldarbeiten verbleibende Ertragsanteil, nicht die mittlere Arbeitsqualität. Jeder Arbeitsgang wird mit seiner eigenen agronomischen Ertragswirkung umgerechnet; 89 % Saatqualität bedeuten daher nicht 11 % gesamten Ertragsverlust." />
+        <e k="terraLogic_fa_help_workHerbicide" v="Dieser Wert umfasst Pflanzenschutzspritzen, Striegel und Hackgeräte. Zu hohes Tempo und schlechter Gerätezustand machen die Behandlung unzuverlässiger. Regen während der Blattanwendung kann Herbizid vor der Aufnahme abwaschen; gespeicherte Bodenfeuchte allein verschlechtert die chemische Ausbringung nicht. Mechanische Striegel und Hackgeräte reagieren zusätzlich auf Bodenzustand und Eindringung." />
+        <e k="terraLogic_fa_help_workLime" v="Dieser Wert speichert die Verteilqualität von Kalkstreuern. Zu hohe Geschwindigkeit oder schlechter Gerätezustand können ungleichmäßige Abdeckung und ausgelassene Stellen erzeugen, sodass die gewünschte pH-Korrektur auf dem Feld weniger zuverlässig ist. Kalk und pH-Wert berechnet weiterhin das Grundspiel oder Precision Farming; TerraLogic bewertet nur, wie gut die Ausbringungsfahrt ausgeführt wurde." />
+        <e k="terraLogic_fa_help_workMulch" v="Dieser Wert zeigt, wie gleichmäßig der Mulcher Ernterückstände zerkleinert hat. Zu hohe Geschwindigkeit, Verschleiß, schlechter Bodenkontakt und Steine können ungemulchte Bereiche oder zusätzlichen Schaden verursachen. Liegen gebliebene Rückstände bleiben auf dem Feld sichtbar." />
+        <e k="terraLogic_fa_help_workPoor" v="Mindestens ein wichtiger Arbeitsgang wurde mit verringerter Arbeitsqualität ausgeführt und kann die Ernte weiterhin beeinflussen. Öffne den einzelnen Arbeitsgang, um zu sehen, ob Geschwindigkeit, Gerätezustand, Boden oder Wetter die Ursache waren." />
+        <e k="terraLogic_fa_help_workRoller" v="Dieser Wert beschreibt eine Fahrt mit einer Feldwalze nach der Saat. Eine passende Ackerwalze kann den Bodenschluss verbessern und einen begrenzten Teil korrigierbarer Saatqualität zurückholen, aber kein fehlendes Saatgut und keine fehlenden Pflanzen ersetzen. Geschwindigkeit, Walzenzustand, Oberbodenfeuchte und Krümelstruktur entscheiden, ob das Saatbett sinnvoll gesetzt oder unnötig weiter verdichtet wird." />
+        <e k="terraLogic_fa_help_workSeed" v="Der Prozentwert ist die gespeicherte mittlere Saatablagequalität von Sämaschinen, Direktsaatmaschinen und Einzelkornsämaschinen. Gut, Beobachten oder Handlungsbedarf bewertet diesen Wert. Erscheint zusätzlich 'Walze +X,X', bezeichnet X,X die maximale Anzahl an Qualitätspunkten, die eine intakte Feldwalze bei empfohlener Geschwindigkeit noch durch besseren Bodenschluss zurückgewinnen könnte. Eine Walze repariert weder fehlende Pflanzen noch Ablageverluste durch zu hohes Tempo, Verschleiß oder Frost. Schlechte Ebenheit, ungeeignete Krümelstruktur sowie zu trockener oder nasser Boden können die Ablagequalität senken und zusätzlich echte Saatlücken verursachen." />
+        <e k="terraLogic_fa_help_yieldGood" v="Das gemeinsame TerraLogic-Ergebnis ist gut. Hervorragende Wurzeln, Wasserversorgung und Feldarbeit können die bereits vom Basisspiel oder Precision Farming berechnete Ernte auf bis zu 110 % erhöhen, sowohl mit sorgfältiger Bodenbearbeitung als auch mit Direktsaat. Ein schweres Einzelproblem sperrt diesen oberen Bereich, statt von einem anderen guten Wert verdeckt zu werden." />
+        <e k="terraLogic_fa_help_yieldPoor" v="Der gemeinsame TerraLogic-Faktor liegt unter dem Ergebnis des Basisspiels. Wurzelentwicklung, Wasserversorgung und Feldarbeit zeigen die Ursache. Der Ertrag vorhandener Pflanzen verliert durch TerraLogic höchstens 40 %; physische Fehlstellen können den Feldertrag zusätzlich senken." />
+        
+        <!-- Recommended actions -->
+        <e k="terraLogic_fa_action_coarse" v="Die Krümelstruktur ist grob und schollig, wodurch Saatgut ungleichmäßiger abgelegt werden kann. Grubber, Flachgrubber, Kreiselegge oder eine passende Scheibenegge können die Schollen ohne tiefes Pflügen zerkleinern und der Sämaschine eine gleichmäßigere Saatablage ermöglichen." />
+        <e k="terraLogic_fa_action_cropWater" v="Die Wasserversorgung war während des Wachstums nicht immer ideal, wodurch die Kultur einen kleinen Teil ihres Potenzials verloren hat. Das Wetter lässt sich nicht steuern; vermeide deshalb zusätzlichen Stress durch schlechten Bodenzustand oder unnötige Fahrten." />
+        <e k="terraLogic_fa_action_cropWaterDynamic" v="Trockene oder vernässte Wachstumsphasen haben das finale Ertragspotenzial um etwa %.1f%% gesenkt. Vergangenes Wetter lässt sich durch Feldarbeit nicht rückgängig machen; vermeide deshalb zusätzlichen Stress durch schlechten Bodenzustand oder unnötige Überfahrten." />
+        <e k="terraLogic_fa_action_deep" v="Die Tiefenverdichtung schränkt den Wurzelraum ein und erschwert den Zugang zu Wasser und Nährstoffen. Lockere gezielt mit einem Tiefenlockerer, wenn der Boden nicht nass oder gefroren ist." />
+        <e k="terraLogic_fa_action_deepDynamic" v="Lockere den Wurzelraum: Tiefe Verdichtung kostet aktuell etwa %.1f%% Ertrag. Nutze einen Tiefenlockerer, wenn der Boden bearbeitbar, weder nass noch gefroren ist." />
+        <e k="terraLogic_fa_action_dryDynamic" v="Der Boden ist sehr trocken. Dieser Arbeitsgang benötigt etwa das x%.2f-Fache der normalen Zugleistung und erreicht nur %d%% seines üblichen Bodenergebnisses." />
+        <e k="terraLogic_fa_action_fine" v="Der Boden wurde zu fein zerkleinert und ist dadurch anfälliger für Krustenbildung nach Regen und erneute Verdichtung. Vermeide einen weiteren verfeinernden Arbeitsgang mit Grubber, Scheibenegge oder Kreiselegge. Pflügen kann zum Teil wieder eine gröbere Struktur herstellen, erzeugt aber eine raue Oberfläche und verringert die Resilienz. Nutze den Pflug deshalb nur, wenn das Wenden des Bodens ohnehin zur Anbauplanung passt." />
+        <e k="terraLogic_fa_action_frozen" v="Der Oberboden ist gefroren. Pflüge, Grubber, Tiefenlockerer und Sämaschinen dringen unzuverlässiger ein und können ein ungleichmäßiges Ergebnis hinterlassen. Warte mit bodengreifenden Geräten, bis der Boden aufgetaut ist." />
+        <e k="terraLogic_fa_action_frozenDynamic" v="Warte auf Tauwetter. Gefrorener Boden erhöht die benötigte Zugkraft auf x%.2f und erlaubt nur %d%% Eindringung." />
+        <e k="terraLogic_fa_action_good" v="Derzeit ist kein dringender Eingriff erkennbar. Boden schonend befahren und die bewährte Arbeitsweise fortsetzen." />
+        <e k="terraLogic_fa_action_goodDynamic" v="Die aktuellen Folgen rechtfertigen keinen zusätzlichen Korrekturgang. Wähle den nächsten Arbeitsgang passend zur Kultur und vermeide unnötige Überfahrten und schwere Gespanne." />
+        <e k="terraLogic_fa_action_heavyVehicleDynamic" v="Das aktuelle Gespann ist für diese Bedingungen schwer: bis zu %.1f t Achslast und %.0f kPa Bodenkontaktdruck. Nasser Boden und geringe Resilienz verschlimmern die entstehende Verdichtung. Reduziere nach Möglichkeit die Last oder nutze vorhandene Fahrgassen." />
+        <e k="terraLogic_fa_action_overspeedDynamic" v="Das aktive Gerät fährt mit %.0f%% seiner vorgesehenen Geschwindigkeit. Zu hohes Tempo erhöht Verschleiß und Schaden, kann Arbeitsqualität senken, Fehlstellen erzeugen und verlangt bei Bodengeräten zusätzliche Zugkraft." />
+        <e k="terraLogic_fa_action_resilience" v="Die Bodenresilienz ist gering, deshalb hinterlässt jede neue Überfahrt leichter Schäden. Begrenze den Verkehr, erhalte lebende Pflanzen und nutze eine abwechslungsreiche Fruchtfolge mit Zwischenfrüchten. Der Wechsel zwischen Flach- und Tiefwurzlern baut Resilienz schneller auf. Mehrjähriges Gras verbessert durch ständig aktive Wurzeln Resilienz ebenfalls sehr gut." />
+        <e k="terraLogic_fa_action_resilienceDynamic" v="Baue Bodenresilienz mit lebenden Kulturen, einem Wechsel zwischen Flach- und Tiefwurzlern, Zwischenfrüchten oder Gras und weniger intensiven Bearbeitungsgängen auf. Je tiefer die Bodenbearbeitung, desto stärker wird die Resilienz gestört. Vermeide daher den unnötigen Einsatz von Pflug und Tiefenlockerer." />
+        <e k="terraLogic_fa_action_resilienceWatchDynamic" v="Die Bodenresilienz ist mittelmäßig. Eine jährlich abwechselnde Fruchtfolge mit unterschiedlich tief wurzelnden Kulturen, Zwischenfrüchte, mehrjähriges Gras und reduzierte Bodenbearbeitung machen spätere Überfahrten weniger schädlich." />
+        <e k="terraLogic_fa_action_rollerRescueDynamic" v="Verbessere jetzt den Bodenschluss: Eine funktionsfähige Feldwalze kann bei empfohlener Geschwindigkeit die mittlere Saatqualität noch um bis zu %.1f Punkte erhöhen und etwa %.1f%% Ertragspotenzial zurückgewinnen. Bereits fehlendes Saatgut kann sie nicht ersetzen." />
+        <e k="terraLogic_fa_action_rollerRescueCurrentDynamic" v="Verbessere jetzt den Bodenschluss: Eine funktionsfähige Walze könnte bis zu %.1f Punkte Saatqualität (etwa %.1f%% Ertrag) zurückgewinnen. Der Zustand der angehängten Walze begrenzt die aktuelle Kombination auf etwa %.1f Punkte (%.1f%% Ertrag). Fehlendes Saatgut kann sie nicht ersetzen." />
+        <e k="terraLogic_fa_action_rotationRepeatedDynamic" v="Auf %.0f%% des Feldes folgt eine ähnliche Kulturgruppe auf sich selbst. Wiederholungen erhalten nur einen Teil des normalen Resilienzgewinns; wechsle anschließend zu einer anderen Wurzelgruppe oder baue eine Zwischenfrucht an." />
+        <e k="terraLogic_fa_action_coverCropDynamic" v="Zwischenfrucht aktiv: Ihre lebenden Wurzeln erhalten während der Entwicklung einen zusätzlichen Bonus auf Resilienz und Bodenstruktur. Erhalte den Bestand bis zum nächsten geplanten Arbeitsgang." />
+        <e k="terraLogic_fa_action_coverCropRepeatedDynamic" v="Zwischenfrucht aktiv: Ihr zusätzlicher Wurzelbonus gleicht diese wiederholte Kulturgruppe teilweise aus. Wechsle bei der folgenden Hauptfrucht zu einer anderen Wurzelgruppe, um wieder den vollständigen Fruchtfolgebonus zu erhalten." />
+        <e k="terraLogic_fa_action_rotationDiverseDynamic" v="Auf %.0f%% des Feldes ist ein vielfältiger Wechsel der Kulturgruppen aktiv und baut Resilienz wirksamer auf als eine wiederholte Gruppe." />
+        <e k="terraLogic_fa_action_seedbedDirectDynamic" v="Bereite ein ebeneres Saatbett oder nutze eine geeignete Direktsaatmaschine. Präzise Saat würde aktuell etwa %.1f%% Arbeitsqualität verlieren und %.1f%% bodenbedingte Fehlstellen verursachen. Nutze Flachgrubber, Scheibenegge oder Kreiselegge nur dort, wo die angezeigte Krümelstruktur oder Ebenheit dies erfordert." />
+        <e k="terraLogic_fa_action_seedbedDynamic" v="Erzeuge ein ebeneres, passend gekrümeltes Saatbett. Präzise Saat würde aktuell etwa %.1f%% Arbeitsqualität verlieren und %.1f%% bodenbedingte Fehlstellen verursachen. Nutze Flachgrubber, Scheibenegge oder Kreiselegge nur dort, wo Krümelstruktur oder Ebenheit dies erfordern. Eine Walze ist ein Abschluss nach der Saat und ersetzt keine Saatbettbereitung." />
+        <e k="terraLogic_fa_ui_seedQualityRollerFormat" v="%s | Walze +%.1f" />
+        <e k="terraLogic_fa_action_continuityDynamic" v="Eine intensive Bodenbearbeitung hat die biologische Bodenstruktur unterbrochen. Erhalte lebende Wurzeln und vermeide während des Wiederaufbaus weitere tiefe oder intensive Bodenstörung. Ist ein Arbeitsgang nötig, stört eine geringere Arbeitstiefe die Kontinuität meist weniger." />
+        <e k="terraLogic_fa_action_surface" v="Die Oberbodenverdichtung betrifft einen erheblichen Teil dieses Feldes. Ein normaler Grubber kann eine mäßige Verdichtung lockern. Pflug oder Spatenmaschine sind für schwere, großflächige Schäden gedacht, sofern das Wenden zur Fruchtfolge passt. Flachgrubber, Scheibenegge und Kreiselegge bereiten vor allem das Saatbett und mildern starke Spuren nur ab." />
+        <e k="terraLogic_fa_action_surfaceDynamic" v="Lockere den Oberboden: Seine Verdichtung kostet aktuell etwa %.1f%% Ertrag. Ein Grubber ist geeignet; Pflug oder Spatenmaschine nur, wenn Kulturplanung und Bodenzustand eine tiefere Wendung verlangen." />
+        <e k="terraLogic_fa_action_surfaceTracks" v="Nur ein begrenzter Teil des Feldes enthält stark verdichtete Fahrspuren, während der übrige Oberboden bearbeitbar ist. Fahre nicht allein deshalb noch einmal über das ganze Feld. Reduziere Achslast und verwende möglichst breite Reifen, nutze möglichst dieselben Fahrgassen und beseitige durch Geräte mit passender tiefenwirkung die Fahrgassen bei der nächsten Bodenbearbeitung." />
+        <e k="terraLogic_fa_action_surfaceTracksDynamic" v="Auf %d%% der geprüften Fläche liegen stark verdichtete Fahrspuren. Korrigiere sie beim nächsten passenden Bearbeitungsgang, statt nur wegen weniger Spuren das ganze Feld zusätzlich zu bearbeiten." />
+        <e k="terraLogic_fa_action_trafficDynamic" v="Die aktuellen Oberbodenbedingungen gewichten die Verdichtungszunahme durch Befahrung mit x%.2f. Halte schwere Fahrzeuge und Geräte möglichst in vorhandenen Fahrgassen." />
+        <e k="terraLogic_fa_action_uneven" v="Das Feld ist uneben, sodass präzise Sämaschinen Tiefe und Ablage schlechter halten. Ebene das Saatbett vor der Saat mit einem geeigneten Grubber. Eine Feldwalze kann es nach der Saat setzen, ersetzt aber keine passende Saatbettbereitung." />
+        <e k="terraLogic_fa_action_wet" v="Der Oberboden ist sehr nass. Überfahrten verdichten ihn stärker, während Pflüge, Grubber, Eggen und Sämaschinen das Saatbett verschmieren können. Lass ihn nach Möglichkeit abtrocknen und vermeide unnötige Fahrten." />
+        <e k="terraLogic_fa_action_wetDynamic" v="Lass den Oberboden nach Möglichkeit abtrocknen. Sein aktueller Befahrungsfaktor beträgt x%.2f; die Bodenbearbeitung erreicht nur %d%% ihres üblichen Ergebnisses." />
+        <e k="terraLogic_fa_action_workQuality" v="Mindestens ein wichtiger Arbeitsgang wurde mit verringerter Qualität ausgeführt und kann die Ernte weiterhin beeinflussen. Prüfe vor dem nächsten Einsatz Geschwindigkeit, Gerätezustand, Boden und Wetter." />
+        <e k="terraLogic_fa_action_workQualityDynamic" v="Frühere Feldarbeit hat das finale Ertragspotenzial um etwa %.1f%% gesenkt. Auf der Seite Arbeitsqualität siehst du den betroffenen Arbeitsgang." />
+        <e k="terraLogic_fa_action_yieldGainDynamic" v="Gesunde Wurzeln, präzise Feldarbeit und ein resilienter Boden erhöhen den TerraLogic-Ertrag derzeit auf %.1f%% des Ergebnisses von Basisspiel beziehungsweise Precision Farming." />
+        
+        <!-- Planner interface -->
+        <e k="terraLogic_fa_planner_ui_title" v="Planer" />
+        <e k="terraLogic_fa_planner_ui_achievableQuality" v="Erreichbare Arbeitsqualität" />
+        <e k="terraLogic_fa_planner_ui_additionalAttachments" v="(+%d weitere)" />
+        <e k="terraLogic_fa_planner_ui_after" v="Danach" />
+        <e k="terraLogic_fa_planner_ui_attachImplement" v="Kein unterstütztes Gerät angekuppelt." />
+        <e k="terraLogic_fa_planner_ui_before" v="Aktuell" />
+        <e k="terraLogic_fa_planner_ui_catalogHint" v="Mit den Pfeilen kannst du die von TerraLogic unterstützten Gerätearten vergleichen." />
+        <e k="terraLogic_fa_planner_ui_class_baler" v="Ballenpresse" />
+        <e k="terraLogic_fa_planner_ui_class_cultivator" v="Grubber" />
+        <e k="terraLogic_fa_planner_ui_class_directDrill" v="Direktsämaschine" />
+        <e k="terraLogic_fa_planner_ui_class_discHarrow" v="Scheibenegge" />
+        <e k="terraLogic_fa_planner_ui_class_fertilizerSpreader" v="Düngerstreuer" />
+        <e k="terraLogic_fa_planner_ui_class_hoe" v="Hackgerät" />
+        <e k="terraLogic_fa_planner_ui_class_liquidSprayer" v="Feldspritze" />
+        <e k="terraLogic_fa_planner_ui_class_loaderWagon" v="Ladewagen" />
+        <e k="terraLogic_fa_planner_ui_class_manureSpreader" v="Miststreuer" />
+        <e k="terraLogic_fa_planner_ui_class_mower" v="Mähwerk" />
+        <e k="terraLogic_fa_planner_ui_class_mulcher" v="Mulcher" />
+        <e k="terraLogic_fa_planner_ui_class_plow" v="Pflug" />
+        <e k="terraLogic_fa_planner_ui_class_powerHarrow" v="Kreiselegge" />
+        <e k="terraLogic_fa_planner_ui_class_precisionPlanter" v="Einzelkornsämaschine" />
+        <e k="terraLogic_fa_planner_ui_class_precisionDirectDrill" v="Einzelkorn-Direktsaatmaschine" />
+        <e k="terraLogic_fa_planner_ui_class_roller" v="Feldwalze" />
+        <e k="terraLogic_fa_planner_ui_class_shallowCultivator" v="Flachgrubber" />
+        <e k="terraLogic_fa_planner_ui_class_slurryApplicator" v="Gülleapplikator" />
+        <e k="terraLogic_fa_planner_ui_class_slurryInjector" v="Gülle-Scheibeninjektor" />
+        <e k="terraLogic_fa_planner_ui_class_slurrySpreader" v="Güllefass" />
+        <e k="terraLogic_fa_planner_ui_class_sowingMachine" v="Sämaschine" />
+        <e k="terraLogic_fa_planner_ui_class_spader" v="Spatenmaschine" />
+        <e k="terraLogic_fa_planner_ui_class_stonePicker" v="Steinsammler" />
+        <e k="terraLogic_fa_planner_ui_class_subsoiler" v="Tiefenlockerer" />
+        <e k="terraLogic_fa_planner_ui_class_tedder" v="Wender" />
+        <e k="terraLogic_fa_planner_ui_class_weeder" v="Striegel" />
+        <e k="terraLogic_fa_planner_ui_class_windrower" v="Schwader" />
+        <e k="terraLogic_fa_planner_ui_currentFactors" v="AKTUELLE BEDINGUNGEN" />
+        <e k="terraLogic_fa_planner_ui_delta" v="Veränderung" />
+        <e k="terraLogic_fa_planner_ui_disclaimer" v="Die Einschätzung geht von einer Überfahrt mit empfohlener Geschwindigkeit aus. Das tatsächliche Ergebnis hängt auch von deiner Ausrüstung, ihrem Zustand und deiner Fahrweise ab." />
+        <e k="terraLogic_fa_planner_ui_draftFactor" v="Zugwiderstand" />
+        <e k="terraLogic_fa_planner_ui_dropouts" v="Erwartete Fehlstellen" />
+        <e k="terraLogic_fa_planner_ui_efficientPasses" v="Effiziente Abdeckung" />
+        <e k="terraLogic_fa_planner_ui_enterVehicle" v="Steige in ein Fahrzeug und kupple ein unterstütztes Gerät an, um das Gespann zu analysieren." />
+        <e k="terraLogic_fa_planner_ui_expected" v="VORAUSSICHTLICHES ERGEBNIS" />
+        <e k="terraLogic_fa_planner_ui_factors" v="Einschränkung durch Feuchte: %.0f%%&#10;Einschränkung durch Frost: %.0f%%&#10;Eindringung in den Boden: %.0f%%" />
+        <e k="terraLogic_fa_planner_ui_group_cropCare" v="Bestandspflege" />
+        <e k="terraLogic_fa_planner_ui_group_grassHarvest" v="Sonstiges" />
+        <e k="terraLogic_fa_planner_ui_group_other" v="Sonstiges" />
+        <e k="terraLogic_fa_planner_ui_group_soilWork" v="Bodenbearbeitung" />
+        <e k="terraLogic_fa_planner_ui_group_sowing" v="Aussaat" />
+        <e k="terraLogic_fa_planner_ui_implementMass" v="Masse der angebauten Geräte" />
+        <e k="terraLogic_fa_planner_ui_noSoilChange" v="Das ausgewählte Gerät bearbeitet den Boden nicht direkt. Die Räder von Traktor und Gerät können trotzdem Oberflächen- und Tiefenverdichtung verursachen." />
+        <e k="terraLogic_fa_planner_ui_fieldRequired" v="Die Fahrzeugdaten bleiben verfügbar. Stelle dich auf ein Feld, um Bodenwirkungen, Überfahrtsfolgen und feldbezogene Empfehlungen zu berechnen." />
+        <e k="terraLogic_fa_planner_ui_operation" v="ARBEITSGANG" />
+        <e k="terraLogic_fa_planner_ui_oversized" v="Das Fahrzeug hat eine große Leistungsreserve, während das Radlastrisiko bereits erhöht ist. Ein leichteres Fahrzeug mit ausreichender Leistung kann unnötige Verdichtung vermeiden." />
+        <e k="terraLogic_fa_planner_ui_passFormat" v="%d Spuren | %.1f km" />
+        <e k="terraLogic_fa_planner_ui_axleLoad" v="Maximale Achslast" />
+        <e k="terraLogic_fa_planner_ui_groundPressure" v="Bodenkontaktdruck" />
+        <e k="terraLogic_fa_planner_ui_recommendedSpeed" v="Empfohlenes Tempo" />
+        <e k="terraLogic_fa_planner_ui_setup" v="AKTUELLES GESPANN" />
+        <e k="terraLogic_fa_planner_ui_setupSuitable" v="Das Gespann ist für die aktuellen Feldbedingungen plausibel. Halte das empfohlene Tempo ein und vermeide wiederholte Überfahrten." />
+        <e k="terraLogic_fa_planner_ui_soil_aggregateSize" v="Krümelstruktur" />
+        <e k="terraLogic_fa_planner_ui_soil_deepCompaction" v="Tiefenverdichtung" />
+        <e k="terraLogic_fa_planner_ui_soil_resilience" v="Bodenresilienz" />
+        <e k="terraLogic_fa_planner_ui_soil_roughness" v="Ebenheit" />
+        <e k="terraLogic_fa_planner_ui_soil_surfaceCompaction" v="Oberflächenverdichtung" />
+        <e k="terraLogic_fa_planner_ui_soilAfterPass" v="Nach einer Überfahrt" />
+        <e k="terraLogic_fa_planner_ui_soilEffectiveness" v="Erwartetes Bodenergebnis" />
+        <e k="terraLogic_fa_planner_ui_stoneRiskMower" v="Steinschäden: Sichtbare Steine können das Mähwerk treffen; unebener Boden erhöht den Kontakt und höheres Tempo die Aufprallstärke." />
+        <e k="terraLogic_fa_planner_ui_stoneRiskPicker" v="Steinwirkung: Dieser Arbeitsgang entfernt sichtbare Steine, verborgene Steine können spätere Bodenarbeiten aber weiterhin belasten." />
+        <e k="terraLogic_fa_planner_ui_stoneRiskSurface" v="Steinschäden: Dieses Gerät kann sichtbare Feldsteine treffen. Steingröße, Tempo und rotierende Teile bestimmen den Aufprallschaden." />
+        <e k="terraLogic_fa_planner_ui_stoneRiskTillage" v="Steinschäden: Die Arbeitstiefe kann verborgene Steine treffen; Steingröße, Tempo und rotierende Teile bestimmen den Aufprallschaden." />
+        <e k="terraLogic_fa_planner_ui_mechanicalLoadCompact" v=" · L %.0f/%.0f%%" />
+        <e k="terraLogic_fa_planner_ui_mechanicalOverload" v="Die geschätzte mechanische Belastung liegt bei empfohlenem Tempo und den aktuellen Bodenbedingungen über der Warnschwelle. Reduziere das Tempo, bevor die Strukturgrenze überschritten wird." />
+        <e k="terraLogic_fa_planner_ui_totalMass" v="Gespannmasse" />
+        <e k="terraLogic_fa_planner_ui_tractorMass" v="Fahrzeuggewicht" />
+        <e k="terraLogic_fa_planner_ui_unsupportedTrafficOnly" v="Kein von TerraLogic unterstütztes Gerät ist angekuppelt. Der Einfluss der Überfahrt wird trotzdem ausgewertet." />
+        <e k="terraLogic_fa_planner_ui_trafficElevated" v="Das Verdichtungsrisiko ist erhöht. Vermeide Überlappung und unnötige Wendemanöver auf dem Feld. Breite Reifen helfen die Last zu verteilen." />
+        <e k="terraLogic_fa_planner_ui_trafficHigh" v="Die aktuelle Achslast oder der Bodenkontaktdruck erzeugt ein hohes Verdichtungsrisiko. Reduziere die Last, nutze passende Reifen oder warte wenn möglich auf trockeneren Boden." />
+        <e k="terraLogic_fa_planner_ui_underpowered" v="Der Traktor hat unter den aktuellen Bedingungen möglicherweise nicht genug Leistung für dieses Gerät. Reduziere das Tempo oder nutze einen ausreichend starken Traktor." />
+        <e k="terraLogic_fa_planner_ui_workWidth" v="Arbeitsbreite" />
+        
+        <!-- Planner implement descriptions -->
+        <e k="terraLogic_fa_planner_desc_baler" v="Nimmt Material auf und presst Ballen. Unebener Boden und zu hohes Tempo können dazu führen, dass die Pickup Material liegen lässt. Diese Verluste betreffen die eingesammelte Ernte direkt und nicht den Boden oder die Ertragsschätzung der Feldarbeit." />
+        <e k="terraLogic_fa_planner_desc_cultivator" v="Lockert mäßige Oberflächenverdichtung, zerkleinert grobe Schollen und ebnet das Saatbett. Wiederholte Arbeitsgänge können den Boden zu fein machen. Zu hohes Tempo schwächt die Lockerung und kann eine überarbeitete, unebene Oberfläche hinterlassen." />
+        <e k="terraLogic_fa_planner_desc_directDrill" v="Legt Saat ohne ganzflächige Bodenbearbeitung ab, schont dadurch die Resilienz und spart einen Bearbeitungsgang. Sie verträgt ein raueres Saatbett besser als normale oder präzise Saat, doch Verdichtung, Feuchte, Frost, Verschleiß und zu hohes Tempo können weiterhin die Ablage verschlechtern und Fehlstellen verursachen." />
+        <e k="terraLogic_fa_planner_desc_discHarrow" v="Bearbeitet den Oberboden, zerkleinert Schollen und hinterlässt ein recht ebenes Saatbett. Wiederholte oder zu schnelle Arbeitsgänge können den Boden zu fein machen, auch wenn die Oberfläche weiterhin glatt aussieht." />
+        <e k="terraLogic_fa_planner_desc_fertilizerSpreader" v="Verteilt körnigen Dünger. Zu hohes Tempo, schlechter Gerätezustand und unebener Boden können die Verteilung verschlechtern und unbehandelte Bereiche hinterlassen. Der Streuer bearbeitet den Boden nicht direkt, seine Räder tragen aber zur Verdichtung bei." />
+        <e k="terraLogic_fa_planner_desc_hoe" v="Bekämpft Unkraut zwischen den Kulturreihen und lockert die Oberfläche leicht. Sie benötigt eine genaue Führung und ausreichend ebenen Boden. Zu hohes Tempo vergrößert unbehandelte Stellen und hinterlässt ein ungleichmäßigeres Arbeitsergebnis." />
+        <e k="terraLogic_fa_planner_desc_liquidSprayer" v="Bringt Flüssigdünger oder Pflanzenschutzmittel aus. Zu hohes Tempo und schlechter Zustand können die Abdeckung verschlechtern. Regen beim Herbizidspritzen kann die Unkrautwirkung stark senken; simulierte Bodenunebenheit vermindert die Spritzqualität nicht. Die Spritze bearbeitet den Boden nicht direkt, ihre Räder können ihn aber verdichten." />
+        <e k="terraLogic_fa_planner_desc_loaderWagon" v="Nimmt Material aus Schwaden auf. Unebener Boden und zu hohes Tempo können dazu führen, dass die Pickup Material liegen lässt. Das Gespann kann außerdem schwer genug sein, um deutliche Oberflächen- und Tiefenverdichtung zu verursachen." />
+        <e k="terraLogic_fa_planner_desc_manureSpreader" v="Verteilt Festmist auf dem Feld. Zu hohes Tempo und unebener Boden können die Verteilung verschlechtern und Bereiche auslassen. Die Räder von Streuer und Traktor können bei einem schweren Gespann deutliche Verdichtung verursachen." />
+        <e k="terraLogic_fa_planner_desc_mower" v="Schneidet den stehenden Grasbestand. Unebener Boden verschlechtert die Schnittgleichmäßigkeit und bringt das Mähwerk häufiger mit sichtbaren Steinen in Kontakt. Zu hohes Tempo kann ungemähte Fehlstellen verursachen." />
+        <e k="terraLogic_fa_planner_desc_mulcher" v="Zerkleinert Ernterückstände und verbessert die Bodenoberfläche leicht. Zu hohes Tempo und schlechter Bodenkontakt können ungemulchte Bereiche und ein raueres Ergebnis hinterlassen. Steine erhöhen besonders bei angetriebenen Mulchern Verschleiß und Schaden unabhängig von der gefahrenen Geschwindigkeit." />
+        <e k="terraLogic_fa_planner_desc_plow" v="Wendet und lockert den Oberboden stark. Ein normaler Arbeitsgang hinterlässt grobe Schollen und eine raue Oberfläche und verringert die langfristige Resilienz. Zu hohes Tempo schwächt die Lockerung deutlich und kann den Boden gleichzeitig zu fein und sehr uneben hinterlassen." />
+        <e k="terraLogic_fa_planner_desc_powerHarrow" v="Erzeugt ein sehr feines und ebenes Saatbett und kann geringe Oberflächenverdichtung lockern. Wiederholte Arbeitsgänge können den Boden überarbeiten. Bei zu hohem Tempo haben die Kreisel weniger wirksame Kontaktzeit, wodurch das Ergebnis ungleichmäßiger und rauer wird." />
+        <e k="terraLogic_fa_planner_desc_precisionPlanter" v="Legt einzelne Körner sehr präzise ab und reagiert deshalb besonders empfindlich auf Oberflächenverdichtung, ungeeignete Krümelstruktur und unebenen Boden. Feuchte, Frost, Verschleiß und zu hohes Tempo können die Ablage schnell verschlechtern und fehlende Pflanzen verursachen." />
+        <e k="terraLogic_fa_planner_desc_precisionDirectDrill" v="Verbindet Einzelkornablage mit Direktsaat. Sie verträgt Rückstände und eine unbearbeitete Oberfläche besser als eine normale Einzelkornsämaschine, benötigt aber weiterhin beherrschbare Verdichtung, sicheren Scharkontakt und angepasstes Tempo." />
+        <e k="terraLogic_fa_planner_desc_roller" v="Ebnet und festigt ein lockeres oder scholliges Saatbett, erhöht dabei aber auch die Oberflächenverdichtung. Nach der Saat kann sie den Bodenschluss verbessern und Ablageverluste zum Teil ausgleichen. Fehlendes Saatgut kann sie nicht ersetzen. Bei zu hohem Tempo verliert sie gleichmäßigen Bodenkontakt; auf unebenem Boden setzt dieser Wirkungsverlust früher ein." />
+        <e k="terraLogic_fa_planner_desc_shallowCultivator" v="Ebnet und verfeinert das Saatbett und lockert Oberflächenverdichtung nur mäßig. Er ersetzt keine tiefere Bodenbearbeitung. Zu hohes Tempo schwächt seine Wirkung und kann ein unnötig feines, unebenes Ergebnis hinterlassen." />
+        <e k="terraLogic_fa_planner_desc_slurryApplicator" v="Bringt Gülle in schmalen Bändern aus. Tempo und eine unebene Oberfläche können die Verteilung verschlechtern und vereinzelt unbehandelte Stelle hinterlassen, weil die gleichmäßige Ausbringung nicht mehr gegeben ist. Das Gerät bearbeitet den Boden nicht direkt, die Räder von Fahrzeug und Gerät verursachen aber weiterhin Verdichtung." />
+        <e k="terraLogic_fa_planner_desc_slurryInjector" v="Öffnet mit mitlaufenden Scheiben schmale Schlitze und legt die Gülle unter der Oberfläche ab. Dadurch entstehen mäßiger Zugwiderstand und Verschleiß, ohne die gesamte Arbeitsbreite zu bearbeiten. Zu hohes Tempo oder schlechte Eindringbedingungen können die Ablagequalität mindern." />
+        <e k="terraLogic_fa_planner_desc_slurrySpreader" v="Verteilt Gülle auf der Oberfläche. Zu hohes Tempo und unebener Boden können die Verteilung verschlechtern und vereinzelt unbehandelte Stellen hinterlassen, weil die gleichmäßige Ausbringung nicht mehr gegeben ist. Das Gerät bearbeitet den Boden nicht direkt, doch das meist schwere Gespann kann deutliche Verdichtung verursachen." />
+        <e k="terraLogic_fa_planner_desc_sowingMachine" v="Legt Saat in ein vorbereitetes Saatbett. Oberflächenverdichtung, Krümelstruktur, Ebenheit, Feuchte, Frost, Verschleiß und Tempo beeinflussen die Ablagequalität und Fehlstellen. Die Schare selbst verändern den Boden nur geringfügig." />
+        <e k="terraLogic_fa_planner_desc_spader" v="Lockert und mischt den Oberboden stark und kann einen begrenzten Teil tiefer Verdichtung lösen. Sie hinterlässt eine mäßig raue Oberfläche. Zu hohes Tempo schwächt Lockerung und Mischung und macht das Ergebnis rauer." />
+        <e k="terraLogic_fa_planner_desc_stonePicker" v="Entfernt sichtbare Steine und bearbeitet die Oberfläche leicht. Zu hohes Tempo kann Steine liegen lassen, das Bodenergebnis verschlechtern und das Risiko schädlicher Treffer mit verdeckten Steinen erhöhen." />
+        <e k="terraLogic_fa_planner_desc_subsoiler" v="Bricht tiefe Verdichtung auf, ohne die gesamte Oberfläche zu wenden. Er lockert auch den Oberboden, hinterlässt aber ein deutlich raues Ergebnis. Zu hohes Tempo verringert die Tiefenlockerung und verstärkt die Störung der Oberfläche." />
+        <e k="terraLogic_fa_planner_desc_tedder" v="Verteilt und wendet geschnittenes Material. Unebener Boden und zu hohes Tempo verschlechtern die Gleichmäßigkeit und können ungewendetes Gras liegen lassen. Das Gerät verändert den Bodenzustand nicht direkt, seine Räder verursachen aber weiterhin Verdichtung." />
+        <e k="terraLogic_fa_planner_desc_weeder" v="Bekämpft Unkraut mit flachem Bodenkontakt und bearbeitet die Oberfläche leicht. Unebener, verdichteter oder ungeeigneter Boden kann den Bodenkontakt verschlechtern. Zu hohes Tempo vergrößert unbehandelte Stellen und hinterlässt ein raueres Arbeitsergebnis." />
+        <e k="terraLogic_fa_planner_desc_windrower" v="Formt geschnittenes Material zu Schwaden. Unebener Boden und zu hohes Tempo können unvollständige oder unregelmäßige Schwaden hinterlassen. Das Gerät bearbeitet den Boden nicht direkt, seine Räder verursachen aber weiterhin Verdichtung." />
+        
+        <!-- Planner help texts -->
+        <e k="terraLogic_fa_planner_help_setup_vehicleMass" v="Das ist das Gewicht des gefahrenen Fahrzeugs ohne die angehängten Geräte. Kraftstoff, Getreide und andere Ladung sind enthalten, soweit das Spiel sie meldet. Das Fahrzeuggewicht ist zwar wichtig, aber wie es sich auf Achsen und Reifen verteilt, entscheidet schlussendlich in Kombination mit Bodenfeuchtigkeit und -art darüber, wie tief und wie stark sich der Boden verdichtet." />
+        <e k="terraLogic_fa_planner_help_setup_equipmentMass" v="Das ist das gemeinsame Gewicht aller verbundenen Geräte und Anhänger einschließlich ihrer aktuellen Ladung. Bei mehreren angehängten Geräten werden alle berücksichtigt. Das Gewicht wirkt aber nicht einfach gleichmäßig auf alle Räder, denn Deichsel und Stützräder bestimmen, wie der Druck sich in den Boden überträgt." />
+        <e k="terraLogic_fa_planner_help_setup_combinationMass" v="Das ist das Gewicht des vollständigen Gespanns. Damit lassen sich leichte und schwere Kombinationen vergleichen, doch das Gesamtgewicht allein bestimmt die Verdichtung nicht. Entscheidend sind Achslasten, Reifenkontakt, Bodenfeuchte und wiederholte Überfahrten." />
+        <e k="terraLogic_fa_planner_help_setup_axleLoad" v="Dies ist die höchste geschätzte Last auf einer einzelnen Achse im gesamten Gespann. Hohe Achslasten sind besonders für Tiefenverdichtung entscheidend, selbst wenn breite Reifen oder Laufwerke den Bodenkontaktdruck an der Oberfläche niedrig halten. Nasser Boden, wiederholte Überfahrten und geringe Resilienz verstärken die entstehenden Schäden." />
+        <e k="terraLogic_fa_planner_help_setup_groundPressure" v="Dies ist der höchste geschätzte Bodenkontaktdruck unter einem Reifen oder Laufwerk, nicht der Reifeninnendruck. Er beschreibt vor allem das Risiko für Verdichtung im Oberboden. Breite Reifen, Zwillingsreifen und Laufwerke können den Kontaktdruck reduzieren; Nässe, wiederholte Überfahrten und geringe Resilienz verstärken die entstehenden Schäden." />
+        <e k="terraLogic_fa_planner_help_setup_width" v="Das ist die erkannte Arbeitsbreite der aktuellen Maschine oder des Geräts. Eine größere Arbeitsbreite benötigt meist weniger Spuren auf dem Feld und kann den gesamten Fahrverkehr verringern. Jedes Rad verdichtet den Boden dennoch entlang seiner eigenen Spur." />
+        <e k="terraLogic_fa_planner_help_setup_coverage" v="Dieser Wert schätzt die Zahl effizienter paralleler Spuren und die nötige Arbeitsstrecke auf dem ausgewählten Feld. Überlappung der Arbeitsbereiche, wiederholtes Rangieren, schwierige Feldgrenzen und Wendemanöver auf dem Feld erhöhen die tatsächliche Strecke und belasten mehr Boden." />
+        <e k="terraLogic_fa_planner_help_setup_traffic" v="Dies ist eine vergleichende Risikobewertung der aktuellen Fahrzeugkombination auf diesem Feld. Reifenkontaktdruck und Achslast werden mit Bodenart, Feuchte, Resilienz und Frost gewichtet, getrennt nach Ober- und Unterboden. Das höhere Risiko bestimmt die Einstufung. Der Wert sagt nicht die Verdichtungszunahme eines vollständigen Arbeitsgangs voraus. Tatsächliche Fahrspuren, vorhandene Verdichtung und wiederholte Überfahrten wirken zusätzlich." />
+        <e k="terraLogic_fa_planner_help_valueVehicleMass" v="Fahrzeuggewicht: %s" />
+        <e k="terraLogic_fa_planner_help_valueEquipmentMass" v="Gerätegewicht: %s" />
+        <e k="terraLogic_fa_planner_help_valueCombinationMass" v="Gespanngewicht: %s" />
+        <e k="terraLogic_fa_planner_help_valueAxleLoad" v="Maximale Achslast: %s" />
+        <e k="terraLogic_fa_planner_help_valueGroundPressure" v="Bodenkontaktdruck: %s" />
+        <e k="terraLogic_fa_planner_help_valueWidth" v="Arbeitsbreite: %s" />
+        <e k="terraLogic_fa_planner_help_valueCoverage" v="Effiziente Feldabdeckung: %s" />
+        <e k="terraLogic_fa_planner_help_valueTraffic" v="Verdichtungsrisiko: %s" />
+        <e k="terraLogic_fa_planner_help_draft" v="Dieser Wert zeigt, wie der aktuelle Boden den Zugwiderstand des ausgewählten Geräts verändert. Bodenart, Verdichtung, Krümelstruktur, Feuchte und Frost sind enthalten. x1,00 bedeutet normalen Widerstand; Werte darüber bedeuten zusätzlichen Zugwiderstand. Arbeitsbreite und Arbeitstiefe gehören bereits zum normalen Leistungsbedarf der Maschine. Ein Strich bedeutet, dass TerraLogic den Zugwiderstand dieser Geräteart nicht verändert." />
+        <e k="terraLogic_fa_planner_help_dropout" v="Dieser Wert schätzt die Fehlstellen, die beim normalen Shop-Speed auf dem aktuellen Boden zu erwarten wären. Die daneben empfohlene Geschwindigkeit ist bereits an den Boden angepasst. Unebenheit oder ungeeignete Krümelstruktur löschen nicht von selbst Saatgut, sondern senken die Geschwindigkeit, bei der Schare noch zuverlässig folgen. Unterhalb dieser Grenze können bodenkontaktbedingte Aussetzer vollständig verschwinden. Stark verschlissene Geräte oder gefrorener Boden bleiben zusätzliche Risiken." />
+        <e k="terraLogic_fa_planner_help_effectiveness" v="Dieser Wert zeigt, wie viel des üblichen Bodenergebnisses bei aktueller Feuchte und Frost erreicht werden kann. Hundert Prozent bedeutet, dass das Gerät normal arbeiten kann; ein einzelner Durchgang macht dadurch nicht automatisch jeden Bodenwert perfekt. Ein Strich bedeutet, dass das ausgewählte Gerät den Boden nicht direkt bearbeitet." />
+        <e k="terraLogic_fa_planner_help_load" v="Der erste Wert ist die höchste geschätzte Achslast des gesamten Gespanns; der zweite der höchste geschätzte Bodenkontaktdruck unter einem Reifen oder Laufwerk (nicht der Reifeninnendruck). Die Achslast ist besonders für Tiefenverdichtung wichtig, hoher Bodenkontaktdruck schädigt vor allem den Oberboden. Nässe und geringe Resilienz verstärken beide Wirkungen." />
+        <e k="terraLogic_fa_planner_help_quality" v="Das ist die beste Arbeitsqualität, die der ausgewählte Arbeitsgang bei empfohlenem Tempo und einem gut gewarteten Gerät derzeit erreichen kann. Bodenzustand, Feuchte und Frost sind bereits berücksichtigt. Zu hohes Tempo, Verschleiß und Steinschläge können das tatsächliche Ergebnis weiter verschlechtern." />
+        <e k="terraLogic_fa_planner_help_speed" v="Das ist das für diesen Boden empfohlene Arbeitstempo der ausgewählten Geräteklasse. Es wird vom realistischen Referenztempo des Geräts abgeleitet und bei schwierigen Bedingungen abgesenkt. Unterhalb dieser Grenze lassen sich bodenkontaktbedingte Fehlstellen vermeiden; Verschleiß, Frost oder extreme Bedingungen können trotzdem zusätzliche Verluste verursachen." />
+        <e k="terraLogic_help_example" v="Beispiel aus dem Spiel" />
+        <e k="terraLogic_help_welcome_example" v="Öffne vor der Arbeit die Feldanalyse und prüfe Bodenwerte und mögliche Arbeitsgänge. Achte während der Fahrt im Arbeits-HUD auf Geschwindigkeit, Arbeitsqualität, Belastung und Warnungen. Der grüne Geschwindigkeitsbereich ist eine Orientierung: Boden, Feuchtigkeit und Frost können langsameres Arbeiten erfordern." />
+        <e k="terraLogic_help_displays_example" v="Ein schmaler roter Streifen auf der Karte für Oberflächenverdichtung kann eine einzelne Fahrspur sein, obwohl der Felddurchschnitt noch in Ordnung ist. Prüfe die Stelle mit der Minimap oder dem lokalen HUD, bevor du das ganze Feld grubberst." />
+        <e k="terraLogic_help_soil_example" v="Nach dem Pflügen kann die Oberflächenverdichtung gering sein, während Krümelstruktur grob und Ebenheit schlecht sind. Ein passender Saatbett-Arbeitsgang mit Grubber, Flachgrubber, Kreiseleggen usw. zerkleinert die Schollen und ebnet das Feld. Unnötige Überfahrten können den Boden sogar zu fein machen, was unter Umständen auch die Qualität der Aussaat verringert." />
+        <e k="terraLogic_help_traffic_example" v="Ein fast leerer Mähdrescher hinterlässt auf trockenem Boden möglicherweise nur mäßige Spuren. Derselbe Mähdrescher kann mit vollem Korntank auf nassem Boden örtlich starke Oberflächen- und Tiefenverdichtung verursachen. Früheres Abtanken und Zwischenlagern der Ernte abseits des Feldes helfen dabei, die Verdichtung zu reduzieren. Feste Fahrgassen für das Überladefahrzeug können ebenfalls helfen, die Verdichtung auf dem Feld in Grenzen zu halten. Das erfordert allerdings etwas Planung und Geräte mit passenden Arbeitsbreiten." />
+        <e k="terraLogic_help_tillage_example" v="Ist nur der Oberboden verdichtet und der Unterboden aber relativ aufgelockert, behebt ein Gerät mit flacher Arbeitstiefe wie ein Grubber oder Flachgrubber das Problem mit weniger negativen Konsequenzen für die biologische Mikrostruktur. Zeigt TerraLogic-Feldanalyse dagegen großflächige Tiefenverdichtung, kann es Ratsam sein, das Feld mit dem Tiefenlockerer zu bearbeiten, auch wenn solche tiefen Eingriffe in den Boden auf langer Sicht die natürliche Regenerationsfähigkeit verlangsamen." />
+        <e k="terraLogic_help_seeding_example" v="Eine Einzelkornsämaschine muss auf einer rauen Pflugfurche langsamer fahren, damit die Schare zuverlässig folgen. Unterhalb der angezeigten sicheren Geschwindigkeit entstehen dadurch keine bodenkontaktbedingten Fehlstellen. Ein vorbereitetes Saatbett erlaubt Shop-Speed; eine Direktsaatmaschine verträgt rauere Oberflächen besser, beseitigt aber keine Verdichtung. Eine geeignete Walze kann nach der Saat nur den lockeren, groben oder rauen Bodenschluss und den entsprechenden Anteil der Saatqualität verbessern. Fehlendes Saatgut, Verschleiß- und Overspeedfehler bleiben erhalten." />
+        <e k="terraLogic_help_speed_example" v="Ein zu schnell gezogener Pflug kann schlechter lockern und ein ungünstigeres Saatbett hinterlassen. Bei extremer Geschwindigkeit nimmt seine wirksame Arbeitstiefe stark ab. Eine sichtbare Pflugtextur bedeutet dann nicht, dass der Boden ausreichend gelockert wurde. Kontrolliere die Bodenkarten und bereite das Saatbett bei Bedarf vor, bevor du säst." />
+        <e k="terraLogic_help_draft_example" v="Derselbe Grubber lässt sich in lehmigem Sand meist leichter ziehen als in schluffigem Ton. Ist der Tonboden zusätzlich verdichtet, gefroren und wird mit verschlissenen Spitzen bearbeitet, steigt der Zugwiderstand weiter. Ein sehr schwerer Hochleistungstraktor hält möglicherweise das Tempo, kann mit seiner Achslast aber genau die Tiefenverdichtung erzeugen, die spätere Arbeit und die Wurzelentwicklung der Pflanzen erschwert." />
+        <e k="terraLogic_help_weather_example" v="Nach mehreren Stunden Regen kann die Oberfläche bereits so nass sein, dass Überfahrten riskant werden, während die Wurzelzone erst noch Wasser aufnimmt. Wartest du, bis die obere Schicht abgetrocknet ist, schützt du das Saatbett, obwohl die Kultur vom Wasser darunter profitiert. Im Winter kann ein sonniger Nachmittag die Oberfläche auftauen, während die tiefere Schicht noch kalt und gefroren bleibt." />
+        <e k="terraLogic_help_recovery_example" v="Der regelmäßige Wechsel der angebauten Fruchtsorten, das Anbauen von Zwischenfrüchten, oder mehrere Jahre Gras auf einem Feld zu pflegen, beschleunigt die natürliche Regeneration des Bodens und verbessert die Resilienz. Jährliches Pflügen hingegen kann ein unmittelbares Oberflächenproblem wie Verdichtung lösen, stört aber die biologische Mikrostruktur des Bodens und verlangsamt natürliche Prozesse. Bei exzessiven Tiefenlockern und Pflügen, kann sich die Resilienz sogar verschlechtern, was den Boden unter anderem weniger widerstandsfähig gegen Verdichtung macht." />
+        <e k="terraLogic_help_work_example" v="Eine Sämaschine kann 80 Prozent Ablagequalität speichern und gleichzeitig sichtbare ungesäte Stellen hinterlassen. Die gespeicherte Qualität beschreibt die Qualität der Saatablge und in den Fehlstellen stehen überhaupt keine Pflanzen. Ein zu schnell gefahrener Ladewagen lässt dagegen einen Teil des Schwads liegen: Dieser Verlust ist sofort sichtbar und verringert direkt die aufgenommene Menge." />
+        <e k="terraLogic_help_yield_example" v="Ist der Boden in der ersten Wachstumsphase gesund, wird aber anschließend durch Pflegefahrten bei Nässe verdichtet, dann wirkt sich das Anteilig auf den Ertrag aus. TerraLogic simuliert das Pflanzenwachstum und den Ertrag anhand der Wasserkapazität, Feuchtigkeit und Verdichtung des Bodens über die gesamte Wachstumsphase hinweg. Der Ertragsverlust wird nicht nur anhand des Bodenzustands während der Ernte beurteilt." />
+        <e k="terraLogic_help_damage_example" v="Ein Mähwerk ist auf einem unebenen Feld sichtbaren Steinen stärker ausgesetzt, weil der Mähbalken der Oberfläche dicht folgt. Ein tief arbeitender Grubber kann stattdessen einen simulierten Untergrundstein treffen, obwohl die Oberfläche sauber aussieht. Ein angetriebenes Kreiselgerät behält durch seine Rotation Einschlagsenergie. Strukturelle Überlast wird getrennt von Steintreffern und ausschließlich aus der vom Spiel tatsächlich gemessenen Zuglast bewertet." />
+        <e k="terraLogic_help_compat_example" v="Mit aktivem Precision Farming können zwei Bereiche desselben Feldes unterschiedliche Bodenarten und damit anderen Zugwiderstand und Feuchteverlauf besitzen. Ohne Precision Farming verwenden beide den TerraLogic-Standardboden. Ist zusätzlich More Realistic installiert, kannst du in den Einstellungen von TerraLogic auswählen, welcher Mod sich um den Zugwiderstand kümmert. ACHTUNG: More Realistic kann unter Umständen das Balancing des Zugwiderstands in manchen Bereichen aushebeln." />
+        <e k="terraLogic_help_problems_example" v="Warnt die Übersicht vor Oberflächenverdichtung, öffne zuerst die Erklärung und vergleiche Felddurchschnitt und Bodenkarte. Einige rote Fahrspuren verlangen bessere Verkehrsplanung und vielleicht eine Korrektur bei der nächsten ohnehin geplanten Bodenbearbeitung; ein großflächig hoher Wert kann einen vollständigen Arbeitsgang rechtfertigen. Prüfe zuerst die Ausdehnung und wähle danach das Gerät." />
+        <e k="terraLogic_workHudQuality" v="ARBEITSQUALITÄT" />
+        <e k="terraLogic_workHudPickup" v="MATERIALAUFNAHME" />
+        <e k="terraLogic_workHudRecommended" v="NENNBEREICH" />
+        <e k="terraLogic_workHudLoad" v="MECHANISCHE BELASTUNG" />
+        <e k="terraLogic_workHudLoadUnavailable" v="MECHANISCHE BELASTUNG" />
+        <e k="terraLogic_workHudWearNormal" v="VERSCHLEISSRATE NORMAL" />
+        <e k="terraLogic_workHudWearIncreased" v="VERSCHLEISSRATE ERHÖHT" />
+        <e k="terraLogic_workHudWearHigh" v="VERSCHLEISSRATE HOCH" />
+        <e k="terraLogic_workHudWearExtreme" v="VERSCHLEISSRATE EXTREM" />
+        <e k="terraLogic_workHudBrokenTitle" v="GERÄT DEFEKT" />
+        <e k="terraLogic_workHudBrokenDetail" v="Das Gerät arbeitet nicht mehr. Bitte vor der Weiterarbeit reparieren." />
+        <e k="terraLogic_workHudSurfaceStoneTitle" v="STEINSCHLAG" />
+        <e k="terraLogic_workHudUndergroundStoneTitle" v="UNTERIRDISCHER STEINSCHLAG" />
+        <e k="terraLogic_workHudStoneDetail" v="Der Einschlag hat %.1f %% Geräteschaden verursacht." />
+        <e k="terraLogic_workHudOverloadTitle" v="KRITISCHE MECHANISCHE LAST" />
+        <e k="terraLogic_workHudOverloadDetail" v="Die Überlast verursacht laufenden Strukturschaden. Tempo reduzieren." />
+        <e k="terraLogic_workHudHighLoadTitle" v="HOHE MECHANISCHE LAST" />
+        <e k="terraLogic_workHudHighLoadDetail" v="Das Gerät ist überlastet und verschleißt schneller. Verringere das Tempo, um es zu entlasten." />
+        <e k="terraLogic_workHudMaterialLossTitle" v="MATERIALVERLUST" />
+        <e k="terraLogic_workHudMaterialLossDetail" v="Material kann auf dem Feld liegen bleiben" />
+        <e k="terraLogic_workHudUnevenSeedbedTitle" v="UNEBENES SAATBETT" />
+        <e k="terraLogic_workHudUnevenSeedbedDetail" v="Ablagequalität vermindert" />
+        <e k="terraLogic_workHudFrozenTitle" v="BODEN GEFROREN" />
+        <e k="terraLogic_workHudFrozenDetail" v="Gefrorener Boden erhöht den Zugwiderstand. Warte auf Tauwetter, wenn der Traktor überfordert ist." />
+        <e k="terraLogic_workHudWetTitle" v="NASSER BODEN" />
+        <e k="terraLogic_workHudWetDetail" v="Verdichtungsrisiko erhöht" />
+        <e k="terraLogic_workHudCompactionTitle" v="HOHES VERDICHTUNGSRISIKO" />
+        <e k="terraLogic_workHudCompactionDetail" v="Achslast oder Bodenkontaktdruck reduzieren" />
+        <e k="terraLogic_workHudOverspeedTitle" v="ZU HOHE GESCHWINDIGKEIT" />
+        <e k="terraLogic_workHudConditionCauseTitle" v="GERÄT VERSCHLISSEN" />
+        <e k="terraLogic_workHudSoilCauseTitle" v="UNGÜNSTIGER BODEN" />
+        <e k="terraLogic_workHudUnevenGroundTitle" v="UNEBENER BODEN" />
+        <e k="terraLogic_workHudPickupDropoutDetail" v="Material bleibt liegen" />
+        <e k="terraLogic_workHudWorkDropoutDetail" v="Arbeitsaussetzer entstehen" />
+        <e k="terraLogic_workHudQualityCauseDetail" v="Arbeitsqualität reduziert" />
+        <e k="terraLogic_workHudConditionActionDetail" v="Langsamer fahren begrenzt die Verluste; eine Reparatur beseitigt die Ursache." />
+        <e k="terraLogic_workHudSoilActionDetail" v="Die Bodenbedingungen verursachen Fehlstellen. Prüfe empfohlenes Tempo und Bodenbedingungen im Planner." />
+        <e k="terraLogic_workHudOverspeedQualityDetail" v="Das Tempo verringert die Arbeitsqualität" />
+        <e k="terraLogic_workHudConditionQualityDetail" v="Verschleiß verringert die Arbeitsqualität" />
+        <e k="terraLogic_workHudSoilQualityDetail" v="Die Bodenbedingungen begrenzen das Ergebnis. Prüfe im Planner, ob ein anderer Arbeitsgang helfen würde." />
+        <e k="terraLogic_workHudFrozenQualityDetail" v="Gefrorener Boden verringert Eindringung und Qualität" />
+        <e k="terraLogic_workHudWetQualityDetail" v="Nasser Boden verschlechtert Eindringung und Ablage" />
+        <e k="terraLogic_workHudDryTitle" v="TROCKENER BODEN" />
+        <e k="terraLogic_workHudDryQualityDetail" v="Trockener Boden verschlechtert Eindringung und Ablage" />
+        <e k="terraLogic_workHudUnevenQualityDetail" v="Bodenführung und Ablage werden ungleichmäßiger" />
+        <e k="terraLogic_workHudCoarseTitle" v="GROBES SAATBETT" />
+        <e k="terraLogic_workHudCoarseDetail" v="Große Kluten verschlechtern die gleichmäßige Ablage" />
+        <e k="terraLogic_workHudFineTitle" v="ZU FEINES SAATBETT" />
+        <e k="terraLogic_workHudFineDetail" v="Überarbeiteter Boden destabilisiert die Ablage" />
+        <e k="terraLogic_workHudRainTitle" v="REGEN BEIM SPRITZEN" />
+        <e k="terraLogic_workHudRainQualityDetail" v="Regen schwächt die Herbizidwirkung. Warte mit dem Spritzen, bis der Regen aufhört." />
+        <e k="terraLogic_workHudRainDropoutDetail" v="Durch Regen bleiben Stellen ohne ausreichende Unkrautbekämpfung. Warte mit dem Spritzen, bis der Regen aufhört." />
+        <e k="terraLogic_workHudSeedingSpeedTitle" v="AUSSAAT ZU SCHNELL" />
+        <e k="terraLogic_workHudSeedingSpeedQualityDetail" v="Bei diesem Tempo wird das Saatgut ungleichmäßig abgelegt." />
+        <e k="terraLogic_workHudSeedingSpeedDropoutDetail" v="Die Schare verlieren Bodenkontakt; es entstehen Saatlücken." />
+        <e k="terraLogic_workHudPickupSpeedTitle" v="AUFNAHME ZU SCHNELL" />
+        <e k="terraLogic_workHudPickupSpeedQualityDetail" v="Die Materialaufnahme wird bei diesem Tempo unzuverlässig." />
+        <e k="terraLogic_workHudPickupSpeedDropoutDetail" v="Die Pickup lässt Material auf dem Feld liegen." />
+        <e k="terraLogic_workHudHaySpeedTitle" v="HEUARBEIT ZU SCHNELL" />
+        <e k="terraLogic_workHudHaySpeedQualityDetail" v="Das Schwadbild wird bei diesem Tempo ungleichmäßig." />
+        <e k="terraLogic_workHudHaySpeedDropoutDetail" v="Material wird nicht vollständig gewendet oder zusammengerecht." />
+        <e k="terraLogic_workHudTillageSpeedTitle" v="BODENBEARBEITUNG ZU SCHNELL" />
+        <e k="terraLogic_workHudTillageSpeedQualityDetail" v="Bei diesem Tempo wirkt das Gerät schwächer auf den Boden. Fahre langsamer, um das Ergebnis zu verbessern." />
+        <e k="terraLogic_workHudTillageSpeedDropoutDetail" v="Bei diesem Tempo bleiben unbearbeitete Stellen zurück. Fahre langsamer, um gleichmäßiger zu arbeiten." />
+        <e k="terraLogic_workHudApplicationSpeedTitle" v="AUSBRINGUNG ZU SCHNELL" />
+        <e k="terraLogic_workHudApplicationSpeedQualityDetail" v="Bei diesem Tempo wird die Ausbringung ungleichmäßiger. Fahre langsamer, um die Abdeckung zu verbessern." />
+        <e k="terraLogic_workHudApplicationSpeedDropoutDetail" v="In der behandelten Fläche entstehen Lücken. Fahre langsamer, um die Abdeckung zu verbessern." />
+        <e k="terraLogic_workHudSeedingWearQualityDetail" v="Verschlissene Schare verschlechtern die Saatablage. Sämaschine reparieren." />
+        <e k="terraLogic_workHudSeedingWearDropoutDetail" v="Verschlissene Schare verursachen Saatlücken. Sämaschine reparieren." />
+        <e k="terraLogic_workHudPickupWearQualityDetail" v="Verschleiß macht die Materialaufnahme unzuverlässig. Gerät reparieren." />
+        <e k="terraLogic_workHudPickupWearDropoutDetail" v="Wegen Verschleiß bleibt Material liegen. Gerät reparieren." />
+        <e k="terraLogic_workHudSeedingUnevenQualityDetail" v="Der unebene Boden verschlechtert die Saatablage." />
+        <e k="terraLogic_workHudSeedingUnevenDropoutDetail" v="Auf dem unebenen Saatbett verlieren die Schare Bodenkontakt. Langsamer fahren oder einebnen." />
+        <e k="terraLogic_workHudPickupUnevenQualityDetail" v="Die Pickup folgt der unebenen Oberfläche weniger zuverlässig." />
+        <e k="terraLogic_workHudPickupUnevenDropoutDetail" v="Die Pickup kann der Oberfläche nicht folgen; Material bleibt liegen." />
+        <e k="terraLogic_workHudHayUnevenQualityDetail" v="Der unebene Boden verschlechtert das Schwadbild." />
+        <e k="terraLogic_workHudHayUnevenDropoutDetail" v="Die Zinken verlieren Bodenkontakt; Material wird nicht vollständig bearbeitet." />
+        <e k="terraLogic_workHudTillageUnevenDetail" v="Der sehr unebene Boden begrenzt das Arbeitsergebnis. Prüfe das Saatbett vor der Saat." />
+        <e k="terraLogic_workHudApplicationUnevenDetail" v="Der unebene Boden macht die Ausbringung ungleichmäßig." />
+        <e k="terraLogic_workHudSeedingWetDetail" v="Nasser Boden verschmiert die Saatfurche und verschlechtert die Ablage." />
+        <e k="terraLogic_workHudTillageWetDetail" v="Nasser Boden schmiert, statt sauber zu krümeln. Lass ihn nach Möglichkeit vor der Weiterarbeit abtrocknen." />
+        <e k="terraLogic_workHudSeedingDryDetail" v="Die Schare dringen ungleichmäßig ein; die Ablagetiefe schwankt." />
+        <e k="terraLogic_workHudTillageDryDetail" v="Harter, trockener Boden begrenzt die Bodenwirkung. Warte nach Möglichkeit auf günstigere Bodenfeuchte." />
+        <e k="terraLogic_workHudSeedingFrostDetail" v="Die Schare dringen nicht zuverlässig ein; Ablage und Aufgang leiden." />
+        <e k="terraLogic_workHudTillageFrostDetail" v="Gefrorener Boden begrenzt das Eindringen und Lockern. Warte, bis er aufgetaut ist." />
+        <e k="terraLogic_fa_map_title" v="BODENKARTEN" />
+        <e k="terraLogic_fa_map_layers" v="KARTENEBENE" />
+        <e k="terraLogic_fa_map_surface" v="Oberflächenverdichtung" />
+        <e k="terraLogic_fa_map_deep" v="Tiefenverdichtung" />
+        <e k="terraLogic_fa_map_tilth" v="Krümelstruktur" />
+        <e k="terraLogic_fa_map_evenness" v="Ebenheit" />
+        <e k="terraLogic_fa_map_resilience" v="Bodenresilienz" />
+        <e k="terraLogic_fa_map_legendCompaction" v="Gering     Mittel     Hoch" />
+        <e k="terraLogic_fa_map_legendTilth" v="Grob     Krümelig     Zu fein" />
+        <e k="terraLogic_fa_map_legendEvenness" v="Eben     Mittel     Uneben" />
+        <e k="terraLogic_fa_map_legendResilience" v="Gering     Mittel     Hoch" />
+        <e k="terraLogic_fa_map_noField" v="Stelle dich auf ein Feld und aktualisiere die Analyse." />
+        <e k="terraLogic_fa_map_unavailable" v="Die Bodenkarte ist nicht verfügbar." />
+        <e k="terraLogic_fa_map_loading" v="Feldkarte wird vorbereitet..." />
+        <e k="terraLogic_fa_ui_soilSensitivity" v="Bodenempfindlichkeit" />
+        <e k="terraLogic_fa_ui_trafficLayers" v="Oben x%.2f / Tief x%.2f" />
+        <e k="terraLogic_fa_help_valueSensitivity" v="Bodenempfindlichkeit: %s" />
+        <e k="terraLogic_fa_help_soilSensitivity" v="Diese Faktoren zeigen getrennt für Ober- und Unterboden, wie stark die aktuellen Bodenbedingungen die Verdichtungszunahme durch Befahrung verändern. Bodenart, Feuchte, Resilienz und Frost sind enthalten. Der Tiefenfaktor enthält außerdem die langsamere Akkumulation des Modells. Die Faktoren gewichten die lastabhängige Reaktion; x1 bedeutet dabei keine zusätzliche Skalierung. Sie sind weder Wahrscheinlichkeiten noch vorhergesagte Prozentpunkt-Zunahmen. Fahrzeuglast, Reifen, betroffene Fläche und vorhandene Verdichtung bestimmen das tatsächliche Ergebnis mit. Gefrorener Oberboden schützt einen ungefrorenen Unterboden nicht gleichermaßen." />
+        <e k="terraLogic_workHudRollerSpeedDetail" v="Bei diesem Tempo drückt die Walze den Boden weniger gleichmäßig an. Fahre langsamer, um Boden- und Saatkontakt zu verbessern." />
+        <e k="terraLogic_workHudRollerWearDetail" v="Verschleiß schwächt die Walzwirkung. Repariere die Walze, damit sie wieder zuverlässig arbeitet." />
+        <e k="terraLogic_workHudRollerWetDetail" v="Nasser Boden begrenzt die Walzwirkung. Lass ihn vor dem nächsten Walzen abtrocknen." />
+        <e k="terraLogic_workHudRollerDryDetail" v="Sehr trockener Boden begrenzt die Walzwirkung. Warte nach Möglichkeit auf günstigere Bodenfeuchte." />
+        <e k="terraLogic_workHudRollerFrostDetail" v="Gefrorener Boden begrenzt die Walzwirkung. Warte, bis der Boden aufgetaut ist." />
+        <e k="terraLogic_workHudRollerUnevenDetail" v="Auf diesem sehr unebenen Boden wirkt die Walze eingeschränkt. Prüfe, ob zunächst eine Saatbettbereitung nötig ist." />
+        <e k="terraLogic_workHudRollerSoilDetail" v="Unter diesen Bodenbedingungen wirkt die Walze nur eingeschränkt. Prüfe im Planner, ob Walzen hier hilft." />
+            <e k="terraLogic_fa_ui_estimateNone" v="Keine aktive Kultur – noch keine Ertragsschätzung." />
+        <e k="terraLogic_fa_ui_estimateHistory" v="Schätzung berücksichtigt den bisherigen Wachstumsverlauf." />
+        <e k="terraLogic_fa_ui_estimatePreview" v="Vorläufige Schätzung anhand der aktuellen Bedingungen." />
     </elements>
 </l10n>
