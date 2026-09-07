@@ -34,6 +34,10 @@
         <imageColor value="0 0 0 0" />
         <handleFocus value="true" />
     </Profile>
+    <Profile name="terraLogicAnalysisMapButton" extends="terraLogicAnalysisHelpButton">
+        <size value="210px 48px" />
+        <textSize value="16px" />
+    </Profile>
     <Profile name="terraLogicAnalysisCardHeader" extends="fs25_textDefault" with="anchorTopLeft pivotTopLeft">
         <textSize value="21px" />
         <textBold value="true" />

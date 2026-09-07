@@ -317,11 +317,11 @@
             <GuiElement profile="terraLogicAnalysisCard" position="0px -42px" size="250px 550px">
                 <Text profile="terraLogicAnalysisCardHeader" position="20px -10px" size="210px 42px" text="$l10n_terraLogic_fa_map_layers" />
                 <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -51px" size="210px 2px" />
-                <Button profile="fs25_button" id="fieldMapLayerButtons[1]" position="20px -78px" size="210px 48px" text="$l10n_terraLogic_fa_map_surface" onClick="onClickFieldMapSurface" />
-                <Button profile="fs25_button" id="fieldMapLayerButtons[2]" position="20px -139px" size="210px 48px" text="$l10n_terraLogic_fa_map_deep" onClick="onClickFieldMapDeep" />
-                <Button profile="fs25_button" id="fieldMapLayerButtons[3]" position="20px -200px" size="210px 48px" text="$l10n_terraLogic_fa_map_tilth" onClick="onClickFieldMapTilth" />
-                <Button profile="fs25_button" id="fieldMapLayerButtons[4]" position="20px -261px" size="210px 48px" text="$l10n_terraLogic_fa_map_evenness" onClick="onClickFieldMapEvenness" />
-                <Button profile="fs25_button" id="fieldMapLayerButtons[5]" position="20px -322px" size="210px 48px" text="$l10n_terraLogic_fa_map_resilience" onClick="onClickFieldMapResilience" />
+                <Button profile="terraLogicAnalysisMapButton" id="fieldMapLayerButtons[1]" position="20px -78px" size="210px 48px" text="$l10n_terraLogic_fa_map_surface" onClick="onClickFieldMapSurface" />
+                <Button profile="terraLogicAnalysisMapButton" id="fieldMapLayerButtons[2]" position="20px -139px" size="210px 48px" text="$l10n_terraLogic_fa_map_deep" onClick="onClickFieldMapDeep" />
+                <Button profile="terraLogicAnalysisMapButton" id="fieldMapLayerButtons[3]" position="20px -200px" size="210px 48px" text="$l10n_terraLogic_fa_map_tilth" onClick="onClickFieldMapTilth" />
+                <Button profile="terraLogicAnalysisMapButton" id="fieldMapLayerButtons[4]" position="20px -261px" size="210px 48px" text="$l10n_terraLogic_fa_map_evenness" onClick="onClickFieldMapEvenness" />
+                <Button profile="terraLogicAnalysisMapButton" id="fieldMapLayerButtons[5]" position="20px -322px" size="210px 48px" text="$l10n_terraLogic_fa_map_resilience" onClick="onClickFieldMapResilience" />
                 <Text profile="terraLogicAnalysisBody" id="fieldMapLegendText" position="20px -395px" size="210px 125px" />
             </GuiElement>
             <GuiElement profile="terraLogicAnalysisCard" position="275px -42px" size="1275px 550px">
