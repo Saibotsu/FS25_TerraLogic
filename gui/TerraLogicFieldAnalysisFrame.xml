@@ -1,0 +1,335 @@
+<?xml version="1.0" encoding="utf-8" standalone="no" ?>
+<GUI name="terraLogicFieldAnalysisFrame">
+    <GuiElement profile="terraLogicAnalysisMainContainer">
+        <GuiElement profile="fs25_menuHeaderPanel" size="0.805 0.1" position="0.0 0.074">
+            <Bitmap profile="fs25_menuHeaderIconBg">
+                <Bitmap profile="terraLogicAnalysisHeaderIcon" id="menuHeaderIcon" />
+            </Bitmap>
+            <Text profile="fs25_menuHeaderTitle" id="menuHeaderTitle" text="$l10n_terraLogic_fa_ui_title" />
+        </GuiElement>
+
+        <BoxLayout profile="fs25_subCategorySelectorTabbedBox" id="subCategoryBox" position="-10px 0px" size="1550px 57px">
+            <Button profile="terraLogicAnalysisSubCategoryTab" id="subCategoryTabs[1]" text="$l10n_terraLogic_fa_ui_overview" onClick="onClickOverview">
+                <ThreePartBitmap profile="fs25_subCategorySelectorTabbedTabBg" name="background" />
+            </Button>
+            <Button profile="terraLogicAnalysisSubCategoryTab" id="subCategoryTabs[2]" text="$l10n_terraLogic_fa_ui_results" onClick="onClickResults">
+                <ThreePartBitmap profile="fs25_subCategorySelectorTabbedTabBg" name="background" />
+            </Button>
+            <Button profile="terraLogicAnalysisSubCategoryTab" id="subCategoryTabs[3]" text="$l10n_terraLogic_fa_ui_conditions" onClick="onClickConditions">
+                <ThreePartBitmap profile="fs25_subCategorySelectorTabbedTabBg" name="background" />
+            </Button>
+            <Button profile="terraLogicAnalysisSubCategoryTab" id="subCategoryTabs[4]" text="$l10n_terraLogic_fa_planner_ui_title" onClick="onClickPlanner">
+                <ThreePartBitmap profile="fs25_subCategorySelectorTabbedTabBg" name="background" />
+            </Button>
+            <Button profile="terraLogicAnalysisSubCategoryTab" id="subCategoryTabs[5]" text="$l10n_terraLogic_fa_ui_advice" onClick="onClickAdvice">
+                <ThreePartBitmap profile="fs25_subCategorySelectorTabbedTabBg" name="background" />
+            </Button>
+        </BoxLayout>
+        <ThreePartBitmap profile="fs25_lineSeparatorTopHighlighted" position="-10px -57px" size="1550px 4px" />
+        <MultiTextOption profile="fs25_subCategorySelectorTabbed" id="subCategoryPaging" position="-10px -10px" onClick="updateSubCategoryPages" focusInit="onOpen" />
+
+        <!-- Overview: condition, expected TerraLogic yield, and the three most useful actions. -->
+        <GuiElement profile="terraLogicAnalysisPage" id="subCategoryPages[1]">
+            <Text profile="terraLogicAnalysisNote" id="scopeOverviewText" position="0px -8px" size="1550px 26px" />
+            <GuiElement profile="terraLogicAnalysisCard" position="0px -42px" size="500px 550px">
+                <Text profile="terraLogicAnalysisCardHeader" position="20px -10px" size="460px 42px" text="$l10n_terraLogic_fa_ui_soilCondition" />
+                <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -51px" size="460px 2px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -72px" size="260px 34px" text="$l10n_terraLogic_fa_ui_overall" />
+                <Text profile="terraLogicAnalysisValue" id="overview_soilTotal" position="250px -72px" size="190px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="450px -74px" text="?" onClick="onClickHelpSoilOverall" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -126px" size="210px 34px" text="$l10n_terraLogic_fa_ui_surfaceCompaction" />
+                <Text profile="terraLogicAnalysisValue" id="overview_surface" position="250px -126px" size="190px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="450px -128px" text="?" onClick="onClickHelpSurface" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -176px" size="210px 34px" text="$l10n_terraLogic_fa_ui_deepCompaction" />
+                <Text profile="terraLogicAnalysisValue" id="overview_deep" position="250px -176px" size="190px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="450px -178px" text="?" onClick="onClickHelpDeep" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -226px" size="210px 34px" text="$l10n_terraLogic_fa_ui_tilth" />
+                <Text profile="terraLogicAnalysisValue" id="overview_tilth" position="250px -226px" size="190px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="450px -228px" text="?" onClick="onClickHelpTilth" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -276px" size="210px 34px" text="$l10n_terraLogic_fa_ui_evenness" />
+                <Text profile="terraLogicAnalysisValue" id="overview_evenness" position="250px -276px" size="190px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="450px -278px" text="?" onClick="onClickHelpEvenness" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -326px" size="210px 34px" text="$l10n_terraLogic_fa_ui_resilience" />
+                <Text profile="terraLogicAnalysisValue" id="overview_resilience" position="250px -326px" size="190px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="450px -328px" text="?" onClick="onClickHelpResilience" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -376px" size="210px 34px" text="$l10n_terraLogic_fa_ui_biologicalContinuity" />
+                <Text profile="terraLogicAnalysisValue" id="overview_continuity" position="250px -376px" size="190px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="450px -378px" text="?" onClick="onClickHelpContinuity" />
+                <Text profile="terraLogicAnalysisNote" position="20px -455px" size="460px 75px" text="$l10n_terraLogic_fa_note_overviewFooter" />
+            </GuiElement>
+            <GuiElement profile="terraLogicAnalysisCard" position="525px -42px" size="500px 550px">
+                <Text profile="terraLogicAnalysisCardHeader" position="20px -10px" size="460px 42px" text="$l10n_terraLogic_fa_ui_expectedYield" />
+                <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -51px" size="460px 2px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -72px" size="160px 34px" text="$l10n_terraLogic_fa_ui_crop" />
+                <Text profile="terraLogicAnalysisValue" id="overview_crop" position="180px -72px" size="300px 34px" />
+                <Text profile="terraLogicAnalysisNote" id="overview_stage" position="20px -108px" size="460px 28px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -140px" size="310px 34px" text="$l10n_terraLogic_fa_ui_rootZone" />
+                <Text profile="terraLogicAnalysisValue" id="overview_root" position="340px -140px" size="100px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="450px -142px" text="?" onClick="onClickHelpRoot" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -190px" size="310px 34px" text="$l10n_terraLogic_fa_ui_cropWater" />
+                <Text profile="terraLogicAnalysisValue" id="overview_water" position="340px -190px" size="100px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="450px -192px" text="?" onClick="onClickHelpMoisture" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -240px" size="250px 34px" text="$l10n_terraLogic_fa_ui_ledgerFactor" />
+                <Text profile="terraLogicAnalysisValue" id="overview_work" position="270px -240px" size="170px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="450px -242px" text="?" onClick="onClickHelpYieldWork" />
+                <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -290px" size="460px 2px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -307px" size="250px 34px" text="$l10n_terraLogic_fa_ui_terraLogicShare" />
+                <Text profile="terraLogicAnalysisValue" id="overview_yieldTotal" position="270px -307px" size="170px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="450px -309px" text="?" onClick="onClickHelpYield" />
+                <Text profile="terraLogicAnalysisNote" position="20px -385px" size="460px 140px" text="$l10n_terraLogic_fa_note_resultsYield" />
+            </GuiElement>
+            <GuiElement profile="terraLogicAnalysisCard" position="1050px -42px" size="500px 550px">
+                <Text profile="terraLogicAnalysisCardHeader" position="20px -10px" size="460px 42px" text="$l10n_terraLogic_fa_ui_recommendedActions" />
+                <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -51px" size="460px 2px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -72px" size="460px 32px" text="$l10n_terraLogic_fa_ui_topPriorityNow" />
+                <Text profile="terraLogicAnalysisBody" id="overview_actionNow" position="20px -108px" size="460px 90px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -218px" size="460px 32px" text="$l10n_terraLogic_fa_ui_topPriorityNext" />
+                <Text profile="terraLogicAnalysisBody" id="overview_actionNext" position="20px -254px" size="460px 110px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -385px" size="460px 32px" text="$l10n_terraLogic_fa_ui_topPriorityLong" />
+                <Text profile="terraLogicAnalysisBody" id="overview_actionLong" position="20px -421px" size="460px 80px" />
+            </GuiElement>
+        </GuiElement>
+
+        <!-- Soil: all five persistent values plus the weather state relevant to field work. -->
+        <GuiElement profile="terraLogicAnalysisPage" id="subCategoryPages[2]">
+            <Text profile="terraLogicAnalysisNote" id="scopeSoilText" position="0px -8px" size="1550px 26px" />
+            <GuiElement profile="terraLogicAnalysisCard" position="0px -42px" size="760px 600px">
+                <Text profile="terraLogicAnalysisCardHeader" position="20px -10px" size="720px 42px" text="$l10n_terraLogic_fa_ui_persistentSoil" />
+                <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -51px" size="720px 2px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -69px" size="255px 34px" text="$l10n_terraLogic_fa_ui_surfaceCompaction" />
+                <Text profile="terraLogicAnalysisValue" id="soil_surface" position="330px -69px" size="370px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="710px -71px" text="?" onClick="onClickHelpSurface" />
+                <Text profile="terraLogicAnalysisNote" id="soil_surfaceArea" position="20px -101px" size="720px 24px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -151px" size="255px 34px" text="$l10n_terraLogic_fa_ui_deepCompaction" />
+                <Text profile="terraLogicAnalysisValue" id="soil_deep" position="330px -151px" size="370px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="710px -153px" text="?" onClick="onClickHelpDeep" />
+                <Text profile="terraLogicAnalysisNote" id="soil_deepArea" position="20px -183px" size="720px 24px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -233px" size="255px 34px" text="$l10n_terraLogic_fa_ui_tilth" />
+                <Text profile="terraLogicAnalysisValue" id="soil_tilth" position="330px -233px" size="370px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="710px -235px" text="?" onClick="onClickHelpTilth" />
+                <Text profile="terraLogicAnalysisNote" id="soil_tilthArea" position="20px -265px" size="720px 24px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -315px" size="255px 34px" text="$l10n_terraLogic_fa_ui_evenness" />
+                <Text profile="terraLogicAnalysisValue" id="soil_evenness" position="330px -315px" size="370px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="710px -317px" text="?" onClick="onClickHelpEvenness" />
+                <Text profile="terraLogicAnalysisNote" id="soil_evennessArea" position="20px -347px" size="720px 24px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -397px" size="255px 34px" text="$l10n_terraLogic_fa_ui_resilience" />
+                <Text profile="terraLogicAnalysisValue" id="soil_resilience" position="330px -397px" size="370px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="710px -399px" text="?" onClick="onClickHelpResilience" />
+                <Text profile="terraLogicAnalysisNote" id="soil_resilienceArea" position="20px -429px" size="720px 24px" />
+                <Text profile="terraLogicAnalysisNote" position="20px -500px" size="720px 70px" text="$l10n_terraLogic_fa_note_criticalNote" />
+            </GuiElement>
+            <GuiElement profile="terraLogicAnalysisCard" position="785px -42px" size="765px 600px">
+                <Text profile="terraLogicAnalysisCardHeader" position="20px -10px" size="725px 42px" text="$l10n_terraLogic_fa_ui_calculatedConsequences" />
+                <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -51px" size="725px 2px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -72px" size="300px 34px" text="$l10n_terraLogic_fa_ui_soilType" />
+                <Text profile="terraLogicAnalysisValue" id="soil_profile" position="320px -72px" size="425px 34px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -132px" size="330px 34px" text="$l10n_terraLogic_fa_ui_surfaceYieldLoss" />
+                <Text profile="terraLogicAnalysisValue" id="soil_surfaceYieldLoss" position="360px -132px" size="385px 34px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -186px" size="330px 34px" text="$l10n_terraLogic_fa_ui_deepYieldLoss" />
+                <Text profile="terraLogicAnalysisValue" id="soil_deepYieldLoss" position="360px -186px" size="385px 34px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -240px" size="330px 34px" text="$l10n_terraLogic_fa_ui_seedingSuitability" />
+                <Text profile="terraLogicAnalysisValue" id="soil_seedingSuitability" position="360px -240px" size="385px 34px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -294px" size="330px 34px" text="$l10n_terraLogic_fa_ui_trafficSensitivity" />
+                <Text profile="terraLogicAnalysisValue" id="soil_trafficSensitivity" position="360px -294px" size="385px 34px" />
+                <Text profile="terraLogicAnalysisCardHeader" position="20px -370px" size="725px 36px" text="$l10n_terraLogic_fa_ui_meaning" />
+                <Text profile="terraLogicAnalysisBody" id="soil_consequenceText" position="20px -418px" size="725px 105px" />
+            </GuiElement>
+        </GuiElement>
+
+        <!-- Results: recorded Work Quality and its yield consequences in one place. -->
+        <GuiElement profile="terraLogicAnalysisPage" id="subCategoryPages[3]">
+            <Text profile="terraLogicAnalysisNote" id="scopeYieldText" position="0px -8px" size="1550px 26px" />
+            <GuiElement profile="terraLogicAnalysisCard" position="0px -42px" size="500px 550px">
+                <Text profile="terraLogicAnalysisCardHeader" position="20px -10px" size="460px 42px" text="$l10n_terraLogic_fa_ui_workQuality" />
+                <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -51px" size="460px 2px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -72px" size="245px 40px" text="$l10n_terraLogic_fa_ui_totalWorkQuality" />
+                <Text profile="terraLogicAnalysisHero" id="work_total" position="280px -68px" size="160px 46px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="450px -74px" text="?" onClick="onClickHelpWork" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -132px" size="180px 34px" text="$l10n_terraLogic_fa_ui_seeding" /><Text profile="terraLogicAnalysisValue" id="work_seed" position="200px -132px" size="240px 34px" /><Button profile="terraLogicAnalysisHelpButton" position="450px -134px" text="?" onClick="onClickHelpWorkSeed" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -182px" size="230px 34px" text="$l10n_terraLogic_fa_ui_fertilizing" /><Text profile="terraLogicAnalysisValue" id="work_fertilizer" position="260px -182px" size="180px 34px" /><Button profile="terraLogicAnalysisHelpButton" position="450px -184px" text="?" onClick="onClickHelpWorkFertilizer" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -232px" size="230px 34px" text="$l10n_terraLogic_fa_ui_liming" /><Text profile="terraLogicAnalysisValue" id="work_lime" position="260px -232px" size="180px 34px" /><Button profile="terraLogicAnalysisHelpButton" position="450px -234px" text="?" onClick="onClickHelpWorkLime" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -282px" size="230px 34px" text="$l10n_terraLogic_fa_ui_weedControl" /><Text profile="terraLogicAnalysisValue" id="work_herbicide" position="260px -282px" size="180px 34px" /><Button profile="terraLogicAnalysisHelpButton" position="450px -284px" text="?" onClick="onClickHelpWorkHerbicide" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -332px" size="230px 34px" text="$l10n_terraLogic_fa_ui_rolling" /><Text profile="terraLogicAnalysisValue" id="work_roller" position="260px -332px" size="180px 34px" /><Button profile="terraLogicAnalysisHelpButton" position="450px -334px" text="?" onClick="onClickHelpWorkRoller" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -382px" size="230px 34px" text="$l10n_terraLogic_fa_ui_mulching" /><Text profile="terraLogicAnalysisValue" id="work_mulch" position="260px -382px" size="180px 34px" /><Button profile="terraLogicAnalysisHelpButton" position="450px -384px" text="?" onClick="onClickHelpWorkMulch" />
+                <Text profile="terraLogicAnalysisNote" position="20px -455px" size="460px 58px" text="$l10n_terraLogic_fa_note_resultsWork" />
+            </GuiElement>
+            <GuiElement profile="terraLogicAnalysisCard" position="525px -42px" size="500px 550px">
+                <Text profile="terraLogicAnalysisCardHeader" position="20px -10px" size="460px 42px" text="$l10n_terraLogic_fa_ui_expectedYield" />
+                <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -51px" size="460px 2px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -72px" size="160px 34px" text="$l10n_terraLogic_fa_ui_crop" />
+                <Text profile="terraLogicAnalysisValue" id="yield_crop" position="180px -72px" size="300px 34px" />
+                <Text profile="terraLogicAnalysisNote" id="yield_stage" position="20px -108px" size="460px 28px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -140px" size="310px 34px" text="$l10n_terraLogic_fa_ui_rootZone" />
+                <Text profile="terraLogicAnalysisValue" id="yield_root" position="340px -140px" size="100px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="450px -142px" text="?" onClick="onClickHelpRoot" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -190px" size="310px 34px" text="$l10n_terraLogic_fa_ui_cropWater" />
+                <Text profile="terraLogicAnalysisValue" id="yield_moisture" position="340px -190px" size="100px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="450px -192px" text="?" onClick="onClickHelpMoisture" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -240px" size="250px 34px" text="$l10n_terraLogic_fa_ui_ledgerFactor" />
+                <Text profile="terraLogicAnalysisValue" id="yield_ledger" position="270px -240px" size="170px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="450px -242px" text="?" onClick="onClickHelpYieldWork" />
+                <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -290px" size="460px 2px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -307px" size="250px 34px" text="$l10n_terraLogic_fa_ui_terraLogicShare" />
+                <Text profile="terraLogicAnalysisValue" id="yield_total" position="270px -307px" size="170px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="450px -309px" text="?" onClick="onClickHelpYield" />
+                <Text profile="terraLogicAnalysisNote" position="20px -385px" size="460px 140px" text="$l10n_terraLogic_fa_note_resultsYield" />
+            </GuiElement>
+            <GuiElement profile="terraLogicAnalysisCard" position="1050px -42px" size="500px 550px">
+                <Text profile="terraLogicAnalysisCardHeader" position="20px -10px" size="460px 42px" text="$l10n_terraLogic_fa_ui_lossSources" />
+                <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -51px" size="460px 2px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -72px" size="275px 34px" text="$l10n_terraLogic_fa_ui_surfaceCompaction" /><Text profile="terraLogicAnalysisValue" id="yield_surfaceLoss" position="305px -72px" size="175px 34px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -126px" size="275px 34px" text="$l10n_terraLogic_fa_ui_deepCompaction" /><Text profile="terraLogicAnalysisValue" id="yield_deepLoss" position="305px -126px" size="175px 34px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -180px" size="275px 34px" text="$l10n_terraLogic_fa_ui_waterHistory" /><Text profile="terraLogicAnalysisValue" id="yield_waterLoss" position="305px -180px" size="175px 34px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -234px" size="275px 34px" text="$l10n_terraLogic_fa_ui_fieldworkHistory" /><Text profile="terraLogicAnalysisValue" id="yield_workLoss" position="305px -234px" size="175px 34px" />
+                <Text profile="terraLogicAnalysisNote" position="20px -320px" size="460px 150px" text="$l10n_terraLogic_fa_note_resultsLosses" />
+            </GuiElement>
+        </GuiElement>
+
+        <!-- Weather: current physical state and its practical consequences. -->
+        <GuiElement profile="terraLogicAnalysisPage" id="subCategoryPages[4]">
+            <Text profile="terraLogicAnalysisNote" id="scopeWeatherText" position="0px -8px" size="1550px 26px" />
+            <GuiElement profile="terraLogicAnalysisCard" position="0px -42px" size="760px 550px">
+                <Text profile="terraLogicAnalysisCardHeader" position="20px -10px" size="720px 42px" text="$l10n_terraLogic_fa_ui_weatherState" />
+                <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -51px" size="720px 2px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -72px" size="320px 34px" text="$l10n_terraLogic_fa_ui_soilType" />
+                <Text profile="terraLogicAnalysisValue" id="weather_profile" position="340px -72px" size="400px 34px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -122px" size="255px 34px" text="$l10n_terraLogic_fa_ui_currentWeather" />
+                <Text profile="terraLogicAnalysisValue" id="weather_current" position="340px -122px" size="400px 34px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -172px" size="255px 34px" text="$l10n_terraLogic_fa_ui_surfaceMoisture" />
+                <Text profile="terraLogicAnalysisValue" id="weather_surfaceMoisture" position="340px -172px" size="360px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="710px -174px" text="?" onClick="onClickHelpSurfaceMoisture" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -222px" size="255px 34px" text="$l10n_terraLogic_fa_ui_rootMoisture" />
+                <Text profile="terraLogicAnalysisValue" id="weather_subsoilMoisture" position="340px -222px" size="360px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="710px -224px" text="?" onClick="onClickHelpRootMoisture" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -272px" size="255px 34px" text="$l10n_terraLogic_fa_ui_surfaceTemperature" />
+                <Text profile="terraLogicAnalysisValue" id="weather_surfaceTemperature" position="340px -272px" size="360px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="710px -274px" text="?" onClick="onClickHelpSurfaceTemperature" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -322px" size="255px 34px" text="$l10n_terraLogic_fa_ui_deepTemperature" />
+                <Text profile="terraLogicAnalysisValue" id="weather_subsoilTemperature" position="340px -322px" size="360px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="710px -324px" text="?" onClick="onClickHelpDeepTemperature" />
+                <Text profile="terraLogicAnalysisNote" id="weather_initializationHint" position="20px -382px" size="720px 105px" />
+            </GuiElement>
+            <GuiElement profile="terraLogicAnalysisCard" position="785px -42px" size="765px 550px">
+                <Text profile="terraLogicAnalysisCardHeader" position="20px -10px" size="725px 42px" text="$l10n_terraLogic_fa_ui_operatingWindow" />
+                <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -51px" size="725px 2px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -72px" size="300px 34px" text="$l10n_terraLogic_fa_ui_soilSensitivity" />
+                <Text profile="terraLogicAnalysisValue" id="weather_traffic" position="320px -72px" size="385px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="715px -74px" text="?" onClick="onClickHelpTraffic" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -126px" size="300px 34px" text="$l10n_terraLogic_fa_ui_tillageDraft" />
+                <Text profile="terraLogicAnalysisValue" id="weather_tillage" position="320px -126px" size="385px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="715px -128px" text="?" onClick="onClickHelpTillage" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -176px" size="300px 34px" text="$l10n_terraLogic_fa_ui_tillageEffect" />
+                <Text profile="terraLogicAnalysisValue" id="weather_seeding" position="320px -176px" size="385px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="715px -178px" text="?" onClick="onClickHelpTillage" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -230px" size="300px 34px" text="$l10n_terraLogic_fa_ui_seedingResult" />
+                <Text profile="terraLogicAnalysisValue" id="weather_cropWater" position="320px -230px" size="385px 34px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="715px -232px" text="?" onClick="onClickHelpSeeding" />
+                <Text profile="terraLogicAnalysisCardHeader" position="20px -310px" size="725px 36px" text="$l10n_terraLogic_fa_ui_currentEffects" />
+                <Text profile="terraLogicAnalysisBody" id="weather_effectSummary" position="20px -350px" size="725px 185px" />
+            </GuiElement>
+            <Text profile="terraLogicAnalysisNote" position="0px -610px" size="1550px 55px" text="$l10n_terraLogic_fa_note_conditionsFooter" textAlignment="center" />
+        </GuiElement>
+
+        <!-- Advice: the complete ordered cause/effect/action list. -->
+        <GuiElement profile="terraLogicAnalysisPage" id="subCategoryPages[6]">
+            <Text profile="terraLogicAnalysisNote" id="scopeAdviceText" position="0px -8px" size="1550px 26px" />
+            <GuiElement profile="terraLogicAnalysisCard" position="0px -42px" size="500px 550px">
+                <Text profile="terraLogicAnalysisCardHeader" position="20px -10px" size="460px 42px" text="$l10n_terraLogic_fa_ui_currentConditions" />
+                <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -51px" size="460px 2px" />
+                <Text profile="terraLogicAnalysisListBody" id="adviceListNow" position="20px -78px" size="460px 420px" />
+            </GuiElement>
+            <GuiElement profile="terraLogicAnalysisCard" position="525px -42px" size="500px 550px">
+                <Text profile="terraLogicAnalysisCardHeader" position="20px -10px" size="460px 42px" text="$l10n_terraLogic_fa_ui_nextOperation" />
+                <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -51px" size="460px 2px" />
+                <Text profile="terraLogicAnalysisListBody" id="adviceListNext" position="20px -78px" size="460px 420px" />
+            </GuiElement>
+            <GuiElement profile="terraLogicAnalysisCard" position="1050px -42px" size="500px 550px">
+                <Text profile="terraLogicAnalysisCardHeader" position="20px -10px" size="460px 42px" text="$l10n_terraLogic_fa_ui_longTerm" />
+                <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -51px" size="460px 2px" />
+                <Text profile="terraLogicAnalysisListBody" id="adviceListLong" position="20px -78px" size="460px 420px" />
+            </GuiElement>
+            <Text profile="terraLogicAnalysisNote" position="0px -610px" size="1550px 55px" text="$l10n_terraLogic_fa_note_adviceNote" textAlignment="center" />
+        </GuiElement>
+
+        <!-- Planner: class forecast plus the instantaneous attached setup. -->
+        <GuiElement profile="terraLogicAnalysisPage" id="subCategoryPages[7]">
+            <Text profile="terraLogicAnalysisNote" id="scopePlannerText" position="0px -8px" size="1550px 26px" />
+            <GuiElement profile="terraLogicAnalysisCard" position="0px -42px" size="500px 550px">
+                <Text profile="terraLogicAnalysisCardHeader" position="20px -10px" size="410px 42px" text="$l10n_terraLogic_fa_planner_ui_operation" />
+                <Button profile="terraLogicAnalysisHelpButton" position="450px -12px" text="?" onClick="onClickHelpPlannerOperation" />
+                <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -51px" size="460px 2px" />
+                <GuiElement profile="terraLogicAnalysisPlannerContent" position="0px -63px" size="500px 472px">
+                    <GuiElement profile="terraLogicAnalysisPlannerRow" id="planner_selectorContainer" position="0px 0px" size="500px 78px">
+                        <Button profile="terraLogicAnalysisHelpButton" id="planner_groupPrevious" position="20px -0px" size="44px 36px" text="&lt;" onClick="onClickPlannerGroupPrevious" />
+                        <Text profile="terraLogicAnalysisValue" id="planner_group" position="70px -0px" size="360px 36px" textAlignment="center" />
+                        <Button profile="terraLogicAnalysisHelpButton" id="planner_groupNext" position="440px -0px" size="44px 36px" text="&gt;" onClick="onClickPlannerGroupNext" />
+                        <Button profile="terraLogicAnalysisHelpButton" id="planner_operationPrevious" position="20px -42px" size="44px 36px" text="&lt;" onClick="onClickPlannerPrevious" />
+                        <Text profile="terraLogicAnalysisValue" id="planner_operation" position="70px -42px" size="360px 36px" textAlignment="center" />
+                        <Button profile="terraLogicAnalysisHelpButton" id="planner_operationNext" position="440px -42px" size="44px 36px" text="&gt;" onClick="onClickPlannerNext" />
+                    </GuiElement>
+                    <GuiElement profile="terraLogicAnalysisPlannerRow" position="0px -85px" size="500px 36px"><Text profile="terraLogicAnalysisLabel" position="20px -4px" size="280px 34px" text="$l10n_terraLogic_fa_planner_ui_resilienceImpact" /><Text profile="terraLogicAnalysisValue" id="planner_resilienceImpact" position="310px -4px" size="130px 34px" /><Button profile="terraLogicAnalysisHelpButton" position="450px -6px" text="?" onClick="onClickHelpPlannerResilienceImpact" /></GuiElement>
+                    <GuiElement profile="terraLogicAnalysisPlannerRow" position="0px -121px" size="500px 36px"><Text profile="terraLogicAnalysisLabel" position="20px -4px" size="280px 34px" text="$l10n_terraLogic_fa_planner_ui_continuityImpact" /><Text profile="terraLogicAnalysisValue" id="planner_continuityImpact" position="310px -4px" size="130px 34px" /><Button profile="terraLogicAnalysisHelpButton" position="450px -6px" text="?" onClick="onClickHelpPlannerContinuityImpact" /></GuiElement>
+                    <GuiElement profile="terraLogicAnalysisPlannerRow" position="0px -157px" size="500px 36px"><Text profile="terraLogicAnalysisLabel" position="20px -4px" size="220px 34px" text="$l10n_terraLogic_fa_planner_ui_recommendedSpeed" /><Text profile="terraLogicAnalysisValue" id="planner_speed" position="250px -4px" size="190px 34px" /><Button profile="terraLogicAnalysisHelpButton" position="450px -6px" text="?" onClick="onClickHelpPlannerSpeed" /></GuiElement>
+                    <GuiElement profile="terraLogicAnalysisPlannerRow" position="0px -193px" size="500px 36px"><Text profile="terraLogicAnalysisLabel" position="20px -4px" size="220px 34px" text="$l10n_terraLogic_fa_planner_ui_achievableQuality" /><Text profile="terraLogicAnalysisValue" id="planner_quality" position="250px -4px" size="190px 34px" /><Button profile="terraLogicAnalysisHelpButton" position="450px -6px" text="?" onClick="onClickHelpPlannerQuality" /></GuiElement>
+                    <GuiElement profile="terraLogicAnalysisPlannerRow" position="0px -229px" size="500px 36px"><Text profile="terraLogicAnalysisLabel" position="20px -4px" size="220px 34px" text="$l10n_terraLogic_fa_planner_ui_dropouts" /><Text profile="terraLogicAnalysisValue" id="planner_dropout" position="250px -4px" size="190px 34px" /><Button profile="terraLogicAnalysisHelpButton" position="450px -6px" text="?" onClick="onClickHelpPlannerDropout" /></GuiElement>
+                    <GuiElement profile="terraLogicAnalysisPlannerRow" position="0px -265px" size="500px 36px"><Text profile="terraLogicAnalysisLabel" position="20px -4px" size="220px 34px" text="$l10n_terraLogic_fa_planner_ui_draftFactor" /><Text profile="terraLogicAnalysisValue" id="planner_draft" position="250px -4px" size="190px 34px" /><Button profile="terraLogicAnalysisHelpButton" position="450px -6px" text="?" onClick="onClickHelpPlannerDraft" /></GuiElement>
+                    <Text profile="terraLogicAnalysisLabel" position="20px -315px" size="460px 34px" text="$l10n_terraLogic_fa_planner_ui_currentFactors" />
+                    <Text profile="terraLogicAnalysisBody" id="planner_factors" position="20px -355px" size="460px 105px" />
+                </GuiElement>
+            </GuiElement>
+            <GuiElement profile="terraLogicAnalysisCard" position="525px -42px" size="500px 550px">
+                <Text profile="terraLogicAnalysisCardHeader" position="20px -10px" size="460px 42px" text="$l10n_terraLogic_fa_planner_ui_expected" />
+                <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -51px" size="460px 2px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -72px" size="210px 34px" text="$l10n_terraLogic_fa_planner_ui_soilAfterPass" />
+                <Text profile="terraLogicAnalysisNote" position="240px -72px" size="55px 34px" text="$l10n_terraLogic_fa_planner_ui_before" textAlignment="right" />
+                <Text profile="terraLogicAnalysisNote" position="305px -72px" size="60px 34px" text="$l10n_terraLogic_fa_planner_ui_after" textAlignment="right" />
+                <Text profile="terraLogicAnalysisNote" position="375px -72px" size="105px 34px" text="$l10n_terraLogic_fa_planner_ui_delta" textAlignment="right" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -120px" size="210px 32px" text="$l10n_terraLogic_fa_planner_ui_soil_surfaceCompaction" /><Text profile="terraLogicAnalysisValue" id="planner_result_surfaceBefore" position="240px -120px" size="55px 32px" /><Text profile="terraLogicAnalysisValue" id="planner_result_surfaceAfter" position="305px -120px" size="60px 32px" /><Text profile="terraLogicAnalysisValue" id="planner_result_surfaceDelta" position="375px -120px" size="105px 32px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -168px" size="210px 32px" text="$l10n_terraLogic_fa_planner_ui_soil_deepCompaction" /><Text profile="terraLogicAnalysisValue" id="planner_result_deepBefore" position="240px -168px" size="55px 32px" /><Text profile="terraLogicAnalysisValue" id="planner_result_deepAfter" position="305px -168px" size="60px 32px" /><Text profile="terraLogicAnalysisValue" id="planner_result_deepDelta" position="375px -168px" size="105px 32px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -216px" size="210px 32px" text="$l10n_terraLogic_fa_planner_ui_soil_aggregateSize" /><Text profile="terraLogicAnalysisValue" id="planner_result_tilthBefore" position="240px -216px" size="55px 32px" /><Text profile="terraLogicAnalysisValue" id="planner_result_tilthAfter" position="305px -216px" size="60px 32px" /><Text profile="terraLogicAnalysisValue" id="planner_result_tilthDelta" position="375px -216px" size="105px 32px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -264px" size="210px 32px" text="$l10n_terraLogic_fa_planner_ui_soil_roughness" /><Text profile="terraLogicAnalysisValue" id="planner_result_evennessBefore" position="240px -264px" size="55px 32px" /><Text profile="terraLogicAnalysisValue" id="planner_result_evennessAfter" position="305px -264px" size="60px 32px" /><Text profile="terraLogicAnalysisValue" id="planner_result_evennessDelta" position="375px -264px" size="105px 32px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -312px" size="210px 32px" text="$l10n_terraLogic_fa_planner_ui_soil_resilience" /><Text profile="terraLogicAnalysisValue" id="planner_result_resilienceBefore" position="240px -312px" size="55px 32px" /><Text profile="terraLogicAnalysisValue" id="planner_result_resilienceAfter" position="305px -312px" size="60px 32px" /><Text profile="terraLogicAnalysisValue" id="planner_result_resilienceDelta" position="375px -312px" size="105px 32px" />
+                <Text profile="terraLogicAnalysisNote" id="planner_noSoilImpact" position="20px -354px" size="460px 45px" />
+            </GuiElement>
+            <GuiElement profile="terraLogicAnalysisCard" position="1050px -42px" size="500px 550px">
+                <Text profile="terraLogicAnalysisCardHeader" position="20px -10px" size="460px 42px" text="$l10n_terraLogic_fa_planner_ui_setup" />
+                <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -51px" size="460px 2px" />
+                <Text profile="terraLogicAnalysisNote" id="planner_setupName" position="20px -68px" size="460px 54px" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -130px" size="220px 30px" text="$l10n_terraLogic_fa_planner_ui_tractorMass" />
+                <Text profile="terraLogicAnalysisValue" id="planner_tractorMass" position="250px -130px" size="190px 30px" /><Button profile="terraLogicAnalysisHelpButton" position="450px -130px" text="?" onClick="onClickHelpPlannerVehicleMass" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -169px" size="220px 30px" text="$l10n_terraLogic_fa_planner_ui_implementMass" />
+                <Text profile="terraLogicAnalysisValue" id="planner_implementMass" position="250px -169px" size="190px 30px" /><Button profile="terraLogicAnalysisHelpButton" position="450px -169px" text="?" onClick="onClickHelpPlannerEquipmentMass" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -208px" size="220px 30px" text="$l10n_terraLogic_fa_planner_ui_totalMass" />
+                <Text profile="terraLogicAnalysisValue" id="planner_totalMass" position="250px -208px" size="190px 30px" /><Button profile="terraLogicAnalysisHelpButton" position="450px -208px" text="?" onClick="onClickHelpPlannerCombinationMass" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -247px" size="220px 30px" text="$l10n_terraLogic_fa_planner_ui_axleLoad" />
+                <Text profile="terraLogicAnalysisValue" id="planner_axleLoad" position="250px -247px" size="190px 30px" />
+                <Button profile="terraLogicAnalysisHelpButton" position="450px -247px" text="?" onClick="onClickHelpPlannerAxleLoad" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -286px" size="220px 30px" text="$l10n_terraLogic_fa_planner_ui_groundPressure" />
+                <Text profile="terraLogicAnalysisValue" id="planner_groundPressure" position="250px -286px" size="190px 30px" /><Button profile="terraLogicAnalysisHelpButton" position="450px -286px" text="?" onClick="onClickHelpPlannerGroundPressure" />
+                <Text profile="terraLogicAnalysisLabel" position="20px -325px" size="220px 30px" text="$l10n_terraLogic_fa_ui_trafficRisk" />
+                <Text profile="terraLogicAnalysisValue" id="planner_traffic" position="250px -325px" size="190px 30px" /><Button profile="terraLogicAnalysisHelpButton" position="450px -325px" text="?" onClick="onClickHelpPlannerTraffic" />
+                <Text profile="terraLogicAnalysisNote" id="planner_setupAdvice" position="20px -372px" size="460px 145px" />
+            </GuiElement>
+            <Text profile="terraLogicAnalysisNote" position="0px -610px" size="1550px 55px" text="$l10n_terraLogic_fa_planner_ui_disclaimer" textAlignment="center" />
+        </GuiElement>
+        <GuiElement profile="terraLogicAnalysisPage" id="subCategoryPages[8]">
+            <Text profile="terraLogicAnalysisNote" id="scopeFieldMapText" position="0px -8px" size="1550px 26px" />
+            <GuiElement profile="terraLogicAnalysisCard" position="0px -42px" size="250px 550px">
+                <Text profile="terraLogicAnalysisCardHeader" position="20px -10px" size="210px 42px" text="$l10n_terraLogic_fa_map_layers" />
+                <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -51px" size="210px 2px" />
+                <Button profile="terraLogicAnalysisMapButton" id="fieldMapLayerButtons[1]" position="20px -78px" size="210px 48px" text="$l10n_terraLogic_fa_map_surface" onClick="onClickFieldMapSurface" />
+                <Button profile="terraLogicAnalysisMapButton" id="fieldMapLayerButtons[2]" position="20px -139px" size="210px 48px" text="$l10n_terraLogic_fa_map_deep" onClick="onClickFieldMapDeep" />
+                <Button profile="terraLogicAnalysisMapButton" id="fieldMapLayerButtons[3]" position="20px -200px" size="210px 48px" text="$l10n_terraLogic_fa_map_tilth" onClick="onClickFieldMapTilth" />
+                <Button profile="terraLogicAnalysisMapButton" id="fieldMapLayerButtons[4]" position="20px -261px" size="210px 48px" text="$l10n_terraLogic_fa_map_evenness" onClick="onClickFieldMapEvenness" />
+                <Button profile="terraLogicAnalysisMapButton" id="fieldMapLayerButtons[5]" position="20px -322px" size="210px 48px" text="$l10n_terraLogic_fa_map_resilience" onClick="onClickFieldMapResilience" />
+                <Text profile="terraLogicAnalysisBody" id="fieldMapLegendText" position="20px -395px" size="210px 125px" />
+            </GuiElement>
+            <GuiElement profile="terraLogicAnalysisCard" position="275px -42px" size="1275px 550px">
+                <Text profile="terraLogicAnalysisCardHeader" id="fieldMapLayerTitle" position="20px -10px" size="1235px 42px" />
+                <ThreePartBitmap profile="terraLogicAnalysisCardSeparator" position="20px -51px" size="1235px 2px" />
+                <GuiElement profile="terraLogicAnalysisPlannerContent" id="fieldMapViewport" position="20px -70px" size="1235px 455px" />
+                <Text profile="terraLogicAnalysisNote" id="fieldMapStatusText" position="20px -492px" size="1235px 38px" textAlignment="center" />
+            </GuiElement>
+        </GuiElement>
+    </GuiElement>
+</GUI>

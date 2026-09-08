@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8" standalone="no" ?>
-<modDesc descVersion="110">
+<modDesc descVersion="111">
     <author>The Mod Workshop</author>
-    <version>1.0.0.0</version>
+    <version>1.2.0.0</version>
 
     <iconFilename>icon_terraLogic.dds</iconFilename>
 
@@ -10,208 +10,313 @@
     </title>
 
     <description>
-        <en><![CDATA[TerraLogic brings a new level of realism to tillage and field work in Farming Simulator 25.
+        <en><![CDATA[TerraLogic brings your soil to life in Farming Simulator 25, with fields that evolve as you work them. Your fields respond to machinery, working speed, tires, load, weather and crop rotation. Wheel tracks and differently worked areas can develop differently, so careful traffic management and suitable seedbed preparation matter.
 
-Instead of relying on artificial speed limits, TerraLogic evaluates the actual quality of your field work. Driving too fast can reduce work quality, increase wear, and ultimately affect your harvest yield. At the same time, draft forces, soil conditions, and stone impacts are simulated more realistically, making machine selection and working speed far more important.
+Five soil maps show surface compaction, deep compaction, tilth, evenness and resilience. Compaction makes root growth harder. Tilth describes how coarse or fine the seedbed is, while evenness describes its surface. Resilience helps the soil resist further compaction. Living roots, cover crops and varied rotations support natural recovery; intensive tillage can interrupt it.
 
-The quality of every operation is stored directly on the worked soil. This allows different areas of the same field to have different quality values, which can individually influence the final harvest.
+Choose how you work
 
-Features:
-- Removes the speed limit from most implements and replaces it with a realistic quality and wear system.
-- Working speed directly affects the quality of field operations.
-- Work quality is stored on the affected soil area, allowing different parts of the same field to have different quality levels.
-- Soil work quality directly influences the final harvest yield.
-- More realistic implement damage caused by both visible and simulated underground stones, as well as speed and soil dependand abrasion.
-- Vanilla surface stones can still be enabled or disabled independently.
-- Reworked draft forces based on soil type and working conditions when using Precision Farming.
-- Dynamic HUD showing the optimal speed range for balancing work quality, wear, and efficiency.
-- Physical seeding dropouts at excessive working speeds, creating realistically unseeded areas (can be disabled for improved performance).
-- Poorly plowed soil gradually recovers as crops grow.
-- Server-controlled gameplay settings in multiplayer while HUD settings remain client-specific.
-- Integration with Precision Farming and More Realistic. When using More Realistic, the preferred draft model can be selected in the mod settings.
-- Compatible with Advanced Damage System, Realistic Harvesting, Moisture System, CoursePlay, AutoDrive, and many other mods.
-- Multiplayer is tested and supported.
+Ploughs, cultivators, harrows, subsoilers, seeders and rollers have different effects on soil. Working depth and intensity determine how they loosen, crumble, level or consolidate the ground, and how strongly they disturb soil resilience and biological continuity. The resulting soil conditions influence the quality of subsequent operations, seed placement and crop yield. Choose your equipment and working sequence to suit the field’s condition.
 
-Combines and ordinary crop harvesters are intentionally excluded to avoid conflicts with dedicated harvesting mods like Realistic Harvesting. Windrowers, tedders and belt rakes currently retain their standard game behaviour due to engine limitations.]]></en>
-        <de><![CDATA[TerraLogic bringt mehr Realismus in die Bodenbearbeitung von Farming Simulator 25.
+Compaction is calculated dynamically from vehicle and implement weight, changing loads, tire contact area and axle loads. Wide tires, duals and tracks distribute weight differently, giving your equipment configuration a practical role in protecting the soil. Tramlines have a physical role in TerraLogic’s soil simulation: concentrating repeated traffic on permanent lanes protects more of the surrounding soil from compaction and preserves better conditions for crop growth.
 
-Anstatt Geräte durch eine feste Geschwindigkeitsbegrenzung künstlich einzuschränken, bewertet TerraLogic die tatsächlich geleistete Feldarbeit. Zu hohe Arbeitsgeschwindigkeiten können die Arbeitsqualität verschlechtern, den Verschleiß erhöhen und langfristig den Ertrag beeinflussen. Gleichzeitig werden Zugkräfte, Bodeneigenschaften und Steine realistischer simuliert, wodurch die Wahl der richtigen Maschine und Arbeitsgeschwindigkeit deutlich wichtiger wird.
+Direct drilling offers a different approach: save seedbed-preparation passes while preserving more biological continuity. Combined with varied crop rotations, cover crops and careful traffic management, it supports the gradual development of resilient soil. Its long-term performance depends on the balance between new compaction and natural recovery, making machinery choice and field management important parts of the transition.
 
-Die Qualität jeder Bearbeitung wird direkt auf der bearbeiteten Bodenfläche gespeichert. Dadurch können unterschiedliche Bereiche desselben Feldes unterschiedliche Qualitätswerte besitzen und sich individuell auf den späteren Ertrag auswirken.
+Work with the conditions
 
-Features:
-- Entfernt die Geschwindigkeitsbegrenzung der meisten Anbaugeräte und ersetzt sie durch ein realistischeres Qualitäts- und Verschleißsystem.
-- Arbeitsgeschwindigkeit beeinflusst die Qualität der Feldarbeit.
-- Die Arbeitsqualität wird flächenbasiert gespeichert, sodass innerhalb eines Feldes unterschiedliche Qualitätszonen entstehen können.
-- Die Qualität der Bodenbearbeitung wirkt sich direkt auf den späteren Ertrag aus. (Auch kompatibel mit Precision Farming)
-- Deutlich realistischeres Schadenssystem für Anbaugeräte durch sichtbare sowie simulierte unterirdische Steine, sowie Bodenabhängige Abrasion.
-- Sichtbare Vanilla-Steine können weiterhin unabhängig aktiviert oder deaktiviert werden.
-- Überarbeitete Zugkräfte für Anbaugeräte. Bei verwendung von Precision Farming auch abhängig von der Bodenart.
-- Dynamisches HUD mit optimalem Geschwindigkeitsbereich zwischen Arbeitsqualität, Verschleiß und Effizienz.
-- Physikalische Saatstellen-Aussetzer bei überhöhter Arbeitsgeschwindigkeit mit sichtbar ungesäten Bereichen. (optional deaktivierbar. Weitere Geräte folgen.).
-- Schlecht gepflügter Boden regeneriert sich im Laufe des Pflanzenwachstums teilweise wieder.
-- Servergesteuerte Gameplay-Einstellungen im Multiplayer, während HUD-Einstellungen weiterhin pro Spieler gespeichert werden.
-- Integration von Precision Farming und More Realistic. Bei Verwendung von More Realistic kann das gewünschte Zugkraftmodell direkt in den Mod-Einstellungen ausgewählt werden.
-- Kompatibel mit Advanced Damage System, Realistic Harvesting, Moisture System, CoursePlay, AutoDrive und vielen weiteren Mods.
-- Multiplayer wurde getestet und wird unterstützt.
+Soil moisture, temperature and frost affect how the ground responds to machinery, how much pulling power an operation requires and how effectively the soil recovers. Freeze–thaw cycles contribute to soil loosening, while moisture conditions during growth influence crop yield. Working conditions therefore matter both when choosing an operation and when deciding when to carry it out.
 
-Mähdrescher und gewöhnliche Feldfrucht-Ernter sind bewusst ausgeschlossen, um Konflikte mit spezialisierten Ernte-Mods wie Realistic Harvesting zu vermeiden. Schwader und Zetter behalten derzeit ihr Standardverhalten.]]></de>
+Supported, manually driven implements are no longer restricted to their usual working-speed limit. Set your own pace and use the work HUD to monitor speed, work quality and mechanical load. Excessive speed can reduce soil-working effectiveness, leave missed areas and increase wear or damage. Stone impacts add further risk to soil-engaging equipment.
+
+Good soil conditions and careful work can increase the yield calculated by the base game or Precision Farming by up to 10%. Compaction, poor growing conditions and low-quality fieldwork can reduce it. Your decisions have consequences both for the next harvest and for the soil’s development over successive seasons.
+
+Understand your fields
+
+- Soil maps and local displays reveal the effects of machinery and management across each field.
+- Open the TerraLogic field analysis menu through the in-game ESC menu to view soil assessments, yield information, weather effects and recommendations. Question-mark buttons explain the displayed values and their practical meaning.
+- The equipment planner within this menu lets you compare operations and their expected effects before starting work.
+- Contextual tutorials introduce the controls and mechanics as you play. Explore the tutorial library and in-game help for a deeper understanding of the simulation and how its systems work together.
+- Adjustable soil map refresh settings let you balance update speed against PC or server performance.
+
+Compatibility
+
+TerraLogic supports singleplayer, multiplayer and player-created fields. Precision Farming is optional; when installed, its soil types influence the simulation. Integration is also provided for More Realistic.
+
+Combines and standard crop harvesters retain their usual working-speed and damage behaviour. TerraLogic’s soil, crop and yield effects apply to their harvest results.
+
+Default controls
+
+- Cycle soil maps: Left Alt + T — cycle through the five soil maps and off.
+- Cycle soil maps backwards: Left Ctrl + Left Alt + T.
+- Activate a specific soil map: Left Ctrl + Left Alt + 1–5:
+  - 1: Surface compaction
+  - 2: Deep compaction
+  - 3: Tilth
+  - 4: Evenness
+  - 5: Resilience
+
+Press the same direct-selection shortcut again to turn that soil map off. Key bindings can be changed in the game’s control settings.
+
+Report bugs, leave feedback or suggest features:
+https://github.com/Saibotsu/FS25_TerraLogic
+]]></en>
+        <de><![CDATA[TerraLogic erweckt den Boden in Farming Simulator 25 zum Leben: Deine Felder entwickeln sich mit jedem Arbeitsgang weiter. Sie reagieren auf Geräte, Arbeitsgeschwindigkeit, Reifen, Beladung, Wetter und Fruchtfolge. Fahrspuren und unterschiedlich bearbeitete Bereiche können sich verschieden entwickeln. Gezielte Befahrung und eine passende Saatbettbereitung lohnen sich deshalb.
+
+Fünf Bodenkarten zeigen Oberflächenverdichtung, Tiefenverdichtung, Krümelstruktur, Ebenheit und Bodenresilienz. Verdichtung erschwert das Wurzelwachstum. Die Krümelstruktur beschreibt, wie grob oder fein das Saatbett ist, die Ebenheit seine Oberfläche. Bodenresilienz hilft dem Boden, weiterer Verdichtung zu widerstehen. Lebende Wurzeln, Zwischenfrüchte und abwechslungsreiche Fruchtfolgen unterstützen die natürliche Erholung; intensive Bodenbearbeitung kann sie unterbrechen.
+
+Entscheide, wie du wirtschaftest
+
+Pflüge, Grubber, Eggen, Tiefenlockerer, Sämaschinen und Walzen wirken unterschiedlich auf den Boden. Arbeitstiefe und Intensität bestimmen, wie sie den Boden lockern, zerkleinern, einebnen oder rückverfestigen und wie stark sie die Bodenresilienz und biologische Kontinuität beeinträchtigen. Der daraus entstehende Bodenzustand beeinflusst die Qualität nachfolgender Arbeitsgänge, die Saatablage und den Ertrag. Wähle Geräte und Arbeitsfolge passend zum Zustand deines Feldes.
+
+Verdichtung wird dynamisch aus Fahrzeug- und Gerätegewicht, wechselnder Beladung, Reifenaufstandsfläche und Achslasten berechnet. Breitreifen, Zwillingsreifen und Bandlaufwerke verteilen das Gewicht unterschiedlich. Deine Fahrzeugkonfiguration trägt damit unmittelbar zum Bodenschutz bei. Fahrgassen haben in der Bodensimulation von TerraLogic eine physikalische Wirkung: Wiederholte Überfahrten auf festen Spuren schützen größere Teile des übrigen Feldes vor Verdichtung und erhalten bessere Wachstumsbedingungen.
+
+Direktsaat bietet einen anderen Ansatz: Du sparst Arbeitsgänge zur Saatbettbereitung und erhältst mehr biologische Kontinuität. Zusammen mit abwechslungsreicher Fruchtfolge, Zwischenfrüchten und gezielter Befahrung unterstützt sie den allmählichen Aufbau eines widerstandsfähigen Bodens. Ihr langfristiger Erfolg hängt vom Gleichgewicht zwischen neuer Verdichtung und natürlicher Erholung ab. Maschinenwahl und Bewirtschaftung sind deshalb wichtige Bestandteile der Umstellung.
+
+Arbeite passend zu den Bedingungen
+
+Bodenfeuchtigkeit, Temperatur und Frost beeinflussen, wie der Boden auf Maschinen reagiert, wie viel Zugleistung ein Arbeitsgang benötigt und wie wirksam sich der Boden erholt. Frost-Tau-Wechsel tragen zur Lockerung bei, während die Feuchtebedingungen während des Wachstums den Ertrag beeinflussen. Die Arbeitsbedingungen sind deshalb sowohl für die Wahl des Geräts als auch für den passenden Einsatzzeitpunkt entscheidend.
+
+Bei unterstützten, selbst gefahrenen Geräten entfällt die übliche Arbeitsgeschwindigkeitsbegrenzung. Bestimme dein Tempo selbst und behalte Geschwindigkeit, Arbeitsqualität und mechanische Belastung im Arbeits-HUD im Blick. Zu hohe Geschwindigkeit kann die Bodenwirkung abschwächen, Fehlstellen hinterlassen und Verschleiß oder Schäden verstärken. Steinschläge stellen ein zusätzliches Risiko für bodengreifende Geräte dar.
+
+Gute Bodenbedingungen und sorgfältige Arbeit können den vom Basisspiel oder Precision Farming berechneten Ertrag um bis zu 10 % erhöhen. Verdichtung, ungünstige Wachstumsbedingungen und geringe Arbeitsqualität können ihn verringern. Deine Entscheidungen wirken sich sowohl auf die nächste Ernte als auch auf die Bodenentwicklung über mehrere Saisons aus.
+
+Verstehe deine Felder
+
+- Bodenkarten und lokale Anzeigen machen die Auswirkungen deiner Maschinen und Bewirtschaftung auf dem Feld sichtbar.
+- Öffne die TerraLogic-Feldanalyse im ESC-Menü des Spiels. Dort findest du Bodenbewertungen, Ertragsinformationen, Wettereinflüsse und Empfehlungen. Die Fragezeichen erklären die angezeigten Werte und ihre Bedeutung für die Praxis.
+- Im Planer dieses Menüs kannst du Arbeitsgänge und ihre erwarteten Auswirkungen vergleichen, bevor du mit der Arbeit beginnst.
+- Situationsbezogene Tutorials führen dich während des Spielens in Bedienung und Mechaniken ein. In der Tutorialbibliothek und der Hilfe im Spiel kannst du die Simulation und das Zusammenspiel ihrer Mechaniken genauer kennenlernen.
+- Die Aktualisierungsgeschwindigkeit der Bodenkarten lässt sich an die Leistung deines PCs oder Servers anpassen.
+
+Kompatibilität
+
+TerraLogic unterstützt Einzelspieler, Multiplayer und selbst angelegte Felder. Precision Farming ist optional; wenn es installiert ist, beeinflussen seine Bodenarten die Simulation. Auch More Realistic wird unterstützt.
+
+Mähdrescher und gewöhnliche Feldfrucht-Erntemaschinen behalten ihr übliches Arbeitsgeschwindigkeits- und Schadensverhalten. Die Boden-, Pflanzen- und Ertragseinflüsse von TerraLogic wirken sich auf ihre Ernteergebnisse aus.
+
+Standard-Tastenbelegung
+
+- Bodenkarte umschalten: Linke Alt-Taste + T.
+- Bodenkarte rückwärts umschalten: Linke Strg-Taste + linke Alt-Taste + T.
+- Eine bestimmte Bodenkarte aktivieren: Linke Strg-Taste + linke Alt-Taste + 1–5:
+  - 1: Oberflächenverdichtung
+  - 2: Tiefenverdichtung
+  - 3: Krümelstruktur
+  - 4: Ebenheit
+  - 5: Bodenresilienz
+
+Drücke dieselbe Tastenkombination zur Direktauswahl erneut, um die Bodenkarte auszuschalten. Die Belegung lässt sich in den Steuerungseinstellungen des Spiels ändern.
+
+Fehler melden, Feedback geben oder Ideen vorschlagen:
+https://github.com/Saibotsu/FS25_TerraLogic
+]]></de>
     </description>
 
-    <l10n>
-        <text name="terraLogic_workQualityTitle">
-            <en>WORK QUALITY</en>
-            <de>ARBEITSQUALITÄT</de>
-        </text>
-        <text name="terraLogic_workQualityPlow">
-            <en>Plowing quality</en>
-            <de>Pflugqualität</de>
-        </text>
-        <text name="terraLogic_workQualitySoil">
-            <en>Soil preparation quality</en>
-            <de>Bodenbearbeitungsqualität</de>
-        </text>
-        <text name="terraLogic_workQualityCultivate">
-            <en>Cultivating quality</en>
-            <de>Grubberqualität</de>
-        </text>
-        <text name="terraLogic_workQualitySeed">
-            <en>Seeding quality</en>
-            <de>Saatqualität</de>
-        </text>
-        <text name="terraLogic_workQualityFertilizer">
-            <en>Fertilizing quality</en>
-            <de>Düngequalität</de>
-        </text>
-        <text name="terraLogic_workQualityLime">
-            <en>Liming quality</en>
-            <de>Kalkungsqualität</de>
-        </text>
-        <text name="terraLogic_workQualityHerbicide">
-            <en>Weed control quality</en>
-            <de>Unkrautbekämpfungsqualität</de>
-        </text>
-        <text name="terraLogic_workQualityRoller">
-            <en>Rolling quality</en>
-            <de>Walzqualität</de>
-        </text>
-        <text name="terraLogic_workQualityMulch">
-            <en>Mulching quality</en>
-            <de>Mulchqualität</de>
-        </text>
-        <text name="terraLogic_workQualityMower">
-            <en>Mowing quality</en>
-            <de>M&#228;hqualit&#228;t</de>
-        </text>
-        <text name="terraLogic_workQualityYieldFactor">
-            <en>TerraLogic yield factor (after PF/Vanilla)</en>
-            <de>TerraLogic-Ertragsfaktor (nach PF/Vanilla)</de>
-        </text>
-        <text name="terraLogic_workQualityRemainingVanilla">
-            <en>Remaining yield from Vanilla</en>
-            <de>Verbleibender Ertrag von Vanilla</de>
-        </text>
-        <text name="terraLogic_workQualityRemainingPF">
-            <en>Remaining yield from Precision Farming</en>
-            <de>Verbleibender Ertrag von Precision Farming</de>
-        </text>
-        <text name="terraLogic_speedHudQuality">
-            <en>Work quality: %d %%</en>
-            <de>Arbeitsqualit&#228;t: %d %%</de>
-        </text>
-        <text name="terraLogic_speedHudActiveImplements">
-            <en>%d tools</en>
-            <de>%d Ger&#228;te</de>
-        </text>
-        <text name="terraLogic_settingSection">
-            <en>TERRALOGIC</en>
-            <de>TERRALOGIC</de>
-        </text>
-        <text name="terraLogic_settingDraftTitle">
-            <en>Draft model</en>
-            <de>Zugkraftmodell</de>
-        </text>
-        <text name="terraLogic_settingDraftTooltip">
-            <en>Selects which mod calculates implement draft. In multiplayer, only server admins can change this setting.</en>
-            <de>Legt fest, welcher Mod den Ger&#228;tezugwiderstand berechnet. Im Multiplayer kann dies nur ein Server-Admin &#228;ndern.</de>
-        </text>
-        <text name="terraLogic_settingDraftTerraLogic">
-            <en>TerraLogic</en>
-            <de>TerraLogic</de>
-        </text>
-        <text name="terraLogic_settingDraftMR">
-            <en>More Realistic</en>
-            <de>More Realistic</de>
-        </text>
-        <text name="terraLogic_settingPhysicalDropoutsTitle">
-            <en>Physical work dropouts</en>
-            <de>Physikalische Arbeitsaussetzer</de>
-        </text>
-        <text name="terraLogic_settingPhysicalDropoutsTooltip">
-            <en>Allows overspeed to leave real untreated or unworked spots. Quality and yield penalties remain active when disabled. In multiplayer, only server admins can change this setting.</en>
-            <de>Erlaubt bei zu hoher Geschwindigkeit echte unbehandelte oder unbearbeitete Stellen. Qualit&#228;ts- und Ertragsnachteile bleiben beim Deaktivieren aktiv. Im Multiplayer kann dies nur ein Server-Admin &#228;ndern.</de>
-        </text>
-        <text name="terraLogic_settingVisibleStonesTitle">
-            <en>Visible-stone damage</en>
-            <de>Schaden durch sichtbare Steine</de>
-        </text>
-        <text name="terraLogic_settingVisibleStonesTooltip">
-            <en>Vanilla uses only the base-game device classes. TerraLogic also adds visible-stone damage to overlooked ground tools without doubling Vanilla damage. This setting does not affect stones hidden below the surface. In multiplayer, only server admins can change it.</en>
-            <de>Vanilla verwendet nur die Ger&#228;teklassen des Grundspiels. TerraLogic erg&#228;nzt sichtbaren Steinschaden auch bei nicht ber&#252;cksichtigten Bodenger&#228;ten, ohne Vanilla-Schaden zu verdoppeln. Diese Einstellung beeinflusst keine Steine unter der Bodenoberfl&#228;che. Im Multiplayer kann sie nur ein Server-Admin &#228;ndern.</de>
-        </text>
-        <text name="terraLogic_settingVisibleStonesVanilla">
-            <en>Vanilla</en>
-            <de>Vanilla</de>
-        </text>
-        <text name="terraLogic_settingVisibleStonesTerraLogic">
-            <en>TerraLogic extended</en>
-            <de>TerraLogic erweitert</de>
-        </text>
-        <text name="terraLogic_settingQualityTextTitle">
-            <en>Show quality and number of detected implements</en>
-            <de>Qualit&#228;t und Anzahl erkannter Ger&#228;te anzeigen</de>
-        </text>
-        <text name="terraLogic_settingQualityTextTooltip">
-            <en>Shows live work quality and, when multiple implements are active, their number above the speed bar.</en>
-            <de>Zeigt die aktuelle Arbeitsqualit&#228;t und bei mehreren aktiven Ger&#228;ten deren Anzahl oberhalb des Geschwindigkeitsbalkens.</de>
-        </text>
-        <text name="terraLogic_settingHudModeTitle">
-            <en>Speed display</en>
-            <de>Geschwindigkeitsanzeige</de>
-        </text>
-        <text name="terraLogic_settingHudModeTooltip">
-            <en>Dynamic hides the display in the optimal range and shows it after cruise-control changes.</en>
-            <de>Dynamisch blendet die Anzeige nach drei Sekunden im optimalen Bereich aus und nach Tempomat&#228;nderungen wieder ein.</de>
-        </text>
-        <text name="terraLogic_settingHudDynamic">
-            <en>Dynamic</en>
-            <de>Dynamisch</de>
-        </text>
-        <text name="terraLogic_settingHudAlways">
-            <en>Always on</en>
-            <de>Immer an</de>
-        </text>
-        <text name="terraLogic_settingHudOff">
-            <en>Off</en>
-            <de>Aus</de>
-        </text>
-        <text name="terraLogic_settingOn">
-            <en>On</en>
-            <de>An</de>
-        </text>
-        <text name="terraLogic_settingOff">
-            <en>Off</en>
-            <de>Aus</de>
-        </text>
-    </l10n>
+    <l10n filenamePrefix="translations/l10n" />
 
     <multiplayer supported="true" />
 
+    <!-- Native FS25 handbook category. The order forms one learning path:
+         orientation, first fieldwork, displays, soil, machines, long-term
+         management, settings and troubleshooting. -->
+    <helpLines>
+        <category title="$l10n_terraLogic_help_category">
+            <page id="terraLogicHelpWelcome" title="$l10n_terraLogic_help_welcome_title" iconFilename="icon_terraLogic.dds">
+                <paragraph><text text="$l10n_terraLogic_help_welcome_p1" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_welcome_h2" /><text text="$l10n_terraLogic_help_welcome_p2" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_welcome_h3" /><text text="$l10n_terraLogic_help_welcome_p3" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_welcome_h4" /><text text="$l10n_terraLogic_help_welcome_p4" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_example" /><text text="$l10n_terraLogic_help_welcome_example" /></paragraph>
+            </page>
+            <page id="terraLogicHelpQuickStart" title="$l10n_terraLogic_help_quick_title" iconFilename="icon_terraLogic.dds">
+                <paragraph><text text="$l10n_terraLogic_help_quick_p1" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_quick_h2" /><text text="$l10n_terraLogic_help_quick_p2" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_quick_h3" /><text text="$l10n_terraLogic_help_quick_p3" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_quick_h4" /><text text="$l10n_terraLogic_help_quick_p4" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_example" /><text text="$l10n_terraLogic_help_quick_example" /></paragraph>
+            </page>
+            <page id="terraLogicHelpDisplays" title="$l10n_terraLogic_help_displays_title" iconFilename="icon_terraLogic.dds">
+                <paragraph><text text="$l10n_terraLogic_help_displays_p1" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_displays_h2" /><text text="$l10n_terraLogic_help_displays_p2" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_displays_h3" /><text text="$l10n_terraLogic_help_displays_p3" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_displays_h4" /><text text="$l10n_terraLogic_help_displays_p4" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_displays_h5" /><text text="$l10n_terraLogic_help_displays_p5" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_displays_h6" /><text text="$l10n_terraLogic_help_displays_p6" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_example" /><text text="$l10n_terraLogic_help_displays_example" /></paragraph>
+            </page>
+            <page id="terraLogicHelpFieldAnalysis" title="$l10n_terraLogic_help_analysis_title" iconFilename="icon_terraLogic.dds">
+                <paragraph><text text="$l10n_terraLogic_help_analysis_p1" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_analysis_h2" /><text text="$l10n_terraLogic_help_analysis_p2" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_analysis_h3" /><text text="$l10n_terraLogic_help_analysis_p3" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_analysis_h4" /><text text="$l10n_terraLogic_help_analysis_p4" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_analysis_h5" /><text text="$l10n_terraLogic_help_analysis_p5" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_example" /><text text="$l10n_terraLogic_help_analysis_example" /></paragraph>
+            </page>
+            <page id="terraLogicHelpSoil" title="$l10n_terraLogic_help_soil_title" iconFilename="icon_terraLogic.dds">
+                <paragraph><text text="$l10n_terraLogic_help_soil_p1" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_soil_h2" /><text text="$l10n_terraLogic_help_soil_p2" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_soil_h3" /><text text="$l10n_terraLogic_help_soil_p3" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_soil_h4" /><text text="$l10n_terraLogic_help_soil_p4" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_soil_h5" /><text text="$l10n_terraLogic_help_soil_p5" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_example" /><text text="$l10n_terraLogic_help_soil_example" /></paragraph>
+            </page>
+            <page id="terraLogicHelpTraffic" title="$l10n_terraLogic_help_traffic_title" iconFilename="icon_terraLogic.dds">
+                <paragraph><text text="$l10n_terraLogic_help_traffic_p1" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_traffic_h2" /><text text="$l10n_terraLogic_help_traffic_p2" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_traffic_h3" /><text text="$l10n_terraLogic_help_traffic_p3" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_traffic_h4" /><text text="$l10n_terraLogic_help_traffic_p4" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_traffic_h5" /><text text="$l10n_terraLogic_help_traffic_p5" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_example" /><text text="$l10n_terraLogic_help_traffic_example" /></paragraph>
+            </page>
+            <page id="terraLogicHelpTillage" title="$l10n_terraLogic_help_tillage_title" iconFilename="icon_terraLogic.dds">
+                <paragraph><text text="$l10n_terraLogic_help_tillage_p1" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_tillage_h2" /><text text="$l10n_terraLogic_help_tillage_p2" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_tillage_h3" /><text text="$l10n_terraLogic_help_tillage_p3" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_tillage_h4" /><text text="$l10n_terraLogic_help_tillage_p4" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_tillage_h5" /><text text="$l10n_terraLogic_help_tillage_p5" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_example" /><text text="$l10n_terraLogic_help_tillage_example" /></paragraph>
+            </page>
+            <page id="terraLogicHelpSeeding" title="$l10n_terraLogic_help_seeding_title" iconFilename="icon_terraLogic.dds">
+                <paragraph><text text="$l10n_terraLogic_help_seeding_p1" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_seeding_h2" /><text text="$l10n_terraLogic_help_seeding_p2" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_seeding_h3" /><text text="$l10n_terraLogic_help_seeding_p3" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_seeding_h4" /><text text="$l10n_terraLogic_help_seeding_p4" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_example" /><text text="$l10n_terraLogic_help_seeding_example" /></paragraph>
+            </page>
+            <page id="terraLogicHelpWorkQuality" title="$l10n_terraLogic_help_work_title" iconFilename="icon_terraLogic.dds">
+                <paragraph><text text="$l10n_terraLogic_help_work_p1" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_work_h2" /><text text="$l10n_terraLogic_help_work_p2" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_work_h3" /><text text="$l10n_terraLogic_help_work_p3" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_work_h4" /><text text="$l10n_terraLogic_help_work_p4" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_work_h5" /><text text="$l10n_terraLogic_help_work_p5" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_example" /><text text="$l10n_terraLogic_help_work_example" /></paragraph>
+            </page>
+            <page id="terraLogicHelpSpeed" title="$l10n_terraLogic_help_speed_title" iconFilename="icon_terraLogic.dds">
+                <paragraph><text text="$l10n_terraLogic_help_speed_p1" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_speed_h2" /><text text="$l10n_terraLogic_help_speed_p2" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_speed_h3" /><text text="$l10n_terraLogic_help_speed_p3" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_speed_h4" /><text text="$l10n_terraLogic_help_speed_p4" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_speed_h5" /><text text="$l10n_terraLogic_help_speed_p5" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_example" /><text text="$l10n_terraLogic_help_speed_example" /></paragraph>
+            </page>
+            <page id="terraLogicHelpDraft" title="$l10n_terraLogic_help_draft_title" iconFilename="icon_terraLogic.dds">
+                <paragraph><text text="$l10n_terraLogic_help_draft_p1" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_draft_h2" /><text text="$l10n_terraLogic_help_draft_p2" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_draft_h3" /><text text="$l10n_terraLogic_help_draft_p3" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_draft_h4" /><text text="$l10n_terraLogic_help_draft_p4" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_draft_h5" /><text text="$l10n_terraLogic_help_draft_p5" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_draft_h6" /><text text="$l10n_terraLogic_help_draft_p6" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_example" /><text text="$l10n_terraLogic_help_draft_example" /></paragraph>
+            </page>
+            <page id="terraLogicHelpSpeedDamage" title="$l10n_terraLogic_help_damage_title" iconFilename="icon_terraLogic.dds">
+                <paragraph><text text="$l10n_terraLogic_help_damage_p1" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_damage_h2" /><text text="$l10n_terraLogic_help_damage_p2" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_damage_h3" /><text text="$l10n_terraLogic_help_damage_p3" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_damage_h4" /><text text="$l10n_terraLogic_help_damage_p4" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_damage_h5" /><text text="$l10n_terraLogic_help_damage_p5" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_damage_h6" /><text text="$l10n_terraLogic_help_damage_p6" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_damage_h7" /><text text="$l10n_terraLogic_help_damage_p7" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_example" /><text text="$l10n_terraLogic_help_damage_example" /></paragraph>
+            </page>
+            <page id="terraLogicHelpWeather" title="$l10n_terraLogic_help_weather_title" iconFilename="icon_terraLogic.dds">
+                <paragraph><text text="$l10n_terraLogic_help_weather_p1" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_weather_h2" /><text text="$l10n_terraLogic_help_weather_p2" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_weather_h3" /><text text="$l10n_terraLogic_help_weather_p3" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_weather_h4" /><text text="$l10n_terraLogic_help_weather_p4" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_example" /><text text="$l10n_terraLogic_help_weather_example" /></paragraph>
+            </page>
+            <page id="terraLogicHelpRecovery" title="$l10n_terraLogic_help_recovery_title" iconFilename="icon_terraLogic.dds">
+                <paragraph><text text="$l10n_terraLogic_help_recovery_p1" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_recovery_h2" /><text text="$l10n_terraLogic_help_recovery_p2" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_recovery_h3" /><text text="$l10n_terraLogic_help_recovery_p3" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_recovery_h4" /><text text="$l10n_terraLogic_help_recovery_p4" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_recovery_h5" /><text text="$l10n_terraLogic_help_recovery_p5" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_example" /><text text="$l10n_terraLogic_help_recovery_example" /></paragraph>
+            </page>
+            <page id="terraLogicHelpYield" title="$l10n_terraLogic_help_yield_title" iconFilename="icon_terraLogic.dds">
+                <paragraph><text text="$l10n_terraLogic_help_yield_p1" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_yield_h2" /><text text="$l10n_terraLogic_help_yield_p2" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_yield_h3" /><text text="$l10n_terraLogic_help_yield_p3" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_yield_h4" /><text text="$l10n_terraLogic_help_yield_p4" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_example" /><text text="$l10n_terraLogic_help_yield_example" /></paragraph>
+            </page>
+            <page id="terraLogicHelpOptions" title="$l10n_terraLogic_help_options_title" iconFilename="icon_terraLogic.dds">
+                <paragraph><text text="$l10n_terraLogic_help_options_p1" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_options_h2" /><text text="$l10n_terraLogic_help_options_p2" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_options_h3" /><text text="$l10n_terraLogic_help_options_p3" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_options_h4" /><text text="$l10n_terraLogic_help_options_p4" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_options_h5" /><text text="$l10n_terraLogic_help_options_p5" /></paragraph>
+            </page>
+            <page id="terraLogicHelpCompatibility" title="$l10n_terraLogic_help_compat_title" iconFilename="icon_terraLogic.dds">
+                <paragraph><text text="$l10n_terraLogic_help_compat_p1" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_compat_h2" /><text text="$l10n_terraLogic_help_compat_p2" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_compat_h3" /><text text="$l10n_terraLogic_help_compat_p3" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_compat_h4" /><text text="$l10n_terraLogic_help_compat_p4" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_compat_h5" /><text text="$l10n_terraLogic_help_compat_p5" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_example" /><text text="$l10n_terraLogic_help_compat_example" /></paragraph>
+            </page>
+            <page id="terraLogicHelpProblems" title="$l10n_terraLogic_help_problems_title" iconFilename="icon_terraLogic.dds">
+                <paragraph><title text="$l10n_terraLogic_help_problems_h1" /><text text="$l10n_terraLogic_help_problems_p1" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_problems_h2" /><text text="$l10n_terraLogic_help_problems_p2" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_problems_h3" /><text text="$l10n_terraLogic_help_problems_p3" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_problems_h4" /><text text="$l10n_terraLogic_help_problems_p4" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_problems_h5" /><text text="$l10n_terraLogic_help_problems_p5" /></paragraph>
+                <paragraph><title text="$l10n_terraLogic_help_example" /><text text="$l10n_terraLogic_help_problems_example" /></paragraph>
+            </page>
+        </category>
+    </helpLines>
+
     <extraSourceFiles>
-        <sourceFile filename="scripts/TerraLogicSettings.lua" />
-        <sourceFile filename="scripts/TerraLogicImplementProfiles.lua" />
-        <sourceFile filename="scripts/TerraLogicDropoutManager.lua" />
-        <sourceFile filename="scripts/TerraLogicQualityManager.lua" />
-        <sourceFile filename="scripts/TerraLogicMain.lua" />
+        <sourceFile filename="scripts\TerraLogicI18n.lua" />
+        <sourceFile filename="scripts\TerraLogicSettings.lua" />
+        <sourceFile filename="scripts\TerraLogicImplementProfiles.lua" />
+        <sourceFile filename="scripts\TerraLogicSoilProfiles.lua" />
+        <sourceFile filename="scripts\TerraLogicDropoutManager.lua" />
+        <sourceFile filename="scripts\TerraLogicQualityManager.lua" />
+        <sourceFile filename="scripts\TerraLogicGrassGapManager.lua" />
+        <sourceFile filename="scripts\TerraLogicSoilTemperatureManager.lua" />
+        <sourceFile filename="scripts\TerraLogicSoilMoistureManager.lua" />
+        <sourceFile filename="scripts\TerraLogicSoilManager.lua" />
+        <sourceFile filename="scripts\TerraLogicMapMaintenance.lua" />
+        <sourceFile filename="scripts\TerraLogicWheelCompactionManager.lua" />
+        <sourceFile filename="scripts\TerraLogicTutorialLessons.lua" />
+        <sourceFile filename="scripts\TerraLogicTutorialManager.lua" />
+        <sourceFile filename="scripts\TerraLogicFieldAnalysis.lua" />
+        <sourceFile filename="scripts\TerraLogicMain.lua" />
+        <sourceFile filename="scripts\TerraLogicAuditManager.lua" />
     </extraSourceFiles>
+
+    <actions>
+        <action name="TERRALOGIC_TOGGLE_SOIL_DISPLAY" />
+        <action name="TERRALOGIC_CYCLE_SOIL_DISPLAY_BACK" />
+        <action name="TERRALOGIC_SHOW_SOIL_SURFACE" />
+        <action name="TERRALOGIC_SHOW_SOIL_DEEP" />
+        <action name="TERRALOGIC_SHOW_SOIL_TILTH" />
+        <action name="TERRALOGIC_SHOW_SOIL_EVENNESS" />
+        <action name="TERRALOGIC_SHOW_SOIL_RESILIENCE" />
+    </actions>
+
+    <inputBinding>
+        <actionBinding action="TERRALOGIC_TOGGLE_SOIL_DISPLAY">
+            <binding device="KB_MOUSE_DEFAULT" input="KEY_lalt KEY_t" axisComponent="+" neutralInput="0" index="1" />
+        </actionBinding>
+        <actionBinding action="TERRALOGIC_CYCLE_SOIL_DISPLAY_BACK">
+            <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_t" axisComponent="+" neutralInput="0" index="1" />
+        </actionBinding>
+        <actionBinding action="TERRALOGIC_SHOW_SOIL_SURFACE">
+            <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_1" axisComponent="+" neutralInput="0" index="1" />
+        </actionBinding>
+        <actionBinding action="TERRALOGIC_SHOW_SOIL_DEEP">
+            <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_2" axisComponent="+" neutralInput="0" index="1" />
+        </actionBinding>
+        <actionBinding action="TERRALOGIC_SHOW_SOIL_TILTH">
+            <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_3" axisComponent="+" neutralInput="0" index="1" />
+        </actionBinding>
+        <actionBinding action="TERRALOGIC_SHOW_SOIL_EVENNESS">
+            <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_4" axisComponent="+" neutralInput="0" index="1" />
+        </actionBinding>
+        <actionBinding action="TERRALOGIC_SHOW_SOIL_RESILIENCE">
+            <binding device="KB_MOUSE_DEFAULT" input="KEY_lctrl KEY_lalt KEY_5" axisComponent="+" neutralInput="0" index="1" />
+        </actionBinding>
+    </inputBinding>
 </modDesc>
