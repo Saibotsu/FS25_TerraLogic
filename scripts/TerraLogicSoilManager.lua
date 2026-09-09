@@ -1053,9 +1053,9 @@ function TerraLogicSoilManager:tryInitializeRaster()
     if self.rasterReady then return true end
     local terrainNode = getTerrainDataNode()
     if DensityMapModifier == nil or terrainNode == nil then
-        if not self.rasterDeferredLogged then
+        if TerraLogicLogging.verbose and not self.rasterDeferredLogged then
             self.rasterDeferredLogged = true
-            Logging.info(
+            TerraLogicLogging.debug(
                 "[FS25_TerraLogic] Soil raster deferred until terrain data is ready")
         end
         return false
@@ -1118,7 +1118,7 @@ function TerraLogicSoilManager:tryInitializeRaster()
     self.rasterDeferredLogged = false
     self.visualizationDirty = self.activeMapMode > 0
     self.overlayRefreshTime = 0
-    Logging.info(
+    TerraLogicLogging.debug(
         "[FS25_TerraLogic] Soil raster ready: %d layers, center=%d/%d/%d/%d/%d",
         initializedLayers,
         self:getRawAtWorldPosition(self.layers[1].id, 0, 0),
@@ -1273,7 +1273,7 @@ function TerraLogicSoilManager:createVisualizationMaps()
             self:writeLegacyRegion(layer.id, legacyCell, true)
         end
     end
-    Logging.info(
+    TerraLogicLogging.debug(
         "[FS25_TerraLogic] Soil visualization masks ready: surface=%d deep=%d tilth=%d evenness=%d resilience=%d fieldPolygons=%d legacyRegions=%d fallback=%s",
         self.visualizationMapSizes.surfaceCompaction.x,
         self.visualizationMapSizes.deepCompaction.x,
@@ -1549,7 +1549,7 @@ function TerraLogicSoilManager:load()
         -- A persisted pending flag resumes safely after an unusually early
         -- save without reinitializing already completed fields.
         self.ownedPresetInitializationPending = true
-        Logging.info(
+        TerraLogicLogging.debug(
             "[FS25_TerraLogic] One-time owned-field soil preset initialization scheduled")
     else
         -- Builds before this marker may already contain months or years of
@@ -1559,7 +1559,7 @@ function TerraLogicSoilManager:load()
             self.OWNED_PRESET_INITIALIZATION_VERSION
         self.ownedPresetInitializationPending = false
         self.ownedPresetInitializedFields = {}
-        Logging.info(
+        TerraLogicLogging.debug(
             "[FS25_TerraLogic] Existing TerraLogic soil maps detected; owned-field preset initialization marked complete without overwriting player data")
     end
     self.recoveryLastIntegratedGameHours =
@@ -1575,7 +1575,7 @@ function TerraLogicSoilManager:load()
     end
     self:tryInitializeRaster()
     self:queueNpcPresetScan(self.NPC_PRESET_SCAN_DELAY_MS)
-    Logging.info(
+    TerraLogicLogging.debug(
         "[FS25_TerraLogic] Soil model loaded: surface=%d@1m deep=%d@2m tilth=%d@2m evenness=%d@2m resilience=%d@8m recoveryAge=%d@8m/12bit (terrain %.0f m, raster=%s, deepMigration=%s)",
         self.mapSizes.surfaceCompaction.x,
         self.mapSizes.deepCompaction.x,
@@ -1886,7 +1886,7 @@ function TerraLogicSoilManager:loadSparseState()
     end)
     xml:delete()
     if sourceCount > 0 then
-        Logging.info(
+        TerraLogicLogging.debug(
             "[FS25_TerraLogic] Queued %d legacy 4m soil regions for layer migration",
             sourceCount)
     end
@@ -2801,12 +2801,12 @@ function TerraLogicSoilManager:scanNpcPresetFields()
         end
     end
     if queued > 0 then
-        Logging.info(
+        TerraLogicLogging.debug(
             "[FS25_TerraLogic] Queued %d changed NPC field preset(s)",
             queued)
     end
     if ownedQueued > 0 then
-        Logging.info(
+        TerraLogicLogging.debug(
             "[FS25_TerraLogic] Queued %d one-time owned-field preset(s)",
             ownedQueued)
     end
@@ -2826,7 +2826,7 @@ function TerraLogicSoilManager:scanNpcPresetFields()
             self.OWNED_PRESET_INITIALIZATION_VERSION
         self.ownedPresetInitializationPending = false
         self.ownedPresetInitializedFields = {}
-        Logging.info(
+        TerraLogicLogging.debug(
             "[FS25_TerraLogic] One-time owned-field soil preset initialization complete")
     end
     return foundField and not waitingForState
@@ -2947,7 +2947,7 @@ function TerraLogicSoilManager:finishNpcPresetJob(job)
     self.visualizationDirty = true
     local now = g_currentMission ~= nil and g_currentMission.time or 0
     self.overlayRefreshTime = now + self.OVERLAY_REFRESH_DELAY_MS
-    Logging.info(
+    TerraLogicLogging.debug(
         "[FS25_TerraLogic] %s field preset complete: field=%s farmland=%d preset=%s crop=%s phase=%d variedPatches=%d",
         ownedBootstrap and "Initial owned"
             or (ownedRepair and "Repaired owned" or "NPC"),
@@ -4061,7 +4061,7 @@ function TerraLogicSoilManager:finishNaturalRecovery(job)
         self.visualizationDirty = true
     end
     local samples = math.max(job.environmentSamples or 0, 1)
-    Logging.info(
+    TerraLogicLogging.debug(
         "[FS25_TerraLogic] Natural recovery pass: setting=%dx resilience=%dx physical=%dx fieldCells=%d age=%d surface/deep/tilth/evenness=%d/%d/%d/%d resilience(gain/decay)=%d/%d env(bio/surface/deep/thawSurface/thawDeep)=%.3f/%.3f/%.3f/%.3f/%.3f pending=%d cover(bare/sown/residue/annual/rootCrop/deepRoot/perennial/deepPerennial)=%d/%d/%d/%d/%d/%d/%d/%d",
         job.developmentSpeed,
         getResilienceDevelopmentSpeed(job.developmentSpeed),
@@ -4082,7 +4082,7 @@ function TerraLogicSoilManager:finishNaturalRecovery(job)
         job.coverCounts.perennial or 0,
         job.coverCounts.deepPerennial or 0)
     local snapshot = job.snapshot or {}
-    Logging.info(
+    TerraLogicLogging.debug(
         "[FS25_TerraLogic] Recovery snapshot: serial=%d source=%s observed=%.2f gameHours daysPerPeriod=%g meanSoil=%.2f/%.2fC thaw=%.3f/%.3f queue=%d",
         tonumber(snapshot.serial) or 0, tostring(snapshot.source or "legacy"),
         tonumber(snapshot.hours) or 0,
@@ -8082,10 +8082,10 @@ function TerraLogicSoilManager:applyWorkArea(
         and frostQualitySum / moistureSampleCount or nil
     spec.soilLastFrostPenetrationFactor = moistureSampleCount > 0
         and frostPenetrationSum / moistureSampleCount or nil
-    if eligibleCells > 0 and (spec.soilPassLogTime == nil
+    if TerraLogicLogging.verbose and eligibleCells > 0 and (spec.soilPassLogTime == nil
             or now - spec.soilPassLogTime >= 5000) then
         spec.soilPassLogTime = now
-        Logging.info(
+        TerraLogicLogging.debug(
             "[FS25_TerraLogic] Soil pass %s: vanillaArea(changed/total)=%.3f/%.3f touched=%d field=%d changed=%d/%d speed=%.1f/%.1f ratio=%.2f overspeed=%.2f wearStrength=%.3f moisture=%.3f effect=%.3f frost=%.3f penetration=%.3f",
             tostring(classKey), rawChangedArea, rawTotalArea,
             touchedCellCount, eligibleCells, changedCells, changedLayers,
@@ -8343,9 +8343,9 @@ function TerraLogicSoilManager:buildOverlay(mode)
     generateDensityMapVisualizationOverlay(self.overlay)
     self.overlayPending = true
     self.visualizationDirty = false
-    if self.overlayLoggedMode ~= mode then
+    if TerraLogicLogging.verbose and self.overlayLoggedMode ~= mode then
         self.overlayLoggedMode = mode
-        Logging.info(
+        TerraLogicLogging.debug(
             "[FS25_TerraLogic] Soil overlay active: mode=%d layer=%s handle=%s map=%s",
             mode, tostring(layer.id), tostring(self.overlay),
             tostring(sourceMap))
@@ -8419,7 +8419,7 @@ function TerraLogicSoilManager:applyPrecisionFarmingMinimapSuppression(
             if ok then restored = restored + 1 end
         end
     end
-    Logging.info(
+    TerraLogicLogging.debug(
         "[FS25_TerraLogic] Precision Farming minimap %s (%d live requests)",
         suppressed and "suppressed" or "restored", restored)
     return true
@@ -8480,7 +8480,7 @@ function TerraLogicSoilManager:installPrecisionFarmingMinimapHook()
     end
     self.pfValueMapClass = valueMapClass
     self.pfMinimapHookInstalled = true
-    Logging.info(
+    TerraLogicLogging.debug(
         "[FS25_TerraLogic] Precision Farming minimap arbitration installed")
     return true
 end
@@ -8495,7 +8495,7 @@ function TerraLogicSoilManager:applyMapModeState(mode)
         self.overlayRefreshTime = g_currentMission ~= nil
             and g_currentMission.time or 0
     end
-    Logging.info(
+    TerraLogicLogging.debug(
         "[FS25_TerraLogic] Soil minimap mode %d (hook=%s)",
         self.activeMapMode,
         tostring(self.minimapHookInstalled == true))
@@ -8519,7 +8519,7 @@ function TerraLogicSoilManager:setMapMode(mode)
             + self.MINIMAP_ZOOM_TRANSITION_MS
         self:setPrecisionFarmingMinimapSuppressed(true)
         self:setMinimapZoomTarget(1)
-        Logging.info(
+        TerraLogicLogging.debug(
             "[FS25_TerraLogic] Soil minimap transition TL -> PF queued")
         return
     end
@@ -8530,7 +8530,7 @@ function TerraLogicSoilManager:setMapMode(mode)
             + self.PF_MINIMAP_TRANSITION_MS
         self:setMinimapZoomTarget(1)
         self:setPrecisionFarmingMinimapSuppressed(true)
-        Logging.info(
+        TerraLogicLogging.debug(
             "[FS25_TerraLogic] Soil minimap transition PF -> TL mode %d queued",
             mode)
         return
@@ -8671,7 +8671,7 @@ function TerraLogicSoilManager:resetServerNetworkLayerRevision(layerIndex)
         g_server:broadcastEvent(
             TerraLogicSoilTileRevisionResetEvent.new(layerIndex))
     end
-    Logging.info(
+    TerraLogicLogging.debug(
         "[FS25_TerraLogic] Soil tile revision generation safely reset for layer %d",
         layerIndex)
 end
@@ -9404,7 +9404,7 @@ function TerraLogicSoilManager:installMinimapBaseLayerHook(ingameMap)
             nativeDraw, ingameMap, baseElement, ...)
     end
     self.minimapBaseHookElement = element
-    Logging.info(
+    TerraLogicLogging.debug(
         "[FS25_TerraLogic] Minimap base texture joined to soil zoom")
     return true
 end
@@ -9425,9 +9425,10 @@ function TerraLogicSoilManager:drawMinimapOverlay(ingameMap)
     -- controlled-vehicle requirement is needed here.
     self.minimapUiVisible = true
     local canDrawOverlay = self.overlay ~= nil and self.overlayReady == true
-    if canDrawOverlay and self.minimapDrawLoggedMode ~= self.activeMapMode then
+    if TerraLogicLogging.verbose and canDrawOverlay
+        and self.minimapDrawLoggedMode ~= self.activeMapMode then
         self.minimapDrawLoggedMode = self.activeMapMode
-        Logging.info(
+        TerraLogicLogging.debug(
             "[FS25_TerraLogic] Standalone soil minimap draw mode=%d overlay=%s",
             self.activeMapMode, tostring(self.overlay))
     end
@@ -9841,7 +9842,7 @@ function TerraLogicSoilManager:installMinimapHook()
     map.terraLogicSoilHook = true
     self.minimapHookInstalled = true
     self.minimapHookMap = map
-    Logging.info("[FS25_TerraLogic] Soil minimap hook installed (%s)",
+    TerraLogicLogging.debug("[FS25_TerraLogic] Soil minimap hook installed (%s)",
         tostring(self.minimapHookMethod))
     return true
 end

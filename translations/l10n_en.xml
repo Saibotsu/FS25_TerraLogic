@@ -336,7 +336,7 @@
         <e k="terraLogic_fa_ui_criticalLocal" v="Localized issue - %d%% of the field area" />
         <e k="terraLogic_fa_ui_criticalNone" v="No critical area detected" />
         <e k="terraLogic_fa_ui_criticalWidespread" v="Widespread issue - %d%% of the field area" />
-        <e k="terraLogic_fa_ui_crop" v="Crop at location" />
+        <e k="terraLogic_fa_ui_crop" v="Crop stand" />
         <e k="terraLogic_fa_ui_cropWater" v="Water supply during growth" />
         <e k="terraLogic_fa_ui_currentAdvice" v="Current advice" />
         <e k="terraLogic_fa_ui_deepCompaction" v="Deep compaction" />
@@ -379,9 +379,9 @@
         <e k="terraLogic_fa_ui_moistureInitializing" v="The moisture simulation has only just started. Both depths may show the same value for a short time; they will separate as rain, drainage and drying begin to affect them differently." />
         <e k="terraLogic_fa_ui_mulching" v="Mulching" />
         <e k="terraLogic_fa_ui_nextOperation" v="Next operation" />
-        <e k="terraLogic_fa_ui_noCrop" v="No growing crop detected" />
+        <e k="terraLogic_fa_ui_noCrop" v="No active harvest crop" />
         <e k="terraLogic_fa_ui_noField" v="No TerraLogic field soil was found at this position." />
-        <e k="terraLogic_fa_ui_notRecorded" v="Not performed" />
+        <e k="terraLogic_fa_ui_notRecorded" v="Not recorded" />
         <e k="terraLogic_fa_ui_now" v="Right now" />
         <e k="terraLogic_fa_ui_nowAndNext" v="Current conditions and next operation" />
         <e k="terraLogic_fa_ui_currentConditions" v="Before or during current work" />
@@ -460,10 +460,10 @@
         <e k="terraLogic_fa_ui_yieldRelevantWork" v="Fieldwork included in this yield estimate" />
         
         <!-- Page explanations and notes -->
-        <e k="terraLogic_fa_note_overviewFooter" v="For compaction, lower values toward 0% are better; for evenness and soil resilience, higher values toward 100% are better. Tilth is balanced around 50%." />
-        <e k="terraLogic_fa_note_resultsWork" v="The quality of fieldwork recorded for this crop cycle. Operations not performed remain neutral." />
-        <e k="terraLogic_fa_note_resultsYield" v="These quality factors range up to 100%. Together, they determine the estimated yield compared with the same field without TerraLogic, including any Precision Farming effects. Very good conditions can allow up to 110%. The estimate develops as the crop grows." />
-        <e k="terraLogic_fa_note_resultsLosses" v="These values show the losses behind the estimate. Unsown patches further reduce the harvested amount because no crop grows there." />
+        <e k="terraLogic_fa_note_overviewFooter" v="Averages across the analysed field area. Compaction is more favourable near 0%, evenness and resilience near 100%. Tilth is balanced around 50%." />
+        <e k="terraLogic_fa_note_resultsWork" v="Quality is averaged only where an operation was recorded. The area figure shows that share of the field. New work before sowing remains visible; missing records do not automatically mean poor quality." />
+        <e k="terraLogic_fa_note_resultsYield" v="An area-weighted estimate for all existing harvest crops, not just the first crop listed. Quality factors reach 100%; the TerraLogic yield factor can reach 110% of the base-game yield, including Precision Farming." />
+        <e k="terraLogic_fa_note_resultsLosses" v="These values describe the same existing crop stand as the yield estimate, not your location. Unsown and harvested areas are excluded. The effects interact and cannot simply be added together." />
         <e k="terraLogic_fa_note_conditionsFooter" v="Check soil moisture and temperature before fieldwork: they affect the power needed, how well tools enter the soil and the risk of compaction." />
         <e k="terraLogic_fa_condition_frost" v="Frozen soil increases draft and makes tool penetration less reliable." />
         <e k="terraLogic_fa_condition_traffic" v="Current topsoil conditions multiply the traffic response by x%.2f." />
@@ -872,8 +872,16 @@
         <e k="terraLogic_workHudRollerFrostDetail" v="Frozen soil limits the rolling effect. Wait until the soil has thawed." />
         <e k="terraLogic_workHudRollerUnevenDetail" v="The roller has a reduced effect on this very rough surface. Check whether seedbed preparation is needed." />
         <e k="terraLogic_workHudRollerSoilDetail" v="The roller has little effect in these soil conditions. Check in the Planner whether rolling will help." />
-            <e k="terraLogic_fa_ui_estimateNone" v="No active crop - no yield estimate yet." />
+            <e k="terraLogic_fa_ui_estimateNone" v="No active crop stand – no yield estimate at present." />
         <e k="terraLogic_fa_ui_estimateHistory" v="Estimate includes growth recorded so far." />
         <e k="terraLogic_fa_ui_estimatePreview" v="Preliminary estimate using current conditions." />
+        <e k="terraLogic_fa_ui_summaryScope" v="%s | Field-wide assessment" />
+        <e k="terraLogic_fa_ui_harvestPending" v="Harvest is not yet complete in some areas." />
+        <e k="terraLogic_fa_ui_cropMix" v="%s (+%d more)" />
+        <e k="terraLogic_fa_ui_cropCoverage" v="Existing crop: approx. %d%% of field area" />
+        <e k="terraLogic_fa_ui_workCoverage" v="Recorded on approx. %d%% of field area" />
+        <e k="terraLogic_fa_ui_meadow" v="Meadow" />
+        <e k="terraLogic_settingDebugTitle" v="Debug" />
+        <e k="terraLogic_settingDebugTooltip" v="Enable extended logging." />
     </elements>
 </l10n>

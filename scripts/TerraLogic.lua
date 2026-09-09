@@ -7993,7 +7993,7 @@ function TerraLogic:updateOverSpeedSoilData(dt)
     spec.pfLastSoilTypeIndex = soilTypeIndex
     spec.pfLastPositionSource = positionSource
     spec.pfSoilValueSource = soilValueSource
-    if positionSource == "activeWorkArea" and not spec.pfQueryLogged then
+    if TerraLogicLogging.verbose and positionSource == "activeWorkArea" and not spec.pfQueryLogged then
         spec.pfQueryLogged = true
         TerraLogicLogging.debug(
             "[FS25_TerraLogic] PF soil query: vehicle=%s position=%s x=%.2f z=%.2f pfOk=%s visibleIndex=%s finalIndex=%s valueSource=%s",
@@ -8522,11 +8522,11 @@ function TerraLogic:updateDamageAmount(superFunc, dt)
     spec.lastContinuousDamageMultiplier = vanillaDamage > 0
         and continuousDamage / vanillaDamage or nil
 
-    if spec.wearRateWarningLogged ~= true
+    if TerraLogicLogging.verbose and spec.wearRateWarningLogged ~= true
         and (xmlWearRateFactor < TerraLogic.WEAR_CUSTOM_RATE_WARNING_MIN
             or xmlWearRateFactor > TerraLogic.WEAR_CUSTOM_RATE_WARNING_MAX) then
         spec.wearRateWarningLogged = true
-        Logging.warning(
+        TerraLogicLogging.debugWarning(
             "[FS25_TerraLogic] unusual wearable rate on '%s': XML/runtime x%.3f vs GIANTS 480min reference (duration %.2fmin, policy %s)",
             self.getName ~= nil and self:getName() or "implement",
             xmlWearRateFactor,

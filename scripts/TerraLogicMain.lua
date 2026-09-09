@@ -376,6 +376,7 @@ function TerraLogicMain:update(dt)
     -- never the stored quality result.
     TerraLogicQualityManager:processStoredCellPrune(16, 512)
     TerraLogicQualityManager:flushPendingMowerClears()
+    TerraLogicQualityManager:flushPendingHarvestClears(nil, 4)
     TerraLogicQualityManager:updatePlowGrowthRecovery(dt)
     TerraLogicGrassGapManager:update(dt)
     TerraLogicSoilTemperatureManager:update(dt)
@@ -427,7 +428,7 @@ function TerraLogicMain:updateSoilDisplayActionContext()
         if controlledVehicle == refreshVehicle
             and refreshVehicle.requestActionEventUpdate ~= nil then
             refreshVehicle:requestActionEventUpdate()
-            Logging.info(
+            TerraLogicLogging.debug(
                 "[FS25_TerraLogic] Soil display input context refreshed after vehicle switch: %s",
                 tostring(refreshVehicle))
         end
@@ -440,7 +441,7 @@ function TerraLogicMain:setSoilDisplayMode(mode)
         #TerraLogicSoilManager.layers)
     TerraLogicSettings.vehicleSoilMapMode = mode
     TerraLogicSoilManager:setMapMode(mode)
-    Logging.info(
+    TerraLogicLogging.debug(
         "[FS25_TerraLogic] Soil display input: vehicle=%s source=%s mode=%d",
         tostring(controlledVehicle), tostring(controlSource), mode)
     local keys = {
@@ -525,7 +526,7 @@ function TerraLogicMain.registerSoilDisplayActionEvent()
             end
         end
     end
-    Logging.info(
+    TerraLogicLogging.debug(
         "[FS25_TerraLogic] Soil display actions registered in player context: %d",
         #TerraLogicMain.soilDisplayActionEventIds)
 end
@@ -564,7 +565,7 @@ function TerraLogicMain.registerVehicleSoilDisplayActionEvent(
             end
         end
     end
-    Logging.info(
+    TerraLogicLogging.debug(
         "[FS25_TerraLogic] Soil display actions registered in vehicle context: %d (active=%s ignoreSelection=%s)",
         registered, tostring(isActiveForInput),
         tostring(isActiveForInputIgnoreSelection))
@@ -1200,14 +1201,19 @@ end
 function TerraLogicMain:consoleCommandLogging(value)
     local parsed = parseEnabled(value)
     if parsed ~= nil then
-        TerraLogicLogging.verbose = parsed
-        if parsed and TerraLogicQualityManager ~= nil
-            and TerraLogicQualityManager.resetHarvestDiagnostics ~= nil then
-            TerraLogicQualityManager:resetHarvestDiagnostics()
+        if not TerraLogicSettings:isLocalAdmin() then
+            return "TerraLogic: only the server administrator may change debug logging"
+        end
+        if not TerraLogicSettings:setDebugEnabledFromMenu(parsed) then
+            return "TerraLogic: debug logging could not be changed"
+        end
+        if g_server == nil then
+            return string.format("TerraLogic debug logging change requested: %s",
+                parsed and "ON" or "OFF")
         end
     end
     return string.format("TerraLogic verbose logging: %s",
-        TerraLogicLogging.verbose and "ON" or "OFF")
+        TerraLogicSettings:getDebugEnabled() and "ON" or "OFF")
 end
 
 function TerraLogicMain:consoleCommandDraftModel(value)
@@ -4406,6 +4412,75 @@ end
 -- a separate fading warning card above without moving the main card. The
 -- coloured bar retains the familiar slow/recommended/overspeed comparison,
 -- while the redundant numeric speed is left to Vanilla's tachometer.
+-- Keep complete translations at a readable size, including long UTF-8 words.
+-- Measurement is injectable for regression tests; the game supplies getTextWidth.
+function TerraLogicMain.wrapWarningText(text, width, measure)
+    local lines, line = {}, ""
+    local function addWord(word)
+        local candidate = line == "" and word or line .. " " .. word
+        if measure(candidate) <= width then line = candidate; return end
+        if line ~= "" then lines[#lines+1], line = line, "" end
+        if measure(word) <= width then line = word; return end
+        for character in word:gmatch("[%z\1-\127\194-\244][\128-\191]*") do
+            if line ~= "" and measure(line .. character) > width then
+                lines[#lines+1], line = line, ""
+            end
+            line = line .. character
+        end
+    end
+    text = tostring(text or ""):gsub("\r\n", "\n"):gsub("\r", "\n")
+    for paragraph in (text .. "\n"):gmatch("(.-)\n") do
+        for word in paragraph:gmatch("%S+") do addWord(word) end
+        lines[#lines+1], line = line, ""
+    end
+    return lines
+end
+
+function TerraLogicMain:getWarningTextLayout(warning, width, size)
+    local key = tostring(width) .. ":" .. tostring(size) .. ":"
+        .. tostring(warning.title or "") .. "\0" .. tostring(warning.detail or "")
+    self.warningTextCache = self.warningTextCache or {}
+    local layout = self.warningTextCache[key]
+    if layout == nil then
+        setTextBold(true)
+        local title = self.wrapWarningText(warning.title, width,
+            function(text) return getTextWidth(size, text) end)
+        setTextBold(false)
+        local detail = self.wrapWarningText(warning.detail, width,
+            function(text) return getTextWidth(size, text) end)
+        layout = {title=title, detail=detail}
+        if (self.warningTextCacheCount or 0) >= 64 then
+            self.warningTextCache, self.warningTextCacheCount = {}, 0
+        end
+        self.warningTextCache[key] = layout
+        self.warningTextCacheCount = (self.warningTextCacheCount or 0) + 1
+    end
+    return layout
+end
+
+function TerraLogicMain:getWarningBatchLayout(shown, width, size)
+    local state = self.workHudWarningLayoutState
+    if state == nil or state.width ~= width or state.size ~= size then
+        state = {width=width, size=size, titleRows=1, detailRows=1}
+        self.workHudWarningLayoutState = state
+    end
+    local function include(warning)
+        if warning == nil then return nil end
+        local layout = self:getWarningTextLayout(warning, width, size)
+        state.titleRows = math.max(state.titleRows, #layout.title)
+        state.detailRows = math.max(state.detailRows, #layout.detail)
+        return layout
+    end
+    local layout = include(shown)
+    for _, id in ipairs(self.workHudWarningQueue or {}) do
+        local source = (self.workHudWarningSources or {})[id]
+        include(source ~= nil and source.warning or nil)
+    end
+    -- Separate title/detail maxima also keep the first detail line stationary
+    -- when a queued warning has a two-line title but a shorter explanation.
+    return layout, state.titleRows, state.detailRows
+end
+
 function TerraLogicMain:drawSpeedHud()
     if self.enabled == false or g_localPlayer == nil or g_currentMission == nil then
         return
@@ -4414,6 +4489,7 @@ function TerraLogicMain:drawSpeedHud()
         and TerraLogicSettings.speedHudMode or "dynamic"
     local now = g_currentMission.time or 0
     if hudMode == "off" then
+        self.workHudWarningLayoutState = nil
         self.speedHudFadeAlpha = 0
         self.workHudWarningFadeAlpha = 0
         self.workHudWarningSources = {}
@@ -4426,11 +4502,13 @@ function TerraLogicMain:drawSpeedHud()
     local vehicle = g_localPlayer:getCurrentVehicle()
     if vehicle == nil or drawFilledRect == nil or renderText == nil
         or not getIsGameHudVisible() then
+        self.workHudWarningLayoutState = nil
         self.speedHudFadeAlpha = 0
         self.workHudWarningFadeAlpha = 0
         return
     end
     if self.speedHudVehicle ~= vehicle then
+        self.workHudWarningLayoutState = nil
         self.speedHudVehicle = vehicle
         self.speedHudVehicleNameHiddenUntil = now
             + TerraLogicMain.SPEED_HUD_VEHICLE_NAME_DELAY_MS
@@ -4672,7 +4750,7 @@ function TerraLogicMain:drawSpeedHud()
     local alpha = updateSpeedHudFade(self, now, shouldShow)
     TerraLogicTutorialManager:observeHud(qualityImplement or implement,
         qualityContext, quality ~= nil, alpha > 0, currentSpeed)
-    if alpha <= 0 then return end
+    if alpha <= 0 then self.workHudWarningLayoutState = nil; return end
 
     local boxWidth, boxHeight = getSpeedHudScaledPixels(380, 92)
     local _, boxY = getSpeedHudScaledPixels(0, 42)
@@ -4835,6 +4913,7 @@ function TerraLogicMain:drawSpeedHud()
 
     local warningAlpha = updateWorkHudWarningFade(
         self, now, warning ~= nil)
+    if warningAlpha <= 0 and warning == nil then self.workHudWarningLayoutState = nil end
     if warningAlpha > 0 then
         local shown = warning or self.workHudLastWarning
         if warning ~= nil then self.workHudLastWarning = warning end
@@ -4844,8 +4923,14 @@ function TerraLogicMain:drawSpeedHud()
                 and SPEED_HUD_CRITICAL_COLOR or SPEED_HUD_CAUTION_COLOR
             local titleAccent = accent
             local _, gap = getSpeedHudScaledPixels(0, 7)
-            local warningHeight
-            warningHeight = select(2, getSpeedHudScaledPixels(0, 58))
+            local layout, titleRows, detailRows = self:getWarningBatchLayout(
+                shown, boxWidth-padX*2, smallSize)
+            local _, lineGap = getSpeedHudScaledPixels(0, 4)
+            local lineHeight = smallSize + lineGap
+            local _, inset = getSpeedHudScaledPixels(0, 10)
+            local _, dotReserve = getSpeedHudScaledPixels(0, 8)
+            local warningHeight = math.max(select(2, getSpeedHudScaledPixels(0, 58)),
+                inset*2 + (titleRows+detailRows)*lineHeight + lineGap + dotReserve)
             local warningY = boxY + boxHeight + gap
             if not self:renderSpeedHudBackground(
                 boxX, warningY, boxWidth, warningHeight, warningAlpha) then
@@ -4855,27 +4940,20 @@ function TerraLogicMain:drawSpeedHud()
             local stripeWidth = select(1, getSpeedHudScaledPixels(4, 0))
             drawFilledRect(boxX, warningY, stripeWidth, warningHeight,
                 accent[1], accent[2], accent[3], warningAlpha)
-            local _, warningTitleY = getSpeedHudScaledPixels(0, 29)
-            local _, warningDetailY = getSpeedHudScaledPixels(0, 10)
-            local warningTextWidth = boxWidth-padX*2
-            local function fitWarningTextSize(text)
-                local width = getTextWidth(smallSize, tostring(text or ""))
-                if width <= warningTextWidth or width <= 0 then
-                    return smallSize
-                end
-                return math.max(smallSize*0.78,
-                    smallSize*warningTextWidth/width)
-            end
+            local warningTitleY = warningHeight-inset-smallSize
+            local warningDetailY = warningTitleY-titleRows*lineHeight-lineGap
             setTextAlignment(RenderText.ALIGN_LEFT)
             setTextBold(true)
             setTextColor(titleAccent[1], titleAccent[2], titleAccent[3],
                 warningAlpha)
-            renderText(boxX + padX, warningY + warningTitleY,
-                fitWarningTextSize(shown.title), tostring(shown.title or ""))
+            for index, line in ipairs(layout.title) do
+                renderText(boxX+padX, warningY+warningTitleY-(index-1)*lineHeight, smallSize, line)
+            end
             setTextBold(false)
             setTextColor(1, 1, 1, warningAlpha)
-            renderText(boxX + padX, warningY + warningDetailY,
-                fitWarningTextSize(shown.detail), tostring(shown.detail or ""))
+            for index, line in ipairs(layout.detail) do
+                renderText(boxX+padX, warningY+warningDetailY-(index-1)*lineHeight, smallSize, line)
+            end
             if (warningCount or 0) > 1 then
                 local dotSize = select(1, getSpeedHudScaledPixels(4, 0))
                 local dotGap = select(1, getSpeedHudScaledPixels(4, 0))

@@ -161,7 +161,7 @@ end
 
 local function formatLossPercent(value)
     local loss = math.max(tonumber(value) or 0, 0)
-    if loss < 0.0005 then return "-0.0%" end
+    if loss < 0.0005 then return TerraLogicI18n.format("-%.1f%%", 0) end
     return TerraLogicI18n.format("-%.1f%%", loss * 100)
 end
 
@@ -397,9 +397,22 @@ local function buildDynamicFieldSamples(x, z)
         local cell = queue[head]
         head = head + 1
         local cx, cz = (cell.ix+0.5)*cellSize, (cell.iz+0.5)*cellSize
-        local sampleX, sampleZ = #cells == 0 and x or cx,
-            #cells == 0 and z or cz
-        cells[#cells+1] = {x=sampleX, z=sampleZ}
+        if not isVisibleSoilSurface(cx, cz) then
+            -- The initial grid centre can be beyond a diagonal field edge.
+            -- Choose a reproducible on-field sample instead of averaging road.
+            local found = false
+            for sz=0,7 do
+                for sx=0,7 do
+                    local px, pz = (cell.ix+(sx+0.5)/8)*cellSize,
+                        (cell.iz+(sz+0.5)/8)*cellSize
+                    if not found and isVisibleSoilSurface(px, pz) then
+                        cx, cz, found = px, pz, true
+                    end
+                end
+            end
+            if not found then cx, cz = x, z end
+        end
+        cells[#cells+1] = {x=cx, z=cz}
         minX, maxX = math.min(minX, cx), math.max(maxX, cx)
         minZ, maxZ = math.min(minZ, cz), math.max(maxZ, cz)
         for _, offset in ipairs(neighbours) do
@@ -423,12 +436,15 @@ local function buildDynamicFieldSamples(x, z)
             end
         end
     end
-    local points = {{x=x, z=z}}
+    -- Canonical ordering gives the same samples from either original field or
+    -- either side of a harvested/sown boundary within this connected component.
+    table.sort(cells, function(a,b) return a.z < b.z or (a.z == b.z and a.x < b.x) end)
+    local points = {}
     local maximum = TerraLogicFieldAnalysis.SAMPLE_GRID ^ 2
     if #cells <= maximum then
         points = cells
     else
-        for index = 2, maximum do
+        for index = 1, maximum do
             local sourceIndex = math.floor((index-0.5)*#cells/maximum)+1
             points[#points+1] = cells[sourceIndex]
         end
@@ -520,6 +536,57 @@ local function textureDraftMultiplier(soilTypeIndex, depth)
     return TerraLogic.applyDraftDepthResponse(soil.resistance, response)
 end
 
+function TerraLogicFieldAnalysis.isActiveCrop(fruit, state)
+    if (tonumber(fruit) or 0) <= 0 or (tonumber(state) or -1) < 0 then return false end
+    local manager = TerraLogicSoilManager
+    if manager == nil then return false end
+    if manager.isCoverCrop ~= nil and manager:isCoverCrop(fruit) then return false end
+    local info = manager:getRecoveryFruitStateInfo(fruit)
+    if info == nil or (info.withered or {})[state] then return false end
+    return not (info.cut or {})[state] or (info.regrowthSources or {})[state] == true
+end
+
+function TerraLogicFieldAnalysis:getActiveCropGroups(position)
+    local samples, valid = TerraLogicQualityManager:getAnalysisCropSamples(position.ix, position.iz)
+    local groups, cover, fieldSamples, accepted = {}, false, 0, {}
+    if not valid or #samples == 0 then return groups, 1, cover end
+    for _, sample in ipairs(samples) do
+        local fruit, state = sample.fruitTypeIndex, sample.growthState
+        -- A field sample's 4 m history cell can extend into a verge or a
+        -- landscaped boundary. Test every plant probe against live ground,
+        -- not an old field polygon or the crop found at the cell centre.
+        local onField = false
+        if sample.x ~= nil and sample.z ~= nil then
+            if TerraLogicSoilManager.isCultivatableTerrainAtWorldPosition ~= nil then
+                onField = TerraLogicSoilManager:
+                    isCultivatableTerrainAtWorldPosition(sample.x, sample.z)
+            end
+            if onField == nil or TerraLogicSoilManager.isCultivatableTerrainAtWorldPosition == nil then
+                onField = isVisibleSoilSurface(sample.x, sample.z)
+            end
+        end
+        if onField == true then
+            fieldSamples = fieldSamples + 1
+            if TerraLogicSoilManager.isCoverCrop ~= nil and fruit ~= nil
+                and TerraLogicSoilManager:isCoverCrop(fruit) then cover = true end
+            if self.isActiveCrop(fruit, state) then
+                accepted[sample.x] = accepted[sample.x] or {}
+                accepted[sample.x][sample.z] = fruit
+                local group = groups[fruit] or {fruit=fruit, state=state, count=0}
+                group.count = group.count + 1
+                group.state = math.max(group.state, state)
+                groups[fruit] = group
+            end
+        end
+    end
+    -- Reuse the same selection for roots/losses without extra terrain queries.
+    -- Bare on-field points count towards coverage; outside points do not.
+    local function includeRootSample(fruit, state, x, z)
+        return accepted[x] ~= nil and accepted[x][z] == fruit
+    end
+    return groups, math.max(fieldSamples, 1), cover, includeRootSample
+end
+
 function TerraLogicFieldAnalysis:buildSnapshot(x, z, serial)
     x, z = tonumber(x) or 0, tonumber(z) or 0
     if x ~= x or z ~= z or math.abs(x) > 10000000 or math.abs(z) > 10000000 then
@@ -544,7 +611,9 @@ function TerraLogicFieldAnalysis:buildSnapshot(x, z, serial)
         surfaceRootLoss=0, deepRootLoss=0, trafficSurfaceMultiplier=1,
         trafficDeepMultiplier=1, rollerRescuePotential=0, categoryLosses={},
         rotationKnownShare=0, rotationRepeatedShare=0,
-        rotationDiverseShare=0, coverCrop=false
+        rotationDiverseShare=0, coverCrop=false,
+        cropShare=0, cropCount=0, yieldRecordedWork=false, categoryCoverage={},
+        harvestPending=false
     }
     if TerraLogicSoilManager == nil or TerraLogicQualityManager == nil then
         return snapshot
@@ -562,6 +631,7 @@ function TerraLogicFieldAnalysis:buildSnapshot(x, z, serial)
     local soilQualitySum, tilthQualitySum, rootSum, moistureSum, ledgerSum,
         totalSum, stepsSum, continuitySum = 0, 0, 0, 0, 0, 0, 0, 0
     local growthCropSamples, growthHistorySamples = 0, 0
+    local activeWeight, cropCounts, cropStates = 0, {}, {}
     local surfaceMoistureSum, subsoilMoistureSum, profileCounts = 0, 0, {}
     local surfaceLossSum, deepLossSum, trafficSurfaceSum, trafficDeepSum = 0, 0, 0, 0
     local rollerRescueSum = 0
@@ -617,24 +687,6 @@ function TerraLogicFieldAnalysis:buildSnapshot(x, z, serial)
         soilQualitySum = soilQualitySum + (TerraLogicSoilManager:getTillageQualityFromState(state) or 1)
         tilthQualitySum = tilthQualitySum + qualities.aggregateSize
         local position = getCellPosition(point.x, point.z)
-        local fruitIndex, growthState = TerraLogicQualityManager:
-            getGrowthStateAtCell(position.ix, position.iz)
-        local rootCurrent, _, _, surfaceLoss, deepLoss =
-            TerraLogicQualityManager:getCropWeightedRootYieldFactor(
-                position.ix, position.iz, fruitIndex)
-        surfaceLossSum, deepLossSum = surfaceLossSum + surfaceLoss,
-            deepLossSum + deepLoss
-        local rootProjected, rootSteps = TerraLogicQualityManager:
-            getGrowthRootYieldFactor(position, false, true, rootCurrent)
-        local moistureProjected = TerraLogicQualityManager:getGrowthMoistureYieldFactor(position, false, true)
-        local semantic = TerraLogicQualityManager:getSemanticPlowGrowthStage(fruitIndex, growthState, nil)
-        if semantic ~= nil and semantic > 0 then
-            growthCropSamples = growthCropSamples + 1
-            if (tonumber(rootSteps) or 0) > 0 then
-                growthHistorySamples = growthHistorySamples + 1
-                stepsSum = stepsSum + rootSteps
-            end
-        end
         if TerraLogicSoilManager.getBiologicalContinuityAtWorldPosition ~= nil then
             continuitySum = continuitySum
                 + TerraLogicSoilManager:getBiologicalContinuityAtWorldPosition(
@@ -701,15 +753,13 @@ function TerraLogicFieldAnalysis:buildSnapshot(x, z, serial)
             local pointProfile = tonumber(pointMoisture.profileIndex) or 0
             profileCounts[pointProfile] = (profileCounts[pointProfile] or 0) + 1
         end
-        if moistureProjected == nil and TerraLogicSoilMoistureManager ~= nil
-            and fruitIndex ~= nil and semantic ~= nil and semantic > 0 then
-            local response = TerraLogicSoilMoistureManager:getCropYieldResponse(soilType, fruitIndex, semantic)
-            moistureProjected = response ~= nil and response.factor or 1
-        end
-        rootProjected = clamp01(rootProjected or rootCurrent or 1)
-        moistureProjected = clamp01(moistureProjected or 1)
         local cell = TerraLogicQualityManager:getPackedCell(position.ix, position.iz)
         local entries = cell ~= nil and TerraLogicQualityManager:getGroupedEntriesFromCell(cell) or {}
+        local harvestMarker = (TerraLogicQualityManager.partialHarvestCells or {})[
+            tostring(position.ix) .. ":" .. tostring(position.iz) .. ":arable"]
+        if #entries > 0 and harvestMarker ~= nil and not harvestMarker.remainderClosed then
+            snapshot.harvestPending = true
+        end
         local rawRescue = TerraLogicQualityManager:getSeedRollerRecoveryAtCell(position)
         local seedQuality = 1
         for _, entry in ipairs(entries) do
@@ -723,12 +773,42 @@ function TerraLogicFieldAnalysis:buildSnapshot(x, z, serial)
         rollerRescueSum = rollerRescueSum + math.min(rawRescue * rescueShare,
             rescueMaximum or 0, 1-seedQuality)
         local ledger = TerraLogicQualityManager:getEffectiveYieldFactor(entries, true)
-        local combined = TerraLogicQualityManager:getTerraLogicYieldFactor(
-            entries, rootProjected, moistureProjected, moistureActive,
-            1, state.resilience)
-        rootSum, moistureSum = rootSum + rootProjected, moistureSum + moistureProjected
-        ledgerSum = ledgerSum + ledger
-        totalSum = totalSum + combined
+        local groups, sampleTotal, cover, sampleFilter = self:getActiveCropGroups(position)
+        snapshot.coverCrop = snapshot.coverCrop or cover
+        for fruitIndex, group in pairs(groups) do
+            local weight = group.count / sampleTotal
+            local rootCurrent, _, _, surfaceLoss, deepLoss =
+                TerraLogicQualityManager:getCropWeightedRootYieldFactor(position.ix, position.iz,
+                    fruitIndex, sampleFilter)
+            local rootProjected, rootSteps = TerraLogicQualityManager:
+                getGrowthRootYieldFactor(position, false, true, rootCurrent)
+            local moistureProjected = TerraLogicQualityManager:
+                getGrowthMoistureYieldFactor(position, false, true, fruitIndex)
+            local semantic = TerraLogicQualityManager:getSemanticPlowGrowthStage(fruitIndex, group.state, nil)
+            if moistureProjected == nil and TerraLogicSoilMoistureManager ~= nil then
+                local response = TerraLogicSoilMoistureManager:getCropYieldResponse(soilType, fruitIndex, semantic)
+                moistureProjected = response ~= nil and response.factor or 1
+            end
+            rootProjected = clamp01(rootProjected or rootCurrent or 1)
+            moistureProjected = clamp01(moistureProjected or 1)
+            local combined = TerraLogicQualityManager:getTerraLogicYieldFactor(
+                entries, rootProjected, moistureProjected, moistureActive, 1, state.resilience)
+            rootSum, moistureSum = rootSum + rootProjected*weight, moistureSum + moistureProjected*weight
+            surfaceLossSum, deepLossSum = surfaceLossSum + surfaceLoss*weight, deepLossSum + deepLoss*weight
+            ledgerSum, totalSum = ledgerSum + ledger*weight, totalSum + combined*weight
+            activeWeight = activeWeight + weight
+            cropCounts[fruitIndex] = (cropCounts[fruitIndex] or 0) + weight
+            cropStates[fruitIndex] = math.max(cropStates[fruitIndex] or -1, group.state)
+            growthCropSamples = growthCropSamples + weight
+            if (rootSteps or 0) > 0 then
+                growthHistorySamples = growthHistorySamples + weight
+                stepsSum = stepsSum + rootSteps*weight
+            end
+            for _, entry in ipairs(entries) do
+                local definition = TerraLogicQualityManager.GROUP_DEFINITIONS[entry.name]
+                if definition ~= nil and definition.affectsYield ~= false then snapshot.yieldRecordedWork = true end
+            end
+        end
         for _, entry in ipairs(entries) do
             if categorySums[entry.name] ~= nil then
                 categorySums[entry.name] = categorySums[entry.name] + clamp01(entry.quality)
@@ -745,6 +825,7 @@ function TerraLogicFieldAnalysis:buildSnapshot(x, z, serial)
     for _, key in ipairs(self.CATEGORY_KEYS) do
         snapshot.categories[key] = categoryCounts[key] > 0
             and categorySums[key] / categoryCounts[key] or -1
+        snapshot.categoryCoverage[key] = categoryCounts[key] / #points
     end
     -- This is the literal mean quality of the yield-relevant operations that
     -- were actually recorded. Supporting results remain visible below but do
@@ -765,9 +846,10 @@ function TerraLogicFieldAnalysis:buildSnapshot(x, z, serial)
         and workQualitySum/workQualityCount or 1
     snapshot.soilQuality = soilQualitySum / #points
     snapshot.tilthQuality = tilthQualitySum / #points
-    snapshot.rootFactor, snapshot.moistureFactor = rootSum / #points, moistureSum / #points
+    local yieldDivisor = math.max(activeWeight, 0.000001)
+    snapshot.rootFactor, snapshot.moistureFactor = rootSum / yieldDivisor, moistureSum / yieldDivisor
     snapshot.surfaceRootLoss, snapshot.deepRootLoss =
-        surfaceLossSum / #points, deepLossSum / #points
+        surfaceLossSum / yieldDivisor, deepLossSum / yieldDivisor
     snapshot.trafficSurfaceMultiplier = trafficSurfaceSum / #points
     snapshot.trafficDeepMultiplier = trafficDeepSum / #points
     snapshot.rollerRescuePotential = rollerRescueSum / #points
@@ -788,7 +870,13 @@ function TerraLogicFieldAnalysis:buildSnapshot(x, z, serial)
         snapshot.categoryLosses[key] = categoryCounts[key] > 0
             and (categoryLossSums[key] or 0) / categoryCounts[key] or 0
     end
-    snapshot.ledgerFactor, snapshot.totalFactor = ledgerSum / #points, totalSum / #points
+    snapshot.ledgerFactor, snapshot.totalFactor = ledgerSum / yieldDivisor, totalSum / yieldDivisor
+    if activeWeight <= 0 then
+        -- Hidden crop values must remain neutral for recommendations/help too.
+        snapshot.rootFactor, snapshot.moistureFactor = 1, 1
+        snapshot.ledgerFactor, snapshot.totalFactor = 1, 1
+    end
+    snapshot.cropShare = activeWeight / #points
     snapshot.growthSteps = growthHistorySamples > 0
         and math.floor(stepsSum / growthHistorySamples + 0.5) or 0
     snapshot.growthHistoryCoverage = growthCropSamples > 0
@@ -798,15 +886,16 @@ function TerraLogicFieldAnalysis:buildSnapshot(x, z, serial)
         and TerraLogicQualityManager:isGrowthHistoryUpdating() or false
     snapshot.biologicalContinuity = continuitySum / #points
     snapshot.moistureYieldActive = moistureActive
-    local centerPosition = getCellPosition(x, z)
-    snapshot.fruitTypeIndex, snapshot.growthState = TerraLogicQualityManager:getGrowthStateAtCell(centerPosition.ix, centerPosition.iz)
-    snapshot.fruitTypeIndex = tonumber(snapshot.fruitTypeIndex) or -1
-    local detectedCoverCrop = TerraLogicSoilManager.isCoverCrop ~= nil
-        and TerraLogicSoilManager:isCoverCrop(snapshot.fruitTypeIndex) or false
-    snapshot.growthState = tonumber(snapshot.growthState) or -1
+    local dominantCropWeight = -1
+    for fruit, weight in pairs(cropCounts) do
+        snapshot.cropCount = snapshot.cropCount + 1
+        if weight > dominantCropWeight or (weight == dominantCropWeight and fruit < snapshot.fruitTypeIndex) then
+            dominantCropWeight = weight
+            snapshot.fruitTypeIndex, snapshot.growthState = fruit, cropStates[fruit]
+        end
+    end
     snapshot.growthStage = tonumber(TerraLogicQualityManager:getSemanticPlowGrowthStage(
         snapshot.fruitTypeIndex, snapshot.growthState, nil)) or 0
-    snapshot.coverCrop = detectedCoverCrop and snapshot.growthStage > 0
     local dominantCount = -1
     local profileTypeCount = 0
     for profileIndex, count in pairs(profileCounts) do
@@ -881,7 +970,7 @@ function TerraLogicFieldAnalysis:applySnapshot(snapshot)
     if TerraLogicTutorialManager ~= nil then
         TerraLogicTutorialManager:observeAnalysis(snapshot)
     end
-    Logging.info("[FS25_TerraLogic] Field analysis snapshot: valid=%s field=%s id=%s samples=%s",
+    TerraLogicLogging.debug("[FS25_TerraLogic] Field analysis snapshot: valid=%s field=%s id=%s samples=%s",
         tostring(snapshot.valid), tostring(snapshot.fieldScoped),
         tostring(snapshot.fieldId), tostring(snapshot.sampleCount))
     if self.frame ~= nil then self.frame:setSnapshot(snapshot) end
@@ -1062,7 +1151,7 @@ function TerraLogicFieldAnalysisFrame:onGuiSetupFinished()
             "planner_operationNext", "planner_group", "planner_operation"}) do
         if self[id] ~= nil then self[id]:setVisible(true) end
     end
-    Logging.info("[FS25_TerraLogic] Field analysis GUI ready: tabs=%d pages=%d scopes=%s/%s/%s",
+    TerraLogicLogging.debug("[FS25_TerraLogic] Field analysis GUI ready: tabs=%d pages=%d scopes=%s/%s/%s",
         #(self.subCategoryTabs or {}), #(self.subCategoryPages or {}),
         tostring(self.scopeOverviewText ~= nil), tostring(self.scopeSoilText ~= nil),
         tostring(self.scopeYieldText ~= nil))
@@ -1091,8 +1180,8 @@ function TerraLogicFieldAnalysisFrame:onFrameOpen()
     local page = (self.subCategoryPages or {})[1]
     local firstCard = page ~= nil and (page.elements or {})[2] or nil
     local firstHeader = firstCard ~= nil and (firstCard.elements or {})[1] or nil
-    if page ~= nil and firstCard ~= nil and firstHeader ~= nil then
-        Logging.info(
+    if TerraLogicLogging.verbose and page ~= nil and firstCard ~= nil and firstHeader ~= nil then
+        TerraLogicLogging.debug(
             "[FS25_TerraLogic] Field analysis geometry: page=(%.4f,%.4f) size=(%.4f,%.4f), card=(%.4f,%.4f) size=(%.4f,%.4f), header=(%.4f,%.4f) size=(%.4f,%.4f)",
             page.absPosition[1], page.absPosition[2], page.absSize[1], page.absSize[2],
             firstCard.absPosition[1], firstCard.absPosition[2],
@@ -2073,12 +2162,36 @@ local function fruitName(index)
         return tr("terraLogic_fa_ui_noCrop", "No growing crop detected")
     end
     local desc = g_fruitTypeManager:getFruitTypeByIndex(index)
-    return desc ~= nil and (desc.title or desc.name)
-        or tr("terraLogic_fa_ui_unknownCrop", "Unknown crop")
+    -- The fruit name is a technical identifier; fill types carry localized
+    -- crop titles, including mod crops. Meadow can share grass's harvested
+    -- fill type but is a distinct plant cover.
+    if (FruitType ~= nil and FruitType.MEADOW ~= nil and index == FruitType.MEADOW)
+        or (desc ~= nil and tostring(desc.name):upper() == "MEADOW") then
+        return tr("terraLogic_fa_ui_meadow", "Meadow")
+    end
+    local fillType = g_fruitTypeManager.getFillTypeByFruitTypeIndex ~= nil
+        and g_fruitTypeManager:getFillTypeByFruitTypeIndex(index) or nil
+    local function localizedTitle(title)
+        if type(title) ~= "string" or title == "" then return nil end
+        local key = title:match("^%$l10n_(.+)$")
+        if key ~= nil then
+            if g_i18n ~= nil and g_i18n.hasText ~= nil and g_i18n:hasText(key) then
+                return g_i18n:getText(key)
+            end
+            return nil
+        end
+        return title
+    end
+    local title = type(fillType) == "table" and localizedTitle(fillType.title) or nil
+    if title == nil and desc ~= nil and desc.title ~= desc.name then
+        title = localizedTitle(desc.title)
+    end
+    return title or tr("terraLogic_fa_ui_unknownCrop", "Unknown crop")
 end
 
 -- Presentation only: never feed these visibility decisions into yield simulation.
 function TerraLogicFieldAnalysis.hasActiveYieldCrop(s)
+    if s.cropShare ~= nil then return s.cropShare > 0 end
     if (s.fruitTypeIndex or -1) <= 0 or (s.growthState or -1) < 0 then return false end
     local manager = TerraLogicSoilManager
     if manager and manager.getRecoveryFruitStateInfo then
@@ -2362,11 +2475,11 @@ function TerraLogicFieldAnalysisFrame:showMetricHelp(metric)
     }
     local valueLabel = valueLabels[metric]
         or {"terraLogic_fa_help_currentValue", "Current field value: %s"}
-    if (metric == "root" or metric == "moisture" or metric == "yield")
+    if (metric == "root" or metric == "moisture" or metric == "yield" or metric == "ledger")
             and not TerraLogicFieldAnalysis.hasActiveYieldCrop(s) then
         currentValue = "-"
         textKey = "terraLogic_fa_ui_estimateNone"
-    elseif metric == "ledger" and not hasRecordedWork(s) then
+    elseif metric == "ledger" and s.yieldRecordedWork ~= true then
         currentValue = "-"
     end
     local body = TerraLogicI18n.format("%s\n\n%s\n\n%s",
@@ -2676,6 +2789,12 @@ function TerraLogicFieldAnalysisFrame:updateContent()
                 "planner_axleLoad","planner_groundPressure",
                 "planner_traffic"}) do valueIds[#valueIds+1] = id end
         for _, id in ipairs(valueIds) do setText(self[id], "-") end
+        setText(self.overview_coverage, "")
+        setText(self.yield_coverage, "")
+        setText(self.work_harvestStatus, "")
+        for _, key in ipairs(TerraLogicFieldAnalysis.CATEGORY_KEYS) do
+            setText(self["workCoverage_" .. key], "")
+        end
         setText(self.overview_actionNow, "-")
         setText(self.overview_actionNext, "-")
         setText(self.overview_actionLong, "-")
@@ -2702,11 +2821,13 @@ function TerraLogicFieldAnalysisFrame:updateContent()
         return
     end
     local scope = formatFieldScope(s)
-    setText(self.scopeOverviewText, scope)
-    setText(self.scopeSoilText, scope)
-    setText(self.scopeYieldText, scope)
+    local summaryScope = TerraLogicI18n.format(tr("terraLogic_fa_ui_summaryScope",
+        "%s | Field-wide assessment"), scope)
+    setText(self.scopeOverviewText, summaryScope)
+    setText(self.scopeSoilText, summaryScope)
+    setText(self.scopeYieldText, summaryScope)
     setText(self.scopeWeatherText, scope)
-    setText(self.scopeWorkText, scope)
+    setText(self.scopeWorkText, summaryScope)
     setText(self.scopeAdviceText, scope)
     setText(self.scopePlannerText, scope)
     setText(self.scopeFieldMapText, scope)
@@ -2734,7 +2855,7 @@ function TerraLogicFieldAnalysisFrame:updateContent()
         setText(self["soil_" .. id .. "Area"],
             criticalAreaText(s.critical[key] or 0))
     end
-    setText(self.overview_soilTotal, formatQuality(s.soilQuality), s.soilQuality)
+    setText(self.overview_soilTotal, formatPercent(s.soilQuality), s.soilQuality)
     setText(self.overview_continuity,
         formatBiologicalContinuity(s.biologicalContinuity or 0.25),
         s.biologicalContinuity or 0.25, "continuity")
@@ -2749,9 +2870,12 @@ function TerraLogicFieldAnalysisFrame:updateContent()
         consequenceQuality(s.moistureYieldActive and 1-s.moistureFactor or 0,
             rootZoneLossMaximum()))
     local recordedWork = hasRecordedWork(s)
+    setText(self.work_harvestStatus, s.harvestPending
+        and tr("terraLogic_fa_ui_harvestPending", "Harvest is not yet complete in some areas.") or "")
+    local yieldWork = s.yieldRecordedWork == true
     setText(self.overview_work,
-        recordedWork and formatPercent(s.ledgerFactor) or "-",
-        recordedWork and consequenceQuality(1-s.ledgerFactor, totalYieldLossMaximum()) or nil)
+        yieldWork and formatPercent(s.ledgerFactor) or "-",
+        yieldWork and consequenceQuality(1-s.ledgerFactor, totalYieldLossMaximum()) or nil)
     local recommendations = self:buildRecommendations(s)
     setText(self.overview_actionNow, joinBucket(recommendations, "now", 1))
     setText(self.overview_actionNext, joinBucket(recommendations, "next", 1))
@@ -2802,6 +2926,13 @@ function TerraLogicFieldAnalysisFrame:updateContent()
     setText(self.yield_workLoss, formatLossPercent(1-s.ledgerFactor),
         consequenceQuality(1-s.ledgerFactor, totalYieldLossMaximum()))
     local activeCrop = TerraLogicFieldAnalysis.hasActiveYieldCrop(s)
+    local cropCaption = fruitName(s.fruitTypeIndex)
+    if (s.cropCount or 0) > 1 then
+        cropCaption = TerraLogicI18n.format(tr("terraLogic_fa_ui_cropMix", "%s (+%d more)"),
+            cropCaption, s.cropCount - 1)
+    end
+    setText(self.overview_crop, cropCaption)
+    setText(self.yield_crop, cropCaption)
     local status = not activeCrop
         and tr("terraLogic_fa_ui_estimateNone", "No active crop - no yield estimate yet.")
         or ((s.growthSteps or 0) > 0
@@ -2809,16 +2940,22 @@ function TerraLogicFieldAnalysisFrame:updateContent()
             or tr("terraLogic_fa_ui_estimatePreview", "Preliminary estimate using current conditions."))
     setText(self.overview_stage, status)
     setText(self.yield_stage, status)
+    local coverage = activeCrop and TerraLogicI18n.format(
+        tr("terraLogic_fa_ui_cropCoverage", "Existing crop: approx. %d%% of field area"),
+        math.max(1, math.floor(clamp01(s.cropShare)*100+0.5))) or ""
+    setText(self.overview_coverage, coverage)
+    setText(self.yield_coverage, coverage)
     if not activeCrop then
         setText(self.overview_crop, tr("terraLogic_fa_ui_noCrop", "No growing crop detected"))
         setText(self.yield_crop, tr("terraLogic_fa_ui_noCrop", "No growing crop detected"))
         for _, name in ipairs({"overview_root", "overview_water", "overview_yieldTotal",
                 "yield_root", "yield_moisture", "yield_total", "yield_surfaceLoss",
-                "yield_deepLoss", "yield_waterLoss", "yield_workLoss"}) do
+                 "yield_deepLoss", "yield_waterLoss", "yield_workLoss",
+                 "overview_work", "yield_ledger"}) do
             setText(self[name], "-")
         end
     end
-    if not recordedWork then
+    if not yieldWork then
         setText(self.yield_ledger, "-")
         setText(self.yield_workLoss, "-")
     end
@@ -2843,6 +2980,10 @@ function TerraLogicFieldAnalysisFrame:updateContent()
         end
         local color = value ~= nil and value >= 0 and value or nil
         setText(self["work_" .. key], display, color)
+        local share = (s.categoryCoverage or {})[key] or 0
+        setText(self["workCoverage_" .. key], share > 0 and TerraLogicI18n.format(
+            tr("terraLogic_fa_ui_workCoverage", "Recorded on approx. %d%% of field area"),
+            math.max(1, math.floor(clamp01(share)*100+0.5))) or "")
     end
 
     local profile = TerraLogicSoilMoistureManager ~= nil
@@ -3087,6 +3228,13 @@ function TerraLogicFieldAnalysisSyncEvent:writeStream(streamId, connection)
     for _, key in ipairs(TerraLogicFieldAnalysis.CATEGORY_KEYS) do
         streamWriteFloat32(streamId, (s.categoryLosses or {})[key] or 0)
     end
+    streamWriteFloat32(streamId, s.cropShare or 0)
+    streamWriteBool(streamId, s.harvestPending == true)
+    streamWriteUInt8(streamId, math.min(s.cropCount or 0, 255))
+    streamWriteBool(streamId, s.yieldRecordedWork == true)
+    for _, key in ipairs(TerraLogicFieldAnalysis.CATEGORY_KEYS) do
+        streamWriteFloat32(streamId, (s.categoryCoverage or {})[key] or 0)
+    end
     for _, definition in ipairs(TerraLogicFieldAnalysis.MECHANIC_CLASSES) do
         local m = (s.mechanics or {})[definition.key] or {}
         for _, key in ipairs({"quality","dropout","safeSpeedRatio","effectiveness","draft",
@@ -3151,6 +3299,14 @@ function TerraLogicFieldAnalysisSyncEvent:readStream(streamId, connection)
     s.coverCrop=streamReadBool(streamId)
     for _, key in ipairs(TerraLogicFieldAnalysis.CATEGORY_KEYS) do
         s.categoryLosses[key]=streamReadFloat32(streamId)
+    end
+    s.cropShare=streamReadFloat32(streamId)
+    s.harvestPending=streamReadBool(streamId)
+    s.cropCount=streamReadUInt8(streamId)
+    s.yieldRecordedWork=streamReadBool(streamId)
+    s.categoryCoverage={}
+    for _, key in ipairs(TerraLogicFieldAnalysis.CATEGORY_KEYS) do
+        s.categoryCoverage[key]=streamReadFloat32(streamId)
     end
     for _, definition in ipairs(TerraLogicFieldAnalysis.MECHANIC_CLASSES) do
         local m = {}

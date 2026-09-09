@@ -452,7 +452,7 @@ function TerraLogicSoilMoistureManager:load()
         g_messageCenter:subscribe(MessageType.PERIOD_CHANGED,
             self.onPeriodChanged, self)
     end
-    Logging.info(
+    TerraLogicLogging.debug(
         "[FS25_TerraLogic] Robust moisture loaded: surface/root %.1f/%.1f%%, PF responses=%d, history=%d, source=%s (%s%s)",
         self.surfaceWetness * 100, self.rootMoisture * 100,
         #self.PROFILE_ORDER - 1, #self.periodHistory, tostring(source),

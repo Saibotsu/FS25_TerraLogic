@@ -344,7 +344,7 @@
         <e k="terraLogic_fa_ui_criticalLocal" v="Lokales Problem - %d%% der Feldfläche" />
         <e k="terraLogic_fa_ui_criticalNone" v="Keine kritische Fläche erkannt" />
         <e k="terraLogic_fa_ui_criticalWidespread" v="Flächiges Problem - %d%% der Feldfläche" />
-        <e k="terraLogic_fa_ui_crop" v="Kultur am Standort" />
+        <e k="terraLogic_fa_ui_crop" v="Pflanzenbestand" />
         <e k="terraLogic_fa_ui_cropWater" v="Wasserversorgung im Wachstum" />
         <e k="terraLogic_fa_ui_currentAdvice" v="Aktuelle Empfehlung" />
         <e k="terraLogic_fa_ui_deepCompaction" v="Tiefenverdichtung" />
@@ -380,16 +380,16 @@
         <e k="terraLogic_fa_ui_localScope" v="Lokaler Bereich" />
         <e k="terraLogic_fa_ui_longTerm" v="Langfristig" />
         <e k="terraLogic_fa_ui_longTermAndResults" v="Langfristige Entwicklung und Ergebnisse" />
-        <e k="terraLogic_fa_ui_lossSources" v="Ursachen für verlorenes Ertragspotenzial" />
+        <e k="terraLogic_fa_ui_lossSources" v="Ursachen für Ertragsverluste" />
         <e k="terraLogic_fa_ui_meaning" v="Was das bedeutet" />
         <e k="terraLogic_fa_ui_mixedSoil" v="Gemischte Precision-Farming-Bodenarten" />
         <e k="terraLogic_fa_ui_moistureFactor" v="Wasserversorgung im Wachstum" />
         <e k="terraLogic_fa_ui_moistureInitializing" v="Die Feuchtesimulation ist erst vor kurzer Zeit gestartet. Beide Tiefen können zunächst denselben Wert zeigen; durch Regen, Versickerung und Abtrocknung werden sie sich bald unterschiedlich entwickeln." />
         <e k="terraLogic_fa_ui_mulching" v="Mulchen" />
         <e k="terraLogic_fa_ui_nextOperation" v="Nächster Arbeitsgang" />
-        <e k="terraLogic_fa_ui_noCrop" v="Keine wachsende Kultur erkannt" />
+        <e k="terraLogic_fa_ui_noCrop" v="Kein aktiver Erntebestand" />
         <e k="terraLogic_fa_ui_noField" v="An dieser Position wurde kein von TerraLogic bewerteter Feldboden gefunden." />
-        <e k="terraLogic_fa_ui_notRecorded" v="Nicht ausgeführt" />
+        <e k="terraLogic_fa_ui_notRecorded" v="Nicht erfasst" />
         <e k="terraLogic_fa_ui_now" v="Aktuell" />
         <e k="terraLogic_fa_ui_nowAndNext" v="Aktuelle Bedingungen und nächster Arbeitsgang" />
         <e k="terraLogic_fa_ui_currentConditions" v="Vor oder während der aktuellen Arbeit" />
@@ -452,7 +452,7 @@
         <e k="terraLogic_fa_ui_unknownCrop" v="Unbekannte Kultur" />
         <e k="terraLogic_fa_ui_unsuitable" v="Ungeeignet" />
         <e k="terraLogic_fa_ui_watch" v="Beobachten" />
-        <e k="terraLogic_fa_ui_waterHistory" v="Wasserversorgung während des Wachstums" />
+        <e k="terraLogic_fa_ui_waterHistory" v="Wasserversorgung im Wachstum" />
         <e k="terraLogic_fa_ui_weather" v="Wetter" />
         <e k="terraLogic_fa_ui_weatherNoForecast" v="Diese Seite zeigt den Boden jetzt und ist keine Vorhersage. Prüfe sie vor Arbeitsbeginn erneut, wenn sich Wetter oder Tageszeit geändert haben." />
         <e k="terraLogic_fa_ui_weatherState" v="Bodenzustand und Wetter" />
@@ -468,10 +468,10 @@
         <e k="terraLogic_fa_ui_yieldRelevantWork" v="In dieser Ertragsschätzung berücksichtigte Feldarbeit" />
         
         <!-- Page explanations and notes -->
-        <e k="terraLogic_fa_note_overviewFooter" v="Bei Verdichtung sind niedrige Werte in Richtung 0 % günstiger, bei Ebenheit und Bodenresilienz hohe Werte in Richtung 100 %. Die Krümelstruktur ist um 50 % ausgewogen." />
-        <e k="terraLogic_fa_note_resultsWork" v="Die Arbeitsqualität der erfassten Arbeitsgänge dieses Anbauzyklus. Nicht ausgeführte Arbeiten bleiben neutral." />
-        <e k="terraLogic_fa_note_resultsYield" v="Diese Qualitätswerte reichen bis 100 %. Gemeinsam bestimmen sie die Ertragseinschätzung gegenüber demselben Feld ohne TerraLogic, einschließlich möglicher Precision-Farming-Einflüsse. Sehr gute Bedingungen ermöglichen bis zu 110 %. Die Einschätzung entwickelt sich mit dem Wachstum der Kultur." />
-        <e k="terraLogic_fa_note_resultsLosses" v="Diese Werte zeigen die Verluste hinter der Einschätzung. Ungesäte Stellen verringern die Erntemenge zusätzlich, weil dort keine Kultur wächst." />
+        <e k="terraLogic_fa_note_overviewFooter" v="Durchschnittswerte der ausgewerteten Feldfläche. Bei Verdichtung sind Werte nahe 0 % günstiger, bei Ebenheit und Bodenresilienz Werte nahe 100 %. Die Krümelstruktur ist um 50 % ausgewogen." />
+        <e k="terraLogic_fa_note_resultsWork" v="Die Qualität wird nur auf Teilflächen mit erfasster Arbeit gemittelt. Die Flächenangabe zeigt deren Anteil am Feld. Neue Arbeiten vor der Saat bleiben sichtbar; fehlende Einträge bedeuten nicht automatisch schlechte Qualität." />
+        <e k="terraLogic_fa_note_resultsYield" v="Flächengewichtete Schätzung für alle vorhandenen Erntebestände, nicht nur die zuerst genannte Kultur. Die Qualitätswerte reichen bis 100 %, der TerraLogic-Ertragsfaktor bis 110 % gegenüber dem Basisspiel einschließlich Precision Farming." />
+        <e k="terraLogic_fa_note_resultsLosses" v="Die Werte beziehen sich auf denselben vorhandenen Pflanzenbestand wie die Ertragsschätzung, nicht auf deinen Standort. Ungesäte und abgeerntete Flächen werden nicht mitgemittelt. Die Einflüsse wirken zusammen und sind nicht einfach addierbar." />
         <e k="terraLogic_fa_note_conditionsFooter" v="Prüfe vor der Feldarbeit Bodenfeuchte und Bodentemperatur: Sie beeinflussen den Leistungsbedarf, das Eindringen der Werkzeuge und das Verdichtungsrisiko." />
         <e k="terraLogic_fa_condition_frost" v="Gefrorener Boden erhöht den Zugwiderstand und erschwert das Eindringen der Werkzeuge." />
         <e k="terraLogic_fa_condition_traffic" v="Die aktuellen Oberbodenbedingungen gewichten die Verdichtungszunahme durch Befahrung mit x%.2f." />
@@ -806,10 +806,10 @@
         <e k="terraLogic_workHudWorkDropoutDetail" v="Arbeitsaussetzer entstehen" />
         <e k="terraLogic_workHudQualityCauseDetail" v="Arbeitsqualität reduziert" />
         <e k="terraLogic_workHudConditionActionDetail" v="Langsamer fahren begrenzt die Verluste; eine Reparatur beseitigt die Ursache." />
-        <e k="terraLogic_workHudSoilActionDetail" v="Die Bodenbedingungen verursachen Fehlstellen. Prüfe empfohlenes Tempo und Bodenbedingungen im Planner." />
+        <e k="terraLogic_workHudSoilActionDetail" v="Die Bodenbedingungen verursachen Fehlstellen. Prüfe empfohlenes Tempo und Bodenbedingungen im Planer." />
         <e k="terraLogic_workHudOverspeedQualityDetail" v="Das Tempo verringert die Arbeitsqualität" />
         <e k="terraLogic_workHudConditionQualityDetail" v="Verschleiß verringert die Arbeitsqualität" />
-        <e k="terraLogic_workHudSoilQualityDetail" v="Die Bodenbedingungen begrenzen das Ergebnis. Prüfe im Planner, ob ein anderer Arbeitsgang helfen würde." />
+        <e k="terraLogic_workHudSoilQualityDetail" v="Die Bodenbedingungen begrenzen das Ergebnis. Prüfe im Planer, ob ein anderer Arbeitsgang helfen würde." />
         <e k="terraLogic_workHudFrozenQualityDetail" v="Gefrorener Boden verringert Eindringung und Qualität" />
         <e k="terraLogic_workHudWetQualityDetail" v="Nasser Boden verschlechtert Eindringung und Ablage" />
         <e k="terraLogic_workHudDryTitle" v="TROCKENER BODEN" />
@@ -879,9 +879,17 @@
         <e k="terraLogic_workHudRollerDryDetail" v="Sehr trockener Boden begrenzt die Walzwirkung. Warte nach Möglichkeit auf günstigere Bodenfeuchte." />
         <e k="terraLogic_workHudRollerFrostDetail" v="Gefrorener Boden begrenzt die Walzwirkung. Warte, bis der Boden aufgetaut ist." />
         <e k="terraLogic_workHudRollerUnevenDetail" v="Auf diesem sehr unebenen Boden wirkt die Walze eingeschränkt. Prüfe, ob zunächst eine Saatbettbereitung nötig ist." />
-        <e k="terraLogic_workHudRollerSoilDetail" v="Unter diesen Bodenbedingungen wirkt die Walze nur eingeschränkt. Prüfe im Planner, ob Walzen hier hilft." />
-            <e k="terraLogic_fa_ui_estimateNone" v="Keine aktive Kultur – noch keine Ertragsschätzung." />
+        <e k="terraLogic_workHudRollerSoilDetail" v="Unter diesen Bodenbedingungen wirkt die Walze nur eingeschränkt. Prüfe im Planer, ob Walzen hier hilft." />
+            <e k="terraLogic_fa_ui_estimateNone" v="Kein aktiver Pflanzenbestand – derzeit keine Ertragsschätzung." />
         <e k="terraLogic_fa_ui_estimateHistory" v="Schätzung berücksichtigt den bisherigen Wachstumsverlauf." />
         <e k="terraLogic_fa_ui_estimatePreview" v="Vorläufige Schätzung anhand der aktuellen Bedingungen." />
+        <e k="terraLogic_fa_ui_summaryScope" v="%s | Feldweite Auswertung" />
+        <e k="terraLogic_fa_ui_harvestPending" v="Ernteabschluss auf Teilflächen noch offen." />
+        <e k="terraLogic_fa_ui_cropMix" v="%s (+%d weitere)" />
+        <e k="terraLogic_fa_ui_cropCoverage" v="Vorhandener Bestand: ca. %d%% der Feldfläche" />
+        <e k="terraLogic_fa_ui_workCoverage" v="Auf ca. %d%% der Feldfläche erfasst" />
+        <e k="terraLogic_fa_ui_meadow" v="Wiese" />
+        <e k="terraLogic_settingDebugTitle" v="Debug" />
+        <e k="terraLogic_settingDebugTooltip" v="Aktiviert die erweiterte Protokollierung." />
     </elements>
 </l10n>

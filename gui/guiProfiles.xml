@@ -82,4 +82,15 @@
         <textAlignment value="right" />
         <textVerticalAlignment value="middle" />
     </Profile>
+    <Profile name="terraLogicAnalysisCropValue" extends="terraLogicAnalysisValue">
+        <textSize value="16px" />
+        <textVerticalAlignment value="top" />
+        <textMaxNumLines value="2" />
+        <textLayoutMode value="overflow" />
+    </Profile>
+    <Profile name="terraLogicAnalysisCoverage" extends="terraLogicAnalysisNote">
+        <textSize value="13px" />
+        <textColor value="0.65 0.65 0.65 1" />
+        <textMaxNumLines value="2" />
+    </Profile>
 </GUIProfiles>
